@@ -3,6 +3,15 @@ import pg8000
 import os
 
 def db_connection():
+    '''
+    Grabs environment variables and uses them to create a database connection.
+
+    Returns:
+        pg8000 database connection.
+
+    Raises:
+        exception if the connection fails due to interface errors.
+    '''
     load_dotenv()
     
     user = os.getenv("USER")
