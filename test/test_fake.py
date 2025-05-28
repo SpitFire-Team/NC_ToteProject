@@ -1,3 +1,2 @@
 def test_fake_fucntion():
-    pass
-#THIS SHOULD BE DELETED!!!!
+    assert 1 == 3
