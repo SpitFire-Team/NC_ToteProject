@@ -2,15 +2,15 @@ from dotenv import load_dotenv
 import pg8000
 import os
 
-load_dotenv()
-
-user = os.getenv("USER")
-password = os.getenv("PASSWORD")
-host = os.getenv("HOST")
-port = os.getenv("PORT")
-database = os.getenv("DATABASE")
-
 def db_connection():
+    load_dotenv()
+    
+    user = os.getenv("USER")
+    password = os.getenv("PASSWORD")
+    host = os.getenv("HOST")
+    port = int(os.getenv("PORT"))
+    database = os.getenv("DATABASE")
+
     try:
         conn = pg8000.connect(
             user=user,
