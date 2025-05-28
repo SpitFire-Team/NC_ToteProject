@@ -1,0 +1,9 @@
+pytest
+pg8000
+dotenv
+bandit
+pip-audit
+black
+pep8
+flake8
+boto3
