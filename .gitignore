@@ -6,8 +6,10 @@
 # .tfstate files
 *.tfstate
 *.tfstate.*
-**/deployments/*
 *__pycache__
+**/deployments/*
+!**/deployments/
+!**/deployments/.gitkeep
 
 #other
 venv/
