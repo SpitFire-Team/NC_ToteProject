@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 pytest
 pg8000
 dotenv
@@ -7,3 +8,8 @@ black
 pep8
 flake8
 boto3
+=======
+pytest>=8.3.5
+moto[s3]
+boto3
+>>>>>>> fa216b55eb4857592b3a77ad7e16035f91cd1fec
