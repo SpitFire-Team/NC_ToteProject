@@ -1,16 +1,16 @@
-name: NC-ToteProject
+# Running the security checks using bandit, code check using black, and coverage using unit tests. 
+# Trigers whenever there's a push to main of the repository. 
 
+name: NC-ToteProject
 on:
   push:
     branches:
-      - ci-cd-gitactions
+      - main
 
 jobs:
   run-tests:
-    #if: false # this will cause the job to be skipped - delete to enable 
     name: run-tests
     runs-on: ubuntu-latest
-    # implement me
     steps:
       - name: Checkout-repo
         uses: actions/checkout@v4
