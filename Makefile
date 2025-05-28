@@ -58,7 +58,7 @@ dev-setup: bandit black coverage
 
 ## Run the security test (bandit)
 security-test:
-	$(call execute_in_env, bandit -lll */*.py *c/*/*.py)
+	$(call execute_in_env, bandit -lll *.py *c/*.py)
 
 ## Run the black code check
 run-black:
