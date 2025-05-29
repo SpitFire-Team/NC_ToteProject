@@ -16,7 +16,6 @@ data "aws_iam_policy_document" "lambda_assume_role" {
   }
 }
 
-# Shall we also put s3:PutObject in?
 data "aws_iam_policy_document" "s3_permissions_document" {
   statement   {
     actions   = [
