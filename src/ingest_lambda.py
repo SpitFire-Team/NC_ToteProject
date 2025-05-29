@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import pg8000
 import os
+from datetime import datetime
 
 def db_connection():
     '''
@@ -40,3 +41,20 @@ def lambda_handler(event, context):
         cursor.close()
         conn.close()
 
+
+def set_time():
+    
+    return datetime(1980, 1 , 1)
+
+def get_last_checked_time_from_s3(bucket_name, key):
+    response = s3.object(Bucket=bucket_name, Key=key)
+    return response
+
+
+
+def check_update(cursor):
+     
+    last_checked_time = set_time()
+
+    return datetime
+        
