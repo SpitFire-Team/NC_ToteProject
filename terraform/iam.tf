@@ -1,6 +1,5 @@
-resource "aws_iam_role" "iam_role_lambda_change_detection" {
-  # change the name_prefix if the name of the lambda changes
-  name_prefix        = "role-change-detection-lambda-"
+resource "aws_iam_role" "iam_role_extraction_lambda" {
+  name_prefix        = "role-extraction-lambda-"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
 }
 
@@ -32,12 +31,12 @@ data "aws_iam_policy_document" "s3_permissions_document" {
 }
 
 resource "aws_iam_policy" "s3_policy" {
-  name_prefix = "s3-policy-${var.change_detection_lambda}-"
+  name_prefix = "s3-policy-${var.extraction_lambda}-"
   policy      = data.aws_iam_policy_document.s3_permissions_document.json
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_s3_policy_attachment" {
-  role        = aws_iam_role.iam_role_lambda_change_detection.name
+  role        = aws_iam_role.iam_role_extraction_lambda.name
   policy_arn  = aws_iam_policy.s3_policy.arn
 }
 
