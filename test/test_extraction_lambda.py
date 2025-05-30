@@ -1,12 +1,12 @@
 import pytest
 from unittest.mock import patch, Mock
-from lambda.extraction_lambda import db_connection
+from src.extraction_lambda.extraction_lambda import db_connection
 
 class TestDatabaseConnection:
     '''
     Test suite for the db_connection function.
     '''
-    @patch("src.ingest_lambda.pg8000.connect", side_effect=Exception("Connection failed"))
+    @patch("src.extraction_lambda.extraction_lambda.pg8000.connect", side_effect=Exception("Connection failed"))
     def test_failed_connection(self, mock_connect):
         '''
         Tests that db_connection raises an error when the database fails to connect.
@@ -14,7 +14,7 @@ class TestDatabaseConnection:
         with pytest.raises(Exception, match="Connection failed"):
             db_connection()
 
-    @patch("src.ingest_lambda.pg8000.connect")
+    @patch("src.extraction_lambda.extraction_lambda.pg8000.connect")
     def test_successful_connection(self, mock_connect):
         """
         Tests that db_connection returns the connection object when the connection is successful.
@@ -36,7 +36,7 @@ class TestDatabaseConnection:
         monkeypatch.setenv("PORT", "5342")
         monkeypatch.setenv("DATABASE", "test_database")
 
-        with patch("src.ingest_lambda.pg8000.connect") as mock_connect:
+        with patch("src.extraction_lambda.extraction_lambda.pg8000.connect") as mock_connect:
             mock_conn = Mock()
             mock_connect.return_value = mock_conn
 
