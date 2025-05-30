@@ -13,6 +13,7 @@ resource "aws_lambda_function" "extraction_lambda" {
   role          = aws_iam_role.iam_role_extraction_lambda.arn
   handler       = "${var.extraction_lambda}.lambda_handler"
   source_code_hash = data.archive_file.extraction_lambda.output_base64sha256
-  runtime = "python3.13"
+  layers = [aws_lambda_layer_version.layer.arn]
+  runtime = var.runtime
 }
 

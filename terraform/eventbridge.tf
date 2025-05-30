@@ -10,9 +10,9 @@ data "aws_cloudwatch_event_bus" "default" {
 }
 
 
-resource "aws_cloudwatch_event_target" "check_foo_every_five_minutes" {
+resource "aws_cloudwatch_event_target" "run_extraction_lambda_every_15_minutes_targer" {
     rule = aws_cloudwatch_event_rule.run_extraction_lambda_every_15_minutes.name
-    target_id = "extraction_lambda"
+    target_id = var.extraction_lambda
     arn = aws_lambda_function.extraction_lambda.arn
 }
 
