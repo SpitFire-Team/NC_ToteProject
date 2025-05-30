@@ -4,7 +4,7 @@
 #
 #################################################################################
 
-PROJECT_NAME = NC-ToteProject
+PROJECT_NAME = NC_ToteProject
 REGION = eu-west-2
 PYTHON_INTERPRETER = python
 WD=$(shell pwd)
@@ -58,11 +58,11 @@ dev-setup: bandit black coverage
 
 ## Run the security test (bandit)
 security-test:
-	$(call execute_in_env, bandit -lll *.py *c/*.py)
+	$(call execute_in_env, bandit -r ./src ./test -lll)
 
 ## Run the black code check
 run-black:
-	$(call execute_in_env, black  ./src/*.py ./test/*.py)
+	$(call execute_in_env, black ./src ./test)
 
 ## Run the unit tests
 unit-test:
