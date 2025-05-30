@@ -1,8 +1,10 @@
 data "archive_file" "extraction_lambda" {
     type        = "zip"
-    source_file = "${path.module}/../src/lambda/${var.extraction_lambda}.py"
+    source_file = "${path.module}/../src/extraction_lambda/${var.extraction_lambda}.py"
     output_path = "${path.module}/../deployments/${var.extraction_lambda}.zip"
 }
+
+## need to add dependencies to the zip files. - maybe layers pip install 
 
 resource "aws_lambda_function" "extraction_lambda" {
   function_name = "${var.extraction_lambda}"

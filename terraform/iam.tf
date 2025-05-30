@@ -46,7 +46,7 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_policy_attachment" {
 ### Eventbridge 
 
 resource "aws_iam_role" "extraction_lambda_scheduler_role" {
-  name               = "extraction lambda scheduler_role"
+  name               = "extraction-lambda-scheduler-role"
   assume_role_policy = data.aws_iam_policy_document.eventbridge_assume_policy.json
 }
 
