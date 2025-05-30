@@ -1,9 +1,12 @@
 import boto3
 import pytest
 import time
+import sqlite3
 from moto import mock_aws
+from unittest.mock import patch, Mock
 from datetime import datetime, timezone
-from src.extraction_lambda.get_items_from_database import set_latest_updated_time
+from src.extraction_lambda.extraction_lambda import db_connection
+from src.extraction_lambda.get_items_from_database import set_latest_updated_time, check_database_updates
 
 @pytest.fixture
 def client():
@@ -13,6 +16,30 @@ def client():
 @pytest.fixture
 def s3_bucket(client):
     return client.create_bucket(Bucket="test_bucket", CreateBucketConfiguration={"LocationConstraint": "eu-west-2"})
+
+@pytest.fixture
+def mock_database(): 
+    conn = sqlite3.connect(":memory:") 
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE test_table (
+            id INTEGER PRIMARY KEY, 
+            name TEXT,
+            last_updated TIMESTAMP
+        )
+    """)
+    
+    cursor.executemany("""
+        INSERT INTO test_table (name, last_updated)
+        VALUES (?, ?)
+    """, [
+        ("test_data1", datetime(2000, 1, 1, tzinfo=timezone.utc).isoformat()),
+        ("test_data2", datetime(2030, 1, 1, tzinfo=timezone.utc).isoformat()),
+    ])
+    conn.commit()
+
+    return conn
 
 class TestSetLatestUpdatedTime:
     def test_datetime_returned(self, client, s3_bucket):
@@ -59,3 +86,26 @@ class TestSetLatestUpdatedTime:
         result = set_latest_updated_time("test_bucket", client)
 
         assert abs((result - highest_time).total_seconds()) < 1
+
+class TestCheckDatabaseUpdates:
+    def test_returns_query(self, mock_database):
+
+        expected_data = [(2, "test_data2", datetime(2030, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat())]
+        
+        last_checked_time = datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+
+        results = check_database_updates(mock_database, "test_table", last_checked_time)
+
+        assert results == expected_data
+
+    def test_returns_empty_list_for_no_new_updates(self, mock_database):
+        expected_data = []
+        
+        last_checked_time = datetime(2050, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+
+        results = check_database_updates(mock_database, "test_table", last_checked_time)
+
+        assert results == expected_data
+
+#test with multiple queries non new
+#test multiple new queries

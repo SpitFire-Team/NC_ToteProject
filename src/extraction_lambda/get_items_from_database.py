@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-def set_latest_updated_time(bucket, client):
+def set_latest_updated_time(bucket, client): #COMPLETED!!!!!
     s3_files = client.list_objects(Bucket = bucket) #check the s3 bucket for objects
    
     if 'Contents' not in s3_files:
@@ -14,11 +14,19 @@ def set_latest_updated_time(bucket, client):
 
     return last_updated.astimezone(timezone.utc)
 
-def check_database_updates(cursor, table, last_checked_time): #passes in the latest checked time 
-    return cursor.execute('''SELECT * FROM {table} WHERE last_updated > {last_checked_time}''') 
-#^queries a single table, checking if the last_updated column is greater than the last checked time
+def check_database_updates(conn, table, last_checked_time): #passes in the latest checked time POSSIBLY COMPLETED NEEDS TESTING
+    #list of whitelisted tables for security??? 
+    last_checked_time_str = last_checked_time.isoformat()#converting time format for postgres
+    cursor = conn.cursor()#creating a cursor to query the db
 
-def query_all_databases(cursor, last_checked_time):
+    cursor.execute(f"SELECT * FROM {table} WHERE last_updated > ?", (last_checked_time_str,))
+    results = cursor.fetchall()
+    cursor.close()
+
+    return results
+#^queries a single table, checking if the last_updated column is greater than the last checked time 
+
+def query_all_databases(cursor, last_checked_time): #NOT COMPLETED
     tables = ["counterparty", "currency", "department", "design", "staff",
               "sales_order", "address","payment", "purchase_order", #list of all tables we need check
               "payment_type", "transaction"]
