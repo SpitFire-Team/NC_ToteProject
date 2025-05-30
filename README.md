@@ -1,4 +1,5 @@
-# NC-ToteProject
+# NC_ToteProject
+repo: https://github.com/SpitFire-Team/NC_ToteProject.git
 This is a data engineering project made for the bootcamp
 
 Name of the participants;
