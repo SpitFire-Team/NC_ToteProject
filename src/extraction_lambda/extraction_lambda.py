@@ -45,13 +45,3 @@ def lambda_handler(event, context):
     finally:
         cursor.close()
         conn.close()
-    
-    
-
-        
-
-
-    
-    
-
-
