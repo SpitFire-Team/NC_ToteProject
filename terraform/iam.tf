@@ -1,3 +1,6 @@
+### lambda
+
+
 resource "aws_iam_role" "iam_role_extraction_lambda" {
   name_prefix        = "role-extraction-lambda-"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
@@ -40,4 +43,26 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_policy_attachment" {
 }
 
 
+### Eventbridge 
+
+resource "aws_iam_role" "extraction_lambda_scheduler_role" {
+  name               = "extraction lambda scheduler_role"
+  assume_role_policy = data.aws_iam_policy_document.eventbridge_assume_policy.json
+}
+
+data "aws_iam_policy_document" "eventbridge_assume_policy" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["scheduler.amazonaws.com"]
+    }
+  }
+}
+
+# resource "aws_iam_role_policy" "extraction_lambda_scheduler_role_policy" {
+#   role   = aws_iam_role.extraction_lambda_scheduler_role.name
+#   policy = data.aws_iam_policy_document.scheduler_policies.json
+# }
 
