@@ -1,7 +1,15 @@
+
+
 data "archive_file" "extraction_lambda" {
     type        = "zip"
     source_file = "${path.module}/../src/extraction_lambda/${var.extraction_lambda}.py"
     output_path = "${path.module}/../deployments/${var.extraction_lambda}.zip"
+}
+
+resource "aws_s3_object" "extaction_file_upload" {
+  bucket = "${aws_s3_bucket.lambda_bucket.id}"
+  key = "lambda-functions/${var.extraction_lambda}.zip"
+  source = "${data.archive_file.extraction_lambda.output_path}"
 }
 
 ## need to add dependencies to the zip files. - maybe layers pip install 
