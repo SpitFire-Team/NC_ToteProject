@@ -21,3 +21,7 @@ venv
 /src/__pycache__
 .pytest_cache
 .coverage
+
+# Ignore Python Lambda layer dependencies and zip
+/src/layer/dependencies/python/
+# /src/layer/layer.zip   - stop adding this to the git when saving on s3 - to impletment -RAW
