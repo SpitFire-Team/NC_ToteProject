@@ -26,8 +26,11 @@ resource "aws_s3_bucket" "lambda_bucket" {
   }
 }
 
-resource "aws_s3_object" "extaction_file_upload" {
-  bucket = "${aws_s3_bucket.lambda_bucket.id}"
-  key = "lambda-functions/${var.extraction_lambda}.zip"
-  source = "${data.archive_file.extraction_lambda.output_path}"
-}
+# resource "aws_s3_object" "lambda_layer_bucket" {
+#   bucket = aws_s3_bucket.code_bucket.bucket
+#   key    = "layer/layer.zip"
+#   source = data.archive_file.layer_code.output_path
+#   etag   = filemd5(data.archive_file.layer_code.output_path)
+#   depends_on = [ data.archive_file.layer_code ]
+# }
+
