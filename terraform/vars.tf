@@ -18,8 +18,6 @@ variable "runtime" {
   default = "python3.13"
 }
 
-
-variable "distribution_pkg_folder" {
-  description = "Folder name to create distribution files..."
-  default = "lambda_dist_pkg"
+variable "path_layer" {
+  default = "src/layer"
 }
