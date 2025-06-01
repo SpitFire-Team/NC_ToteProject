@@ -7,7 +7,7 @@ resource "null_resource" "create_dependencies" {
   }
 }
 
-data "archive_file" "lambda_requirements" {
+data "archive_file" "layer_code" {
     type        = "zip"
     source_dir  = "${path.module}/../${var.path_layer}/dependencies"
     output_path = "${path.module}/../${var.path_layer}/layer.zip"
@@ -16,10 +16,11 @@ data "archive_file" "lambda_requirements" {
 
 resource "aws_lambda_layer_version" "layer" {
   layer_name = "lambda_layer"
-  filename = "${path.module}/../${var.path_layer}/layer.zip"
   compatible_architectures = ["x86_64"]
   compatible_runtimes = [var.runtime]
-  depends_on = [data.archive_file.lambda_requirements]
+  s3_bucket  = aws_s3_object.lambda_layer.bucket
+  s3_key     = aws_s3_object.lambda_layer.key
+  #   filename = "${path.module}/../${var.path_layer}/layer.zip" - code if stored locally
+  depends_on = [data.archive_file.layer_code]
 }
-
 

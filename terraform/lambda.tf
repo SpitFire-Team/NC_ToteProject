@@ -7,7 +7,7 @@ data "archive_file" "extraction_lambda" {
 }
 
 resource "aws_s3_object" "extaction_file_upload" {
-  bucket = "${aws_s3_bucket.lambda_bucket.id}"
+  bucket = "${aws_s3_bucket.code_bucket.id}"
   key = "lambda-functions/${var.extraction_lambda}.zip"
   source = "${data.archive_file.extraction_lambda.output_path}"
 }
@@ -16,7 +16,7 @@ resource "aws_s3_object" "extaction_file_upload" {
 
 resource "aws_lambda_function" "extraction_lambda" {
   function_name = "${var.extraction_lambda}"
-  s3_bucket     = "${aws_s3_bucket.lambda_bucket.id}"
+  s3_bucket     = "${aws_s3_bucket.code_bucket.id}"
   s3_key        = "${aws_s3_object.extaction_file_upload.key}"
   role          = aws_iam_role.iam_role_extraction_lambda.arn
   handler       = "${var.extraction_lambda}.lambda_handler"
