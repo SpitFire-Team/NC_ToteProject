@@ -51,29 +51,42 @@ black:
 coverage:
 	$(call execute_in_env, $(PIP) install pytest-cov)
 
-## Set up dev requirements (bandit, black & coverage)
-dev-setup: bandit black coverage
+## Install flake8
+flake8:
+	$(call execute_in_env, $(PIP) install flake8)
+
+## Install mypy
+mypy:
+	$(call execute_in_env, $(PIP) install mypy)
+
+## Set up dev requirements (bandit, black, coverage, flake8 & mypy)
+dev-setup: bandit black coverage flake8 mypy
 
 # Build / Run
 
 ## Run the security test (bandit)
 security-test:
-	$(call execute_in_env, bandit -r ./src ./test -lll)
+	$(call execute_in_env, bandit -r ./src ./test -lll -x ./src/layer/dependencies)
 
 ## Run the black code check
 run-black:
-	$(call execute_in_env, black ./src ./test)
+	$(call execute_in_env, black ./src ./test --exclude src/layer/dependencies)
+
+## Run the flake8 linting check
+run-flake8:
+	$(call execute_in_env, flake8 ./src ./test --exclude=src/layer/dependencies)
+
+## Run the mypy static type checks
+run-mypy:
+	$(call execute_in_env, mypy ./src ./test --exclude src/layer/dependencies)
 
 ## Run the unit tests
 unit-test:
 	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest -v)
 
 ## Run the coverage check
-# check-coverage:
-# 	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest --cov=src test/)
+check-coverage:
+	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest --cov=src test/ --cov-fail-under=80)
 
 ## Run all checks
-run-checks: security-test run-black unit-test
-
-# ## Run all checks
-# run-checks: security-test run-black unit-test check-coverage
+run-checks: security-test run-black run-flake8 run-mypy unit-test check-coverage
