@@ -21,3 +21,6 @@ venv
 /src/__pycache__
 .pytest_cache
 .coverage
+
+# Ignore Python Lambda layer dependencies and zip
+/src/layer/dependencies/python/

@@ -13,3 +13,11 @@ variable "transform_lambda" {
 variable "load_lambda" {
     default = "load_lambda"
 }
+
+variable "runtime" {
+  default = "python3.13"
+}
+
+variable "path_layer" {
+  default = "src/layer"
+}
