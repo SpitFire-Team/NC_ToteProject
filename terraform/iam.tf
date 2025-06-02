@@ -61,8 +61,5 @@ data "aws_iam_policy_document" "eventbridge_assume_policy" {
   }
 }
 
-# resource "aws_iam_role_policy" "extraction_lambda_scheduler_role_policy" {
-#   role   = aws_iam_role.extraction_lambda_scheduler_role.name
-#   policy = data.aws_iam_policy_document.scheduler_policies.json
-# }
+
 
