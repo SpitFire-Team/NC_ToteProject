@@ -126,3 +126,33 @@ class TestCheckDatabaseUpdates:
         results = check_database_updates(mock_database, "test_table", last_checked_time)
 
         assert results == expected_data
+
+class TestLatestTimeAndCheckDatabaseUpdates:
+    def test_latest_time_passed_into_check_database_single_query(self, client, s3_bucket, mock_database):
+        expected_data = [(7, "test_data7", datetime(2080, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat())]
+
+        object_time = datetime(2079, 1, 1, tzinfo=timezone.utc).isoformat()
+
+        client.put_object(Bucket="test_bucket", Key=f"{str(object_time)}.ndjson", Body="test body")
+
+        client.list_objects = Mock(return_value={
+            'Contents': [
+                {
+                    'Key': '2079-01-01T00:00:00+00:00.ndjson',
+                    'LastModified': datetime(2079, 1, 1, tzinfo=timezone.utc)
+                }
+            ]
+        })
+
+        last_checked_time = set_latest_updated_time("test_bucket", client)
+
+        results = check_database_updates(mock_database, "test_table", last_checked_time)
+
+        assert results == expected_data
+
+
+
+
+#test multiple queries
+#test multiple objects in the bucket
+#test multiple queries with multiple buckets
