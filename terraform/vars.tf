@@ -21,3 +21,7 @@ variable "runtime" {
 variable "path_layer" {
   default = "src/layer"
 }
+
+variable "step_function_name" {
+  default= "totes-project-stepfuctions"
+}
