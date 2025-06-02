@@ -23,7 +23,7 @@ def mock_database():
     cursor = conn.cursor()
 
     cursor.execute("""
-        CREATE TABLE test_table (
+        CREATE TABLE payment (
             id INTEGER PRIMARY KEY, 
             name TEXT,
             last_updated TIMESTAMP
@@ -31,7 +31,7 @@ def mock_database():
     """)
     
     cursor.executemany("""
-        INSERT INTO test_table (name, last_updated)
+        INSERT INTO payment (name, last_updated)
         VALUES (?, ?)
     """, [
         ("test_data1", datetime(2000, 1, 1, tzinfo=timezone.utc).isoformat()),
@@ -100,7 +100,7 @@ class TestCheckDatabaseUpdates:
         
         last_checked_time = datetime(2079, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
-        results = check_database_updates(mock_database, "test_table", last_checked_time)
+        results = check_database_updates(mock_database, "payment", last_checked_time)
 
         assert results == expected_data
 
@@ -109,7 +109,7 @@ class TestCheckDatabaseUpdates:
         
         last_checked_time = datetime(2090, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
-        results = check_database_updates(mock_database, "test_table", last_checked_time)
+        results = check_database_updates(mock_database, "payment", last_checked_time)
 
         assert results == expected_data
     
@@ -123,7 +123,7 @@ class TestCheckDatabaseUpdates:
         
         last_checked_time = datetime(2029, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
-        results = check_database_updates(mock_database, "test_table", last_checked_time)
+        results = check_database_updates(mock_database, "payment", last_checked_time)
 
         assert results == expected_data
 
@@ -146,7 +146,7 @@ class TestLatestTimeAndCheckDatabaseUpdates:
 
         last_checked_time = set_latest_updated_time("test_bucket", client)
 
-        results = check_database_updates(mock_database, "test_table", last_checked_time)
+        results = check_database_updates(mock_database, "payment", last_checked_time)
 
         assert results == expected_data
 

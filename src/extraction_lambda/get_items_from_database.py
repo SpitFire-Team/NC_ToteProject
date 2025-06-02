@@ -15,7 +15,13 @@ def set_latest_updated_time(bucket, client): #COMPLETED!!!!!
     return last_updated.astimezone(timezone.utc)
 
 def check_database_updates(conn, table, last_checked_time): #passes in the latest checked time POSSIBLY COMPLETED NEEDS TESTING
-    #list of whitelisted tables for security??? 
+    whitelisted_tables = ["counterparty", "currency", "department", "design", "staff",
+              "sales_order", "address","payment", "purchase_order", 
+              "payment_type", "transaction"]
+    
+    if table not in whitelisted_tables:
+        return None #change to an appropriate exception
+        
     last_checked_time_str = last_checked_time.isoformat()#converting time format for postgres
     cursor = conn.cursor()#creating a cursor to query the db
 
