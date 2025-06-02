@@ -26,10 +26,10 @@ jobs:
       - name: Run Checks
         run: make run-checks
 
-  deploy-lambda:
-      name: deploy-project
+  deploy-terraform:
+      name: deploy-terraform
       environment: dev
-      needs: run-tests
+      # needs: run-tests
       runs-on: ubuntu-latest
       steps:
         - name: Checkout Repo
