@@ -36,6 +36,12 @@ def mock_database():
     """, [
         ("test_data1", datetime(2000, 1, 1, tzinfo=timezone.utc).isoformat()),
         ("test_data2", datetime(2030, 1, 1, tzinfo=timezone.utc).isoformat()),
+        ("test_data3", datetime(1940, 1, 1, tzinfo=timezone.utc).isoformat()),
+        ("test_data4", datetime(2001, 1, 1, tzinfo=timezone.utc).isoformat()),
+        ("test_data5", datetime(2070, 1, 1, tzinfo=timezone.utc).isoformat()),
+        ("test_data6", datetime(2005, 1, 1, tzinfo=timezone.utc).isoformat()),
+        ("test_data7", datetime(2080, 1, 1, tzinfo=timezone.utc).isoformat()),
+        ("test_data8", datetime(2031, 1, 1, tzinfo=timezone.utc).isoformat())
     ])
     conn.commit()
 
@@ -90,9 +96,9 @@ class TestSetLatestUpdatedTime:
 class TestCheckDatabaseUpdates:
     def test_returns_query(self, mock_database):
 
-        expected_data = [(2, "test_data2", datetime(2030, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat())]
+        expected_data = [(7, "test_data7", datetime(2080, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat())]
         
-        last_checked_time = datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        last_checked_time = datetime(2079, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
         results = check_database_updates(mock_database, "test_table", last_checked_time)
 
@@ -101,11 +107,22 @@ class TestCheckDatabaseUpdates:
     def test_returns_empty_list_for_no_new_updates(self, mock_database):
         expected_data = []
         
-        last_checked_time = datetime(2050, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        last_checked_time = datetime(2090, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
         results = check_database_updates(mock_database, "test_table", last_checked_time)
 
         assert results == expected_data
+    
+    def test_returns_multiple_queries_with_new(self, mock_database):
+        expected_data = [
+            (2, "test_data2", datetime(2030, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat()),
+            (5, "test_data5", datetime(2070, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat()),
+            (7, "test_data7", datetime(2080, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat()),
+            (8, "test_data8", datetime(2031, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat())
+            ]
+        
+        last_checked_time = datetime(2029, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
-#test with multiple queries non new
-#test multiple new queries
+        results = check_database_updates(mock_database, "test_table", last_checked_time)
+
+        assert results == expected_data
