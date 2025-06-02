@@ -65,15 +65,15 @@ run-black:
 	$(call execute_in_env, black ./src ./test)
 
 ## Run the unit tests
-# unit-test:
-# 	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest -v)
+unit-test:
+	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest -v)
 
 ## Run the coverage check
-check-coverage:
-	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest --cov=src test/)
+# check-coverage:
+# 	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest --cov=src test/)
 
 ## Run all checks
-run-checks: security-test run-black check-coverage
+run-checks: security-test run-black unit-test
 
 # ## Run all checks
 # run-checks: security-test run-black unit-test check-coverage
