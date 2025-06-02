@@ -16,18 +16,16 @@ resource "aws_s3_bucket" "processed_bucket" {
   }
 }
 
-
-resource "aws_s3_bucket" "lambda_bucket" {
-  bucket_prefix = "lambda-bucket-"
+resource "aws_s3_bucket" "code_bucket" {
+  bucket_prefix = "code-bucket-"
 
   tags = {
-    Name        = "Lambda storage bucket"
+    Name        = "Code storage bucket"
     Environment = "Dev"
   }
 }
 
-resource "aws_s3_object" "extaction_file_upload" {
-  bucket = "${aws_s3_bucket.lambda_bucket.id}"
-  key = "lambda-functions/${var.extraction_lambda}.zip"
-  source = "${data.archive_file.extraction_lambda.output_path}"
-}
+
+
+
+
