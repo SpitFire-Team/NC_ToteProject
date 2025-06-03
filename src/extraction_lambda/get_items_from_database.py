@@ -1,7 +1,13 @@
 from datetime import datetime, timezone
+"""
+* Import the necessary libraries to work with data and time.""" 
 
 
 def set_latest_updated_time(bucket, client):  # COMPLETED!!!!!
+    """ set_latest_updated_time. vars: bucket, client
+
+    This function checks the S3 buckets for objects. If no objects exist, it returns the default Unix time. It finds the most recent object between the objects looping through all the objects and compares if it has any later time than the current latest. It returns the latest time."""
+    
     s3_files = client.list_objects(Bucket=bucket)  # check the s3 bucket for objects
 
     if "Contents" not in s3_files:
@@ -25,6 +31,11 @@ def set_latest_updated_time(bucket, client):  # COMPLETED!!!!!
 def check_database_updates(
     conn, table, last_checked_time
 ):  # passes in the latest checked time POSSIBLY COMPLETED NEEDS TESTING
+    """ check_database_updates. vars: conn, table, last_checked_time
+
+        This function checks the database for the latest update time.
+        First, it converts the Pythonic time for PostgreSQL format and creates a cursor. A following PostgreSQL statement is executed to compare if the last_updated column is greater than the last checked time. Results are retrieved inside a result variable which is returned and the cursor is closed."""
+    
     whitelisted_tables = [
         "counterparty",
         "currency",
@@ -59,7 +70,11 @@ def check_database_updates(
 # ^queries a single table, checking if the last_updated column is greater than the last checked time
 
 
-def query_all_databases(cursor, last_checked_time):  # NOT COMPLETED
+def query_all_databases(cursor, last_checked_time):  
+    # NOT COMPLETED
+    """ query_all_databases. vars: cursor, last_checked_time
+        Interact through a specific list of tables inside the database and check each for the most recent updates. This function runs the PostgreSQL query defined above by check_database_updates( ) inside the selected tables and inserts the output of the function above into a result variable that is then returned """
+
     tables = [
         "counterparty",
         "currency",
