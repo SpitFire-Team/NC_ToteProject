@@ -14,6 +14,7 @@
         -- "payment_type"
         -- "transaction"
 SELECT * FROM staff;
+SELECT * FROM payment;
 
 -- Query: Count number of records in each table
 SELECT COUNT(*) FROM department;
