@@ -12,6 +12,7 @@ from src.extraction_lambda.get_items_from_database import (
     query_all_tables
 )
 
+# Nice to have - move fixtures to seperate file for clarity
 
 @pytest.fixture
 def client():
@@ -32,15 +33,76 @@ def mock_database():
     conn = sqlite3.connect(":memory:")
     cursor = conn.cursor()
 
-    cursor.execute(
+#     cursor.execute(
+#         """
+#         CREATE TABLE payment (
+#             id INTEGER PRIMARY KEY, 
+#             name TEXT,
+#             last_updated TIMESTAMP
+#         )
+#         """
+#   )
+    
+    cursor.executescript(
         """
         CREATE TABLE payment (
             id INTEGER PRIMARY KEY, 
             name TEXT,
             last_updated TIMESTAMP
-        )
-    """
+        );
+        CREATE TABLE counterparty (
+            id INTEGER PRIMARY KEY, 
+            name TEXT,
+            last_updated TIMESTAMP
+        );
+        CREATE TABLE currency (
+            id INTEGER PRIMARY KEY, 
+            name TEXT,
+            last_updated TIMESTAMP
+        );
+        CREATE TABLE department (
+            id INTEGER PRIMARY KEY, 
+            name TEXT,
+            last_updated TIMESTAMP
+        );
+        CREATE TABLE design (
+            id INTEGER PRIMARY KEY, 
+            name TEXT,
+            last_updated TIMESTAMP
+        );
+        CREATE TABLE staff (
+            id INTEGER PRIMARY KEY, 
+            name TEXT,
+            last_updated TIMESTAMP
+        );
+        CREATE TABLE sales_order (
+            id INTEGER PRIMARY KEY, 
+            name TEXT,
+            last_updated TIMESTAMP
+        );
+        CREATE TABLE address (
+            id INTEGER PRIMARY KEY, 
+            name TEXT,
+            last_updated TIMESTAMP
+        );
+        CREATE TABLE purchase_order (
+            id INTEGER PRIMARY KEY, 
+            name TEXT,
+            last_updated TIMESTAMP
+        );
+        CREATE TABLE payment_type (
+            id INTEGER PRIMARY KEY, 
+            name TEXT,
+            last_updated TIMESTAMP
+        );
+        CREATE TABLE "transaction" (
+        id INTEGER PRIMARY KEY, 
+        name TEXT,
+        last_updated TIMESTAMP
+        );
+        """
     )
+
 
     cursor.executemany(
         """
@@ -56,6 +118,23 @@ def mock_database():
             ("test_data6", datetime(2005, 1, 1, tzinfo=timezone.utc).isoformat()),
             ("test_data7", datetime(2080, 1, 1, tzinfo=timezone.utc).isoformat()),
             ("test_data8", datetime(2031, 1, 1, tzinfo=timezone.utc).isoformat()),
+        ],
+    )
+
+    cursor.executemany(
+        """
+        INSERT INTO address (name, last_updated)
+        VALUES (?, ?)
+    """,
+        [
+            ("test_data1", datetime(1000, 1, 1, tzinfo=timezone.utc).isoformat()),
+            ("test_data2", datetime(1030, 1, 1, tzinfo=timezone.utc).isoformat()),
+            ("test_data3", datetime(1940, 1, 1, tzinfo=timezone.utc).isoformat()),
+            ("test_data4", datetime(1001, 1, 1, tzinfo=timezone.utc).isoformat()),
+            ("test_data5", datetime(1070, 1, 1, tzinfo=timezone.utc).isoformat()),
+            ("test_data6", datetime(1005, 1, 1, tzinfo=timezone.utc).isoformat()),
+            ("test_data7", datetime(1080, 1, 1, tzinfo=timezone.utc).isoformat()),
+            ("test_data8", datetime(1031, 1, 1, tzinfo=timezone.utc).isoformat()),
         ],
     )
     conn.commit()
@@ -210,27 +289,37 @@ class TestLastUpdatedTimePassedToCheckDatabaseUpdates:
         results = check_database_updates(mock_database, "payment", last_updated_time)
 
         assert results == expected_data
-        print(">>>> results", results)
 
 class TestQueryAllTablesFunction:
-    def test_query_all_tables_returns(self, mock_database):
-        pass
+    def test_query_all_tables_returns_empty_dict_when_no_updates_found(self, mock_database):
 
-        # list of lists?
-        expected_result = [
-        ]
+        expected_result = {}
+
+        last_updated_time = datetime(3000, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+
+        result = query_all_tables(mock_database, last_updated_time)
+        assert result == expected_result 
+
+    def test_query_all_tables_returns_single_updated_row_from_one_table(self, mock_database):
+
+        expected_result = {"payment" : [(
+                7,
+                "test_data7",
+                datetime(2080, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat(),)]
+        }
 
         last_updated_time = datetime(2079, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
-        results = query_all_tables(last_updated_time)
-        print(">>> query_all_tables", results)
-        assert results == expected_result 
+        result = query_all_tables(mock_database, last_updated_time)
+        assert result == expected_result
 
-# test query_all_tables function
+    def test_query_all_tables_returns_multiple_updated_rows_from_multiple_tables(self, mock_database):
+        last_updated_time = datetime(1000, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
-# More tests for 
-# test multiple rows
-# test multiple objects in the bucket
-
+        result = query_all_tables(mock_database, last_updated_time)
+        assert len(result) == 2
+        assert len(result["address"]) == 7
+        assert len(result["payment"]) == 8
+    
 
 
