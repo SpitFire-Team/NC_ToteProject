@@ -21,3 +21,9 @@ variable "runtime" {
 variable "path_layer" {
   default = "src/layer"
 }
+
+variable "user" {}
+variable "password" {}
+variable "host" {}
+variable "port" {}
+variable "database" {}
