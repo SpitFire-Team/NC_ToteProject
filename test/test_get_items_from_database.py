@@ -76,6 +76,8 @@ class TestSetLatestUpdatedTime:
 
         assert isinstance(result1, datetime)
         assert isinstance(result2, datetime)
+        print(">>>> last_updated_time", set_latest_updated_time("test_bucket", client)
+)
 
     def test_returns_1970_from_empty_s3(self, client, s3_bucket):
         result = set_latest_updated_time("test_bucket", client)
@@ -120,7 +122,7 @@ class TestSetLatestUpdatedTime:
 
 
 class TestCheckDatabaseUpdates:
-    def test_returns_query(self, mock_database):
+    def test_returns_row(self, mock_database):
 
         expected_data = [
             (
@@ -130,22 +132,22 @@ class TestCheckDatabaseUpdates:
             )
         ]
 
-        last_checked_time = datetime(2079, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        last_updated_time = datetime(2079, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
-        results = check_database_updates(mock_database, "payment", last_checked_time)
+        results = check_database_updates(mock_database, "payment", last_updated_time)
 
-        assert results == expected_data
+        assert results == expected_data 
 
     def test_returns_empty_list_for_no_new_updates(self, mock_database):
         expected_data = []
 
-        last_checked_time = datetime(2090, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        last_updated_time = datetime(2090, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
-        results = check_database_updates(mock_database, "payment", last_checked_time)
+        results = check_database_updates(mock_database, "payment", last_updated_time)
 
         assert results == expected_data
 
-    def test_returns_multiple_queries_with_new(self, mock_database):
+    def test_returns_multiple_rows(self, mock_database):
         expected_data = [
             (
                 2,
@@ -169,15 +171,14 @@ class TestCheckDatabaseUpdates:
             ),
         ]
 
-        last_checked_time = datetime(2029, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        last_updated_time = datetime(2029, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
-        results = check_database_updates(mock_database, "payment", last_checked_time)
+        results = check_database_updates(mock_database, "payment", last_updated_time)
 
         assert results == expected_data
 
-
 class TestLatestTimeAndCheckDatabaseUpdates:
-    def test_latest_time_passed_into_check_database_single_query(
+    def test_last_updated_time_passed_from_s3_bucket_into_check_database_query(
         self, client, s3_bucket, mock_database
     ):
         expected_data = [
@@ -205,13 +206,16 @@ class TestLatestTimeAndCheckDatabaseUpdates:
             }
         )
 
-        last_checked_time = set_latest_updated_time("test_bucket", client)
+        last_updated_time = set_latest_updated_time("test_bucket", client)
 
-        results = check_database_updates(mock_database, "payment", last_checked_time)
+        results = check_database_updates(mock_database, "payment", last_updated_time)
 
         assert results == expected_data
+        print(">>>> results", results)
 
 
 # test multiple queries
 # test multiple objects in the bucket
 # test multiple queries with multiple buckets
+
+
