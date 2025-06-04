@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 Import the necessary libraries to work with data and time.
 """ 
 
+# to do - where are the bucket details coming from? lambda handler? How do we make sure we are checking the most recent bucket?
 
 def set_latest_updated_time(bucket, client): 
     """ 
@@ -46,22 +47,21 @@ def check_database_updates(conn, table, last_updated_time):
     The cursor is closed.
     """
     
-    whitelisted_tables = [
-        "counterparty",
-        "currency",
-        "department",
-        "design",
-        "staff",
-        "sales_order",
-        "address",
-        "payment",
-        "purchase_order",
-        "payment_type",
-        "transaction",
-    ] # these are the relevent tables to check in the TOTESYS database 
-
     # Nice to have - if table not in whitelisted_tables:
     #     return appropriate exception
+        #     whitelisted_tables = [
+        #     "counterparty",
+        #     "currency",
+        #     "department",
+        #     "design",
+        #     "staff",
+        #     "sales_order",
+        #     "address",
+        #     "payment",
+        #     "purchase_order",
+        #     "payment_type",
+        #     "transaction",
+        # ] # these are the relevent tables to check in the TOTESYS database 
 
     last_updated_time_str = (
         last_updated_time.isoformat()
@@ -80,11 +80,12 @@ def check_database_updates(conn, table, last_updated_time):
         f"SELECT * FROM {table_name} WHERE last_updated > ?", (last_updated_time_str,)
     )
     
-    # Approach for converting output from list of tuples to a list of dictionarie with column names and values:
+    """ Approach for converting output from list of tuples to a list of dictionarie with column names and values:
         # columns (variable)
         # rows (variable (results=curser.fetchall()))
         # results = dictionary zip the two tuples together 
         # results = [dict(zip(columns, row)) for row in rows]
+        print("curser desc in func", cursor.description, [obj[0] for obj in cursor.description])"""
 
     results = cursor.fetchall()
     cursor.close()
@@ -122,7 +123,7 @@ def query_all_tables(conn, last_updated_time):
             else:
                 pass
         except Exception as e:
-            print(f"Unable to query given table: {table}")
+            print(f"Unable to query given table: {table}, as it is not a whitelisted table")
      
         # logic for list output (may still be needed):
         # results.append(
