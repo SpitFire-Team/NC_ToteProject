@@ -12,18 +12,30 @@ class TestDatabaseConnection:
         "src.extraction_lambda.extraction_lambda.pg8000.connect",
         side_effect=Exception("Connection failed"),
     )
-    def test_failed_connection(self, mock_connect):
+    def test_failed_connection(self, mock_connect, monkeypatch):
         """
         Tests that db_connection raises an error when the database fails to connect.
         """
+        monkeypatch.setenv("USER", "test_user")
+        monkeypatch.setenv("PASSWORD", "test_password")
+        monkeypatch.setenv("HOST", "test_host")
+        monkeypatch.setenv("PORT", "5342")
+        monkeypatch.setenv("DATABASE", "test_database")
+
         with pytest.raises(Exception, match="Connection failed"):
             db_connection()
 
     @patch("src.extraction_lambda.extraction_lambda.pg8000.connect")
-    def test_successful_connection(self, mock_connect):
+    def test_successful_connection(self, mock_connect, monkeypatch):
         """
         Tests that db_connection returns the connection object when the connection is successful.
         """
+        monkeypatch.setenv("USER", "test_user")
+        monkeypatch.setenv("PASSWORD", "test_password")
+        monkeypatch.setenv("HOST", "test_host")
+        monkeypatch.setenv("PORT", "5342")
+        monkeypatch.setenv("DATABASE", "test_database")
+
         mock_conn = Mock()
         mock_connect.return_value = mock_conn
 
