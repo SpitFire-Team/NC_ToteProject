@@ -9,6 +9,7 @@ from src.extraction_lambda.extraction_lambda import db_connection
 from src.extraction_lambda.get_items_from_database import (
     set_latest_updated_time,
     check_database_updates,
+    query_all_tables
 )
 
 
@@ -62,7 +63,7 @@ def mock_database():
     return conn
 
 
-class TestSetLatestUpdatedTime:
+class TestSetLatestUpdatedTimeFunction:
     def test_datetime_returned(self, client, s3_bucket):
         result1 = set_latest_updated_time("test_bucket", client)
 
@@ -76,8 +77,6 @@ class TestSetLatestUpdatedTime:
 
         assert isinstance(result1, datetime)
         assert isinstance(result2, datetime)
-        print(">>>> last_updated_time", set_latest_updated_time("test_bucket", client)
-)
 
     def test_returns_1970_from_empty_s3(self, client, s3_bucket):
         result = set_latest_updated_time("test_bucket", client)
@@ -121,7 +120,7 @@ class TestSetLatestUpdatedTime:
         assert abs((result - highest_time).total_seconds()) < 1
 
 
-class TestCheckDatabaseUpdates:
+class TestCheckDatabaseUpdatesFunction:
     def test_returns_row(self, mock_database):
 
         expected_data = [
@@ -177,7 +176,7 @@ class TestCheckDatabaseUpdates:
 
         assert results == expected_data
 
-class TestLatestTimeAndCheckDatabaseUpdates:
+class TestLastUpdatedTimePassedToCheckDatabaseUpdates:
     def test_last_updated_time_passed_from_s3_bucket_into_check_database_query(
         self, client, s3_bucket, mock_database
     ):
@@ -213,9 +212,25 @@ class TestLatestTimeAndCheckDatabaseUpdates:
         assert results == expected_data
         print(">>>> results", results)
 
+class TestQueryAllTablesFunction:
+    def test_query_all_tables_returns(self, mock_database):
+        pass
 
-# test multiple queries
+        # list of lists?
+        expected_result = [
+        ]
+
+        last_updated_time = datetime(2079, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+
+        results = query_all_tables(last_updated_time)
+        print(">>> query_all_tables", results)
+        assert results == expected_result 
+
+# test query_all_tables function
+
+# More tests for 
+# test multiple rows
 # test multiple objects in the bucket
-# test multiple queries with multiple buckets
+
 
 
