@@ -3,6 +3,21 @@ resource "aws_cloudwatch_log_group" "extraction_lambda_log_group"{
     name = "/aws/lambda/${var.extraction_lambda}"
 }
 
+resource "aws_cloudwatch_log_metric_filter" "extraction_lambda_log_group" {
+  name           = "ErrorFilter" #A name for the metric filter.
+  pattern        = "ERROR" #CloudWatch Logs filter pattern. 
+  #Attention! We need to discuss with the group which level of logger to choose above. 
+  #We are between CRITICAL and ERROR, for clarification: https://docs.python.org/3/howto/logging.html
+  log_group_name = aws_cloudwatch_log_group.extraction_lambda_log_group.name 
+
+  metric_transformation {
+    name      = "Error_Count" #The name of the CloudWatch metric to which the monitored log information should be published 
+    namespace = "Extraction_Lambda/Error_Count" #The destination namespace of the CloudWatch metric.
+    value     = "1" #What to publish to the metric. EG: 1 for each error. 
+  }
+}
+
+
 resource "aws_sns_topic" "lambda_error_email_alerts" {
     name = "lambda-error-alerts"
 }
@@ -10,7 +25,7 @@ resource "aws_sns_topic" "lambda_error_email_alerts" {
 resource "aws_sns_topic_subscription" "sns_email" {
     topic_arn = aws_sns_topic.lambda_error_email_alerts.arn
     protocol = "email" #how we want to be alerted
-    endpoint = "lewisr23491@gmail.com" #email to be used
+    endpoint = "bruno.sterzabaggio@gmail.com" #email to be used #needs to be changed! 
 }
 
 resource "aws_cloudwatch_metric_alarm" "extraction_lambda_alarm"{
@@ -30,4 +45,10 @@ resource "aws_cloudwatch_metric_alarm" "extraction_lambda_alarm"{
 
     alarm_actions = [aws_sns_topic.lambda_error_email_alerts.arn]
 }
+
+
+
+
+
+
 
