@@ -9,10 +9,11 @@ from src.extraction_lambda.extraction_lambda import db_connection
 from src.extraction_lambda.get_items_from_database import (
     set_latest_updated_time,
     check_database_updates,
-    query_all_tables
+    query_all_tables,
 )
 
 # Nice to have - move fixtures to seperate file for clarity
+
 
 @pytest.fixture
 def client():
@@ -32,7 +33,7 @@ def s3_bucket(client):
 def mock_database():
     conn = sqlite3.connect(":memory:")
     cursor = conn.cursor()
-    
+
     cursor.executescript(
         """
         CREATE TABLE payment (
@@ -92,7 +93,6 @@ def mock_database():
         );
         """
     )
-
 
     cursor.executemany(
         """
@@ -192,16 +192,19 @@ class TestSetLatestUpdatedTimeFunction:
 class TestCheckDatabaseUpdatesFunction:
     def test_returns_row(self, mock_database):
 
-        expected_data = (['id', 'name', 'last_updated'], [(7, 'test_data7', '2080-01-01T00:00:00+00:00')])
+        expected_data = (
+            ["id", "name", "last_updated"],
+            [(7, "test_data7", "2080-01-01T00:00:00+00:00")],
+        )
 
         last_updated_time = datetime(2079, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
         results = check_database_updates(mock_database, "payment", last_updated_time)
 
-        assert results == expected_data 
+        assert results == expected_data
 
     def test_returns_empty_list_for_no_new_updates(self, mock_database):
-        expected_data = (['id', 'name', 'last_updated'], [])
+        expected_data = (["id", "name", "last_updated"], [])
 
         last_updated_time = datetime(2090, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
@@ -210,7 +213,15 @@ class TestCheckDatabaseUpdatesFunction:
         assert results == expected_data
 
     def test_returns_multiple_rows(self, mock_database):
-        expected_data = (['id', 'name', 'last_updated'], [(2, 'test_data2', '2030-01-01T00:00:00+00:00'), (5, 'test_data5', '2070-01-01T00:00:00+00:00'), (7, 'test_data7', '2080-01-01T00:00:00+00:00'), (8, 'test_data8', '2031-01-01T00:00:00+00:00')])
+        expected_data = (
+            ["id", "name", "last_updated"],
+            [
+                (2, "test_data2", "2030-01-01T00:00:00+00:00"),
+                (5, "test_data5", "2070-01-01T00:00:00+00:00"),
+                (7, "test_data7", "2080-01-01T00:00:00+00:00"),
+                (8, "test_data8", "2031-01-01T00:00:00+00:00"),
+            ],
+        )
 
         last_updated_time = datetime(2029, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
@@ -218,11 +229,15 @@ class TestCheckDatabaseUpdatesFunction:
 
         assert results == expected_data
 
+
 class TestLastUpdatedTimePassedToCheckDatabaseUpdates:
     def test_last_updated_time_passed_from_s3_bucket_into_check_database_query(
         self, client, s3_bucket, mock_database
     ):
-        expected_data = (['id', 'name', 'last_updated'], [(7, 'test_data7', '2080-01-01T00:00:00+00:00')])
+        expected_data = (
+            ["id", "name", "last_updated"],
+            [(7, "test_data7", "2080-01-01T00:00:00+00:00")],
+        )
 
         object_time = datetime(2079, 1, 1, tzinfo=timezone.utc).isoformat()
 
@@ -247,32 +262,40 @@ class TestLastUpdatedTimePassedToCheckDatabaseUpdates:
 
         assert results == expected_data
 
+
 class TestQueryAllTablesFunction:
-    def test_query_all_tables_returns_empty_dict_when_no_updates_found(self, mock_database):
+    def test_query_all_tables_returns_empty_dict_when_no_updates_found(
+        self, mock_database
+    ):
 
         expected_result = {}
 
         last_updated_time = datetime(3000, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
         result = query_all_tables(mock_database, last_updated_time)
-        assert result == expected_result 
+        assert result == expected_result
 
-    def test_query_all_tables_returns_single_updated_row_from_one_table(self, mock_database):
+    def test_query_all_tables_returns_single_updated_row_from_one_table(
+        self, mock_database
+    ):
 
-        expected_result = {('payment', ('id', 'name', 'last_updated')): [(7, 'test_data7', '2080-01-01T00:00:00+00:00')]}
+        expected_result = {
+            ("payment", ("id", "name", "last_updated")): [
+                (7, "test_data7", "2080-01-01T00:00:00+00:00")
+            ]
+        }
 
         last_updated_time = datetime(2079, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
         result = query_all_tables(mock_database, last_updated_time)
         assert result == expected_result
 
-    def test_query_all_tables_returns_multiple_updated_rows_from_multiple_tables(self, mock_database):
+    def test_query_all_tables_returns_multiple_updated_rows_from_multiple_tables(
+        self, mock_database
+    ):
         last_updated_time = datetime(1000, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
         result = query_all_tables(mock_database, last_updated_time)
         assert len(result) == 2
-        assert len(result[('address', ('id', 'name', 'last_updated'))]) == 7
-        assert len(result[('payment', ('id', 'name', 'last_updated'))]) == 8
-    
-
-
+        assert len(result[("address", ("id", "name", "last_updated"))]) == 7
+        assert len(result[("payment", ("id", "name", "last_updated"))]) == 8
