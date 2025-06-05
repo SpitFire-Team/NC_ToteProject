@@ -202,13 +202,7 @@ class TestSetLatestUpdatedTimeFunction:
 class TestCheckDatabaseUpdatesFunction:
     def test_returns_row(self, mock_database):
 
-        expected_data = [
-            (
-                7,
-                "test_data7",
-                datetime(2080, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat(),
-            )
-        ]
+        expected_data = (['id', 'name', 'last_updated'], [(7, 'test_data7', '2080-01-01T00:00:00+00:00')])
 
         last_updated_time = datetime(2079, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
@@ -217,7 +211,7 @@ class TestCheckDatabaseUpdatesFunction:
         assert results == expected_data 
 
     def test_returns_empty_list_for_no_new_updates(self, mock_database):
-        expected_data = []
+        expected_data = (['id', 'name', 'last_updated'], [])
 
         last_updated_time = datetime(2090, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
@@ -226,28 +220,7 @@ class TestCheckDatabaseUpdatesFunction:
         assert results == expected_data
 
     def test_returns_multiple_rows(self, mock_database):
-        expected_data = [
-            (
-                2,
-                "test_data2",
-                datetime(2030, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat(),
-            ),
-            (
-                5,
-                "test_data5",
-                datetime(2070, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat(),
-            ),
-            (
-                7,
-                "test_data7",
-                datetime(2080, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat(),
-            ),
-            (
-                8,
-                "test_data8",
-                datetime(2031, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat(),
-            ),
-        ]
+        expected_data = (['id', 'name', 'last_updated'], [(2, 'test_data2', '2030-01-01T00:00:00+00:00'), (5, 'test_data5', '2070-01-01T00:00:00+00:00'), (7, 'test_data7', '2080-01-01T00:00:00+00:00'), (8, 'test_data8', '2031-01-01T00:00:00+00:00')])
 
         last_updated_time = datetime(2029, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
@@ -259,13 +232,7 @@ class TestLastUpdatedTimePassedToCheckDatabaseUpdates:
     def test_last_updated_time_passed_from_s3_bucket_into_check_database_query(
         self, client, s3_bucket, mock_database
     ):
-        expected_data = [
-            (
-                7,
-                "test_data7",
-                datetime(2080, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat(),
-            )
-        ]
+        expected_data = (['id', 'name', 'last_updated'], [(7, 'test_data7', '2080-01-01T00:00:00+00:00')])
 
         object_time = datetime(2079, 1, 1, tzinfo=timezone.utc).isoformat()
 
@@ -302,11 +269,7 @@ class TestQueryAllTablesFunction:
 
     def test_query_all_tables_returns_single_updated_row_from_one_table(self, mock_database):
 
-        expected_result = {"payment" : [(
-                7,
-                "test_data7",
-                datetime(2080, 1, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat(),)]
-        }
+        expected_result = {('payment', ('id', 'name', 'last_updated')): [(7, 'test_data7', '2080-01-01T00:00:00+00:00')]}
 
         last_updated_time = datetime(2079, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
@@ -318,8 +281,8 @@ class TestQueryAllTablesFunction:
 
         result = query_all_tables(mock_database, last_updated_time)
         assert len(result) == 2
-        assert len(result["address"]) == 7
-        assert len(result["payment"]) == 8
+        assert len(result[('address', ('id', 'name', 'last_updated'))]) == 7
+        assert len(result[('payment', ('id', 'name', 'last_updated'))]) == 8
     
 
 

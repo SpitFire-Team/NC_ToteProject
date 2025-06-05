@@ -43,8 +43,7 @@ def check_database_updates(conn, table, last_updated_time):
     This function checks the given table for new updates since the last_updated_time.
     First, it converts the Pythonic time for PostgreSQL format and creates a cursor. 
     A PostgreSQL query is executed to compare if the last_updated column is greater than the last checked time. 
-    Results are returned as a list.
-    The cursor is closed.
+    Results are returned as a list of dictionaries.
     """
     
     # Nice to have - if table not in whitelisted_tables:
@@ -80,23 +79,21 @@ def check_database_updates(conn, table, last_updated_time):
         f"SELECT * FROM {table_name} WHERE last_updated > ?", (last_updated_time_str,)
     )
     
-    """ Approach for converting output from list of tuples to a list of dictionarie with column names and values:
-        # columns (variable)
-        # rows (variable (results=curser.fetchall()))
-        # results = dictionary zip the two tuples together 
-        # results = [dict(zip(columns, row)) for row in rows]
-        print("curser desc in func", cursor.description, [obj[0] for obj in cursor.description])"""
+    # Convert SQL output from list of tuples to a list of dictionarie with column names and values:
+    columns = [obj[0] for obj in cursor.description]
+    rows = cursor.fetchall()
+    
+    # results = [dict(zip(columns, row)) for row in rows] - this was needed to output data in true JSON format (zipped dictionary)
 
-    results = cursor.fetchall()
     cursor.close()
-
-    return results
+    
+    return columns, rows
 
 def query_all_tables(conn, last_updated_time):  
     """ 
     Queries a list of whitelisted tables (in the totesys database) for new rows/record updated after the last_updated_time.
     Uses check_database_updates() to query individual tables.
-    Returns a dict with table names as keys with new updates as result.
+    Returns a dictionary containing lists of dictionaries (JSON ready)
     """
 
     # list of all tables we need check
@@ -118,16 +115,22 @@ def query_all_tables(conn, last_updated_time):
     
     for table in tables:
         try:
-            if len(check_database_updates(conn, table, last_updated_time)) != 0:
-                results[table] = check_database_updates(conn, table, last_updated_time)
-            else:
-                pass
+            columns, rows = check_database_updates(conn, table, last_updated_time)
+            if rows:
+                results[(table, tuple(columns))] = rows
+      
         except Exception as e:
-            print(f"Unable to query given table: {table}, as it is not a whitelisted table")
-     
-        # logic for list output (may still be needed):
-        # results.append(
-        #     check_database_updates(conn, table, last_updated_time)
-        # )  # running the query through each table
+             print(f"Unable to query table: {table}")
 
+    # the below approach orginally output data in true JSON format and was removed to implement the format required by transform_and_store_data function
+
+    # for table in tables:
+    #     try:
+    #         returned_table_data = check_database_updates(conn, table, last_updated_time)
+    #         if returned_table_data: # i.e. if returned data is not empty
+    #             results[table] = returned_table_data
+
+    #     except Exception as e:
+    #         print(f"Unable to query table: {table}")
+     
     return results
