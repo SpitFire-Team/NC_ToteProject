@@ -67,7 +67,13 @@ class TestDatabaseConnection:
         assert result == mock_conn
 
 class TestFilterBuckets:
+    '''
+    Test suite for filter_buckets function
+    '''
     def test_returns_empty_list_when_no_buckets(self):
+        '''
+        Test that empty list is returned with no buckets passed
+        '''
         data = []
 
         expected = []
@@ -77,6 +83,9 @@ class TestFilterBuckets:
         assert result == expected
 
     def test_returns_empty_list_when_no_matching_buckets(self):
+        '''
+        Test returns empty list when theres no matching buckets
+        '''
         data = [{"Name": "test-bucket-1"},
                 {"Name": "test-bucket-2"},
                 {"Name": "test-bucket-3"}]
@@ -88,6 +97,9 @@ class TestFilterBuckets:
         assert result == expected
 
     def test_correct_bucket_single_bucket(self):
+        '''
+        Test the correct bucket is returned when only a single bucket is passed
+        '''
         data = [{"Name": "ingested-data-bucket-45879345"}]
 
         expected = [{"Name": "ingested-data-bucket-45879345"}]
@@ -97,6 +109,9 @@ class TestFilterBuckets:
         assert result == expected
 
     def test_single_correct_bucket_multi_items(self):
+        '''
+        Test the correct bucket is returned when multiple wrong and one correct bucket is passed
+        '''
         data = [{"Name": "test-bucket-1"},
                 {"Name": "ingested-data-bucket-45879345"},
                 {"Name": "test-bucket-2"},
@@ -109,6 +124,9 @@ class TestFilterBuckets:
         assert result == expected
 
     def test_returns_multiple_correct_buckets(self):
+        '''
+        Test correct buckets are returned when multiple correct buckets are passed
+        '''
         data = [{"Name": "test-bucket-1"},
                 {"Name": "ingested-data-bucket-45879345"},
                 {"Name": "test-bucket-2"},
@@ -124,8 +142,14 @@ class TestFilterBuckets:
 
         assert result == expected
 
-class TestFindBucketName:
+class TestFindLatestIngestionBucket:
+    '''
+    Test suite for find_latest_ingestion_bucket
+    '''
     def test_returns_none_no_buckets(self, client):
+        '''
+        Test an appropriate response for no available buckets
+        '''
         expected = None #In the future will change to an error
 
         result = find_latest_ingestion_bucket(client) 
@@ -133,6 +157,9 @@ class TestFindBucketName:
         assert result == expected
 
     def test_returns_none_with_no_matching_buckets(self, client):
+        '''
+        Test an appropriate response when theres no matching buckets
+        '''
         client.create_bucket(
         Bucket="test-bucket1",
         CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
@@ -148,6 +175,9 @@ class TestFindBucketName:
         assert result == expected
 
     def test_returns_correct_bucket_one_matching_bucket(self, client):
+        '''
+        Test the correct bucket returned when theres only one matching bucket
+        '''
         client.create_bucket(
         Bucket="test-bucket1",
         CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
@@ -167,6 +197,9 @@ class TestFindBucketName:
         assert result == expected
 
     def test_returns_correct_bucket_multiple_matching_buckets(self, client):
+        '''
+        Test the correct bucket is returned when theres multiple matching buckets
+        '''
         client.create_bucket(
         Bucket="test-bucket1",
         CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
@@ -196,6 +229,9 @@ class TestFindBucketName:
         assert result == expected
 
     def test_returns_correct_bucket_latest_created_not_matching(self, client):
+        '''
+        Test the correct bucket is returned when the latest created bucket wasnt an ingestion bucket
+        '''
         client.create_bucket(
         Bucket="test-bucket1",
         CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
