@@ -1,11 +1,9 @@
 from dotenv import load_dotenv
 import pg8000
 import os
-from datetime import datetime
 import boto3
-import json
-import io
-
+from datetime import datetime
+from get_items_from_database import set_latest_updated_time, check_database_updates
 
 def db_connection():
     """
@@ -35,16 +33,20 @@ def db_connection():
     except pg8000.InterfaceError as e:
         raise Exception(f"Database connection failed: {e}")
 
-
 def lambda_handler(event, context):
     try:
+        client = boto3.client("s3")
+        
+        #code to grab bucket name
+        bucket = "random_name"
+
         conn = db_connection()
-        cursor = conn.cursor()
+
+        latest_updated_time = set_latest_updated_time(bucket, client)
 
     except Exception as e:
         raise Exception(f"Exception: {e}")
 
     finally:
-        cursor.close()
 
         conn.close()
