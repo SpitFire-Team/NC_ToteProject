@@ -32,16 +32,6 @@ def s3_bucket(client):
 def mock_database():
     conn = sqlite3.connect(":memory:")
     cursor = conn.cursor()
-
-#     cursor.execute(
-#         """
-#         CREATE TABLE payment (
-#             id INTEGER PRIMARY KEY, 
-#             name TEXT,
-#             last_updated TIMESTAMP
-#         )
-#         """
-#   )
     
     cursor.executescript(
         """

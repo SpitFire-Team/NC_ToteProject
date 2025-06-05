@@ -3,10 +3,11 @@ from datetime import datetime, timezone
 Import the necessary libraries to work with data and time.
 """ 
 
-# to do - where are the bucket details coming from? lambda handler? How do we make sure we are checking the most recent bucket?
-
 def set_latest_updated_time(bucket, client): 
     """ 
+    vars: 
+        - s3 bucket from lambda handler
+        - client from lambda handler
     This function checks the contents of an s3 bucket.
     It determines the latest LastModified timestamp by looping through all objects in the s3 bucket. 
     Function returns the latest LastModified time.
@@ -46,40 +47,23 @@ def check_database_updates(conn, table, last_updated_time):
     Results are returned as a list of dictionaries.
     """
     
-    # Nice to have - if table not in whitelisted_tables:
-    #     return appropriate exception
-        #     whitelisted_tables = [
-        #     "counterparty",
-        #     "currency",
-        #     "department",
-        #     "design",
-        #     "staff",
-        #     "sales_order",
-        #     "address",
-        #     "payment",
-        #     "purchase_order",
-        #     "payment_type",
-        #     "transaction",
-        # ] # these are the relevent tables to check in the TOTESYS database 
-
     last_updated_time_str = (
         last_updated_time.isoformat()
     )  # converting time format for postgres
 
     cursor = conn.cursor()  # creating a cursor to query/ interact with the db
 
-    # nice to have - change below to remove f string to protect against SQL injection?
-
     if table == "transaction":
         table_name = '"transaction"' # transaction is a reserved SQL keyword, so must be double quoted
     else:
         table_name = table
 
+    # because of use of sqllite3 and pyscopg2, we've had to remove the placeholder to test (placeholders are different). Risk of SQL injection
     cursor.execute(
-        f"SELECT * FROM {table_name} WHERE last_updated > ?", (last_updated_time_str,)
+        f"SELECT * FROM {table_name} WHERE last_updated > '{last_updated_time_str}'"
     )
-    
-    # Convert SQL output from list of tuples to a list of dictionarie with column names and values:
+ 
+    # Convert SQL output from list of tuples to a list of dictionaries with column names and values:
     columns = [obj[0] for obj in cursor.description]
     rows = cursor.fetchall()
     
@@ -96,8 +80,8 @@ def query_all_tables(conn, last_updated_time):
     Returns a dictionary containing lists of dictionaries (JSON ready)
     """
 
-    # list of all tables we need check
-    tables = [
+    # list of approved tables we need check
+    whitelisted_tables = [
         "counterparty",
         "currency",
         "department",
@@ -111,9 +95,9 @@ def query_all_tables(conn, last_updated_time):
         "transaction",
     ]
 
-    results = {} # empty dictionary where we will store the results
+    results = {} # empty dictionary to store the results
     
-    for table in tables:
+    for table in whitelisted_tables:
         try:
             columns, rows = check_database_updates(conn, table, last_updated_time)
             if rows:
