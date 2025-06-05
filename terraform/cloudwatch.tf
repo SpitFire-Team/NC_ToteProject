@@ -25,7 +25,7 @@ resource "aws_sns_topic" "lambda_error_email_alerts" {
 resource "aws_sns_topic_subscription" "sns_email" {
     topic_arn = aws_sns_topic.lambda_error_email_alerts.arn
     protocol = "email" #how we want to be alerted
-    endpoint = "bruno.sterzabaggio@gmail.com" #email to be used #needs to be changed! 
+    endpoint = "spitfiretotes@gmail.com" #email to be used
 }
 
 resource "aws_cloudwatch_metric_alarm" "extraction_lambda_alarm"{
