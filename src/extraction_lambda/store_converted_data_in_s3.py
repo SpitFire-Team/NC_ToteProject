@@ -20,9 +20,7 @@ def transform_data_to_compatable_format(db_updated_values):
     return transformed_values
 
 
-def input_updated_data_into_s3(
-    s3_client, db_updated_values
-):  # db_values will be a list of dictionaries (JSON)
+def input_updated_data_into_s3(s3_client, db_updated_values):
     """
     convert db_updated_values in json format seperated by table. uploads to table folder
     in the s3 bucket

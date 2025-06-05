@@ -52,7 +52,7 @@ def add_S3_bucket(client, bucket_name):
 def s3_client_two_buckets_one_prefix(s3_client):
     bucket_prefix = "ingested-data"
     add_S3_bucket(s3_client, f"{bucket_prefix}-bucket-1")
-    add_S3_bucket(s3_client, f"random-name-bucket-2")
+    add_S3_bucket(s3_client, "random-name-bucket-2")
     return s3_client
 
 

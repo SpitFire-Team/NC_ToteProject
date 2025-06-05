@@ -1,4 +1,5 @@
 from datetime import datetime
+import pytz
 
 
 def convert_to_dict(query_results, col_names: tuple):
@@ -14,7 +15,8 @@ def convert_to_dict(query_results, col_names: tuple):
 
 def get_path_date_time_string():
     """returns current data_time as a string without / to use in file paths"""
-    date_time = datetime.now()
-    date_time_str = date_time.strftime("%d/%m/%Y_%H:%M")
+    tz_London = pytz.timezone("Europe/London")
+    datetime_London = datetime.now(tz_London)
+    date_time_str = datetime_London.strftime("%d/%m/%Y_%H:%M")
     date_time_str = date_time_str.replace("/", "-")  # remove /, used for file path
     return date_time_str
