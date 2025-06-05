@@ -1,7 +1,14 @@
+import boto3
 import pytest
+import time
+from moto import mock_aws
 from unittest.mock import patch, Mock
-from src.extraction_lambda.extraction_lambda import db_connection
+from src.extraction_lambda.extraction_lambda import db_connection, filter_buckets, find_latest_ingestion_bucket
 
+@pytest.fixture
+def client():
+    with mock_aws():
+        yield boto3.client("s3", region_name="eu-west-2")
 
 class TestDatabaseConnection:
     """
@@ -58,3 +65,163 @@ class TestDatabaseConnection:
             )
 
         assert result == mock_conn
+
+class TestFilterBuckets:
+    def test_returns_empty_list_when_no_buckets(self):
+        data = []
+
+        expected = []
+
+        result = filter_buckets(data)
+
+        assert result == expected
+
+    def test_returns_empty_list_when_no_matching_buckets(self):
+        data = [{"Name": "test-bucket-1"},
+                {"Name": "test-bucket-2"},
+                {"Name": "test-bucket-3"}]
+
+        expected = []
+
+        result = filter_buckets(data)
+
+        assert result == expected
+
+    def test_correct_bucket_single_bucket(self):
+        data = [{"Name": "ingested-data-bucket-45879345"}]
+
+        expected = [{"Name": "ingested-data-bucket-45879345"}]
+
+        result = filter_buckets(data)
+
+        assert result == expected
+
+    def test_single_correct_bucket_multi_items(self):
+        data = [{"Name": "test-bucket-1"},
+                {"Name": "ingested-data-bucket-45879345"},
+                {"Name": "test-bucket-2"},
+                {"Name": "test-bucket-3"}]
+
+        expected = [{"Name": "ingested-data-bucket-45879345"}]
+
+        result = filter_buckets(data)
+
+        assert result == expected
+
+    def test_returns_multiple_correct_buckets(self):
+        data = [{"Name": "test-bucket-1"},
+                {"Name": "ingested-data-bucket-45879345"},
+                {"Name": "test-bucket-2"},
+                {"Name": "ingested-data-bucket-452349809345"},
+                {"Name": "test-bucket-3"},
+                {"Name": "ingested-data-bucket-45832904879345"}]
+        
+        expected = [{"Name": "ingested-data-bucket-45879345"},
+                    {"Name": "ingested-data-bucket-452349809345"},
+                    {"Name": "ingested-data-bucket-45832904879345"}]
+        
+        result = filter_buckets(data)
+
+        assert result == expected
+
+class TestFindBucketName:
+    def test_returns_none_no_buckets(self, client):
+        expected = None #In the future will change to an error
+
+        result = find_latest_ingestion_bucket(client) 
+
+        assert result == expected
+
+    def test_returns_none_with_no_matching_buckets(self, client):
+        client.create_bucket(
+        Bucket="test-bucket1",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        client.create_bucket(
+        Bucket="test-bucket2",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        expected = None #In the future will change to an error
+
+        result = find_latest_ingestion_bucket(client) 
+
+        assert result == expected
+
+    def test_returns_correct_bucket_one_matching_bucket(self, client):
+        client.create_bucket(
+        Bucket="test-bucket1",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        client.create_bucket(
+        Bucket="ingested-data-bucket-429373",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        client.create_bucket(
+        Bucket="test-bucket2",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        expected = "ingested-data-bucket-429373"
+
+        result = find_latest_ingestion_bucket(client) 
+
+        assert result == expected
+
+    def test_returns_correct_bucket_multiple_matching_buckets(self, client):
+        client.create_bucket(
+        Bucket="test-bucket1",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        client.create_bucket(
+        Bucket="ingested-data-bucket-429373",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        client.create_bucket(
+        Bucket="test-bucket2",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        client.create_bucket(
+        Bucket="ingested-data-bucket-42937343",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        time.sleep(3)
+
+        client.create_bucket(
+        Bucket="ingested-data-bucket-423",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        expected = "ingested-data-bucket-423"
+
+        result = find_latest_ingestion_bucket(client) 
+
+        assert result == expected
+
+    def test_returns_correct_bucket_latest_created_not_matching(self, client):
+        client.create_bucket(
+        Bucket="test-bucket1",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        client.create_bucket(
+        Bucket="ingested-data-bucket-429373",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        client.create_bucket(
+        Bucket="test-bucket2",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        time.sleep(2)
+
+        client.create_bucket(
+        Bucket="ingested-data-bucket-42937343",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        time.sleep(2)
+
+        client.create_bucket(
+        Bucket="test-bucket3",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},)
+
+        expected = "ingested-data-bucket-42937343"
+
+        result = find_latest_ingestion_bucket(client) 
+
+        assert result == expected
