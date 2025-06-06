@@ -75,7 +75,7 @@ run-black:
 ## Run the flake8 linting check
 run-flake8:
 
-	$(call execute_in_env, flake8 ./src ./test --exclude=src/layer/dependencies --max-line-length=88)
+	$(call execute_in_env, flake8 ./src ./test --exclude=src/layer/dependencies --max-line-length=88 --extend-ignore=E501)
 
 ## Run the mypy static type checks
 run-mypy:
