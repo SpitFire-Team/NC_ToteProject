@@ -2,7 +2,6 @@ import boto3
 from dotenv import load_dotenv
 import os
 
-
 def get_bucket_name(s3_client, bucket_prefix: str):
     """
     Finds s3 bucket with starting with given prefix and returns full name as found on
@@ -26,26 +25,37 @@ def get_bucket_name(s3_client, bucket_prefix: str):
     return result[0]
 
 
-def add_json_to_s3_bucket(s3_client, bucket_name: str, data: str, file_path: str):
+def read_file_in_bucket(s3_client, bucket_name: str, file_key: str):
     """
-    puts json data in correct table folder in s3 bucket with the data and time as the
+    reads object in s3 and return content
+            Parameters:
+                    s3_client (boto3.client('s3')): a boto3 client for an s3 bucket
+                    bucket_name (string)
+                    file_key (string))
+            Returns:
+                    full s3 bucket name from aws consol (string)
+    """
+    response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
+    response_body = response["Body"].read().decode("utf-8")
+    return response_body
+
+
+def add_data_to_s3_bucket(s3_client, bucket_name: str, data: str, file_path: str):
+    """
+    puts data in file path in s3 bucket with the data and time as the
     file name
             Parameters:
                     s3_client (boto3.client('s3')): a boto3 client for an s3 bucket
                     bucket_name (string) : prefix of bucket type
-                    data (json compatable format) : updated values from databased
-                    converted into a list of dictionaries
+                    data (str)
             Returns:
                     none
     """
-
     try:
         s3_client.put_object(
             Body=data,
             Bucket=bucket_name,
             Key=file_path,
-            # Metadata = f"{table_name} {date_time.strftime('%d/%m/%Y_%H:%M')}",
-            ContentType="application/json",
         )
         return f"data addded to {file_path}"
     except Exception as e:
