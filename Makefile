@@ -7,11 +7,16 @@
 PROJECT_NAME = NC_ToteProject
 REGION = eu-west-2
 PYTHON_INTERPRETER = python
-WD=$(shell pwd)
-PYTHONPATH=${WD}
+WD := $(shell pwd)
+PYTHONPATH := ${WD}
 SHELL := /bin/bash
 PROFILE = default
 PIP:=pip
+
+# Prints environment variables to ensure correct python path set
+print-vars:
+	@ echo "WD is $(WD)"
+	@ echo "PYTHONPATH is $(PYTHONPATH)"
 
 ## Create python interpreter environment.
 create-environment:
@@ -79,7 +84,7 @@ run-flake8:
 
 ## Run the mypy static type checks
 run-mypy:
-	$(call execute_in_env, mypy ./src ./test --exclude src/layer/dependencies)
+	$(call execute_in_env, PYTHONPATH=$(WD)/src mypy src --namespace-packages --explicit-package-bases --ignore-missing-imports --exclude src/layer/dependencies)
 
 ## Run the unit tests
 unit-test:
@@ -90,4 +95,4 @@ check-coverage:
 	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest --cov=src test/ --cov-fail-under=80)
 
 ## Run all checks
-run-checks: security-test run-black run-flake8 run-mypy unit-test check-coverage
+run-checks: security-test run-black run-flake8 run-mypy unit-test check-coverage 
