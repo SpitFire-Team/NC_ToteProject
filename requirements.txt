@@ -9,5 +9,8 @@ flake8
 boto3
 pytest>=8.3.5
 moto[s3]
-boto3
 psycopg2-binary
+pydantic
+pytest-testdox
+pytz
+mypy 

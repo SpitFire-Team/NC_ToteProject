@@ -1,20 +1,22 @@
 from datetime import datetime, timezone
+
 """
 Import the necessary libraries to work with data and time.
-""" 
+"""
 
-def set_latest_updated_time(bucket, client): 
-    """ 
-    vars: 
+
+def set_latest_updated_time(bucket, client):
+    """
+    vars:
         - s3 bucket from lambda handler
         - client from lambda handler
     This function checks the contents of an s3 bucket.
-    It determines the latest LastModified timestamp by looping through all objects in the s3 bucket. 
+    It determines the latest LastModified timestamp by looping through all objects in the s3 bucket.
     Function returns the latest LastModified time.
     Or returns a default unix time (1970) if no objects are found.
 
     """
-    
+
     s3_files = client.list_objects(Bucket=bucket)  # check the s3 bucket for objects
 
     if "Contents" not in s3_files:
@@ -34,19 +36,20 @@ def set_latest_updated_time(bucket, client):
 
     return last_updated.astimezone(timezone.utc)
 
+
 def check_database_updates(conn, table, last_updated_time):
-    """ 
-    Vars: 
+    """
+    Vars:
         - conn - DB connection from extraction_lambda
         - table - database table to query. Passed from query_all_tables function
         - last_updated_time - last_updated time from set_latest_updated_time
 
     This function checks the given table for new updates since the last_updated_time.
-    First, it converts the Pythonic time for PostgreSQL format and creates a cursor. 
-    A PostgreSQL query is executed to compare if the last_updated column is greater than the last checked time. 
+    First, it converts the Pythonic time for PostgreSQL format and creates a cursor.
+    A PostgreSQL query is executed to compare if the last_updated column is greater than the last checked time.
     Results are returned as a list of dictionaries.
     """
-    
+
     last_updated_time_str = (
         last_updated_time.isoformat()
     )  # converting time format for postgres
@@ -54,7 +57,7 @@ def check_database_updates(conn, table, last_updated_time):
     cursor = conn.cursor()  # creating a cursor to query/ interact with the db
 
     if table == "transaction":
-        table_name = '"transaction"' # transaction is a reserved SQL keyword, so must be double quoted
+        table_name = '"transaction"'  # transaction is a reserved SQL keyword, so must be double quoted
     else:
         table_name = table
 
@@ -62,19 +65,20 @@ def check_database_updates(conn, table, last_updated_time):
     cursor.execute(
         f"SELECT * FROM {table_name} WHERE last_updated > '{last_updated_time_str}'"
     )
- 
+
     # Convert SQL output from list of tuples to a list of dictionaries with column names and values:
     columns = [obj[0] for obj in cursor.description]
     rows = cursor.fetchall()
-    
+
     # results = [dict(zip(columns, row)) for row in rows] - this was needed to output data in true JSON format (zipped dictionary)
 
     cursor.close()
-    
+
     return columns, rows
 
-def query_all_tables(conn, last_updated_time):  
-    """ 
+
+def query_all_tables(conn, last_updated_time):
+    """
     Queries a list of whitelisted tables (in the totesys database) for new rows/record updated after the last_updated_time.
     Uses check_database_updates() to query individual tables.
     Returns a dictionary containing lists of dictionaries (JSON ready)
@@ -90,21 +94,21 @@ def query_all_tables(conn, last_updated_time):
         "sales_order",
         "address",
         "payment",
-        "purchase_order",  
+        "purchase_order",
         "payment_type",
         "transaction",
     ]
 
-    results = {} # empty dictionary to store the results
-    
+    results = {}  # empty dictionary to store the results
+
     for table in whitelisted_tables:
         try:
             columns, rows = check_database_updates(conn, table, last_updated_time)
             if rows:
                 results[(table, tuple(columns))] = rows
-      
+
         except Exception as e:
-             print(f"Unable to query table: {table}")
+            print(f"Unable to query table: {table}")
 
     # the below approach orginally output data in true JSON format and was removed to implement the format required by transform_and_store_data function
 
@@ -116,5 +120,5 @@ def query_all_tables(conn, last_updated_time):
 
     #     except Exception as e:
     #         print(f"Unable to query table: {table}")
-     
+
     return results
