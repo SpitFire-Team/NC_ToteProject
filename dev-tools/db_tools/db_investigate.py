@@ -14,11 +14,11 @@ import os
 def connect_to_db():
     load_dotenv(override=True)
     return pg8000.native.Connection (
-        user = os.getenv("USER"),
-        password = os.getenv("PASSWORD"),
-        host = os.getenv("HOST"),
-        port = int(os.getenv("PORT")),
-        database = os.getenv("DATABASE")
+        user = os.getenv("DB_USER"),
+        password = os.getenv("DB_PASSWORD"),
+        host = os.getenv("DB_HOST"),
+        port = int(os.getenv("DB_PORT")),
+        database = os.getenv("DB_DATABASE")
     )
 def close_db_connection(conn):
     conn.close()
