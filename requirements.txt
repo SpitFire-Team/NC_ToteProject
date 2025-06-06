@@ -13,4 +13,5 @@ psycopg2-binary
 pydantic
 pytest-testdox
 pytz
+types-pytz
 mypy 

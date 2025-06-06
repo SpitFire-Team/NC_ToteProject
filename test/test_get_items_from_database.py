@@ -3,9 +3,10 @@ import pytest
 import time
 import sqlite3
 from moto import mock_aws
-from unittest.mock import patch, Mock
+from unittest.mock import Mock
 from datetime import datetime, timezone
-from src.extraction_lambda.extraction_lambda import db_connection
+
+# from src.extraction_lambda.extraction_lambda import db_connection
 from src.extraction_lambda.get_items_from_database import (
     set_latest_updated_time,
     check_database_updates,
@@ -37,57 +38,57 @@ def mock_database():
     cursor.executescript(
         """
         CREATE TABLE payment (
-            id INTEGER PRIMARY KEY, 
+            id INTEGER PRIMARY KEY,
             name TEXT,
             last_updated TIMESTAMP
         );
         CREATE TABLE counterparty (
-            id INTEGER PRIMARY KEY, 
+            id INTEGER PRIMARY KEY,
             name TEXT,
             last_updated TIMESTAMP
         );
         CREATE TABLE currency (
-            id INTEGER PRIMARY KEY, 
+            id INTEGER PRIMARY KEY,
             name TEXT,
             last_updated TIMESTAMP
         );
         CREATE TABLE department (
-            id INTEGER PRIMARY KEY, 
+            id INTEGER PRIMARY KEY,
             name TEXT,
             last_updated TIMESTAMP
         );
         CREATE TABLE design (
-            id INTEGER PRIMARY KEY, 
+            id INTEGER PRIMARY KEY,
             name TEXT,
             last_updated TIMESTAMP
         );
         CREATE TABLE staff (
-            id INTEGER PRIMARY KEY, 
+            id INTEGER PRIMARY KEY,
             name TEXT,
             last_updated TIMESTAMP
         );
         CREATE TABLE sales_order (
-            id INTEGER PRIMARY KEY, 
+            id INTEGER PRIMARY KEY,
             name TEXT,
             last_updated TIMESTAMP
         );
         CREATE TABLE address (
-            id INTEGER PRIMARY KEY, 
+            id INTEGER PRIMARY KEY,
             name TEXT,
             last_updated TIMESTAMP
         );
         CREATE TABLE purchase_order (
-            id INTEGER PRIMARY KEY, 
+            id INTEGER PRIMARY KEY,
             name TEXT,
             last_updated TIMESTAMP
         );
         CREATE TABLE payment_type (
-            id INTEGER PRIMARY KEY, 
+            id INTEGER PRIMARY KEY,
             name TEXT,
             last_updated TIMESTAMP
         );
         CREATE TABLE "transaction" (
-        id INTEGER PRIMARY KEY, 
+        id INTEGER PRIMARY KEY,
         name TEXT,
         last_updated TIMESTAMP
         );
