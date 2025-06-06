@@ -4,13 +4,15 @@ import os
 import boto3
 import re
 import pprint
-from datetime import datetime
+from datetime import datetime, timezone
 
 from src.extraction_lambda.get_items_from_database import (
     set_latest_updated_time,
-    check_database_updates,
+    query_all_tables,
+    check_database_updates
 )
 
+from src.extraction_lambda.store_converted_data_in_s3 import transform_data_to_compatable_format, input_updated_data_into_s3
 
 def db_connection():
     """
@@ -86,25 +88,26 @@ def find_latest_ingestion_bucket(client):
     return latest_creation["Name"]
 
 
-def lambda_handler(event, context):
-    # create a client
-    # code to grab bucket name using prefix
-    # use with bucket name to grab last updated time
-    # use latest time with query all tables
-    #
+def my_func():
+   
+    client = boto3.client("s3")
 
-    try:
-        client = boto3.client("s3")
+    bucket = find_latest_ingestion_bucket(client)
 
-        bucket = "random_name"
+    conn = db_connection()
 
-        conn = db_connection()
+    latest_updated_time = datetime(
+            1970, 1, 1, 0, 0, 0, 0, tzinfo=timezone.utc
+        ) 
 
-        latest_updated_time = set_latest_updated_time(bucket, client)
+    queried_tables = query_all_tables(conn, latest_updated_time)
+        
+    transformed_data = transform_data_to_compatable_format(queried_tables)
 
-    except Exception as e:
-        raise Exception(f"Exception: {e}")
+    input_updated_data_into_s3(client, transformed_data)
 
-    finally:
+    print(transformed_data)
 
-        conn.close()
+    conn.close()
+
+my_func()
