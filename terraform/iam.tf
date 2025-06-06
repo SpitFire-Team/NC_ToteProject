@@ -20,15 +20,33 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 }
 
 data "aws_iam_policy_document" "s3_permissions_document" {
-  statement   {
-    actions   = [
-        "s3:GetObject",
-        "s3:PutObject",
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject"
     ]
 
     resources = [
-      "${aws_s3_bucket.ingestion_bucket.arn}/*",
+      "${aws_s3_bucket.ingestion_bucket.arn}/*"
     ]
+  }
+
+  statement {
+    actions = [
+      "s3:ListBucket" #changes to s3 bucket permissions
+    ]
+
+    resources = [
+      "${aws_s3_bucket.ingestion_bucket.arn}"
+    ]
+  }
+
+  statement {
+    actions = [
+      "s3:ListAllMyBuckets"
+    ]
+
+    resources = ["*"]
   }
 }
 

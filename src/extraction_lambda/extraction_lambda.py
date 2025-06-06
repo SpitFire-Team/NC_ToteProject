@@ -6,13 +6,13 @@ import re
 import pprint
 from datetime import datetime, timezone
 
-from src.extraction_lambda.get_items_from_database import (
+from extraction_lambda.get_items_from_database import (
     set_latest_updated_time,
     query_all_tables,
     check_database_updates
 )
 
-from src.extraction_lambda.store_converted_data_in_s3 import transform_data_to_compatable_format, input_updated_data_into_s3
+from extraction_lambda.store_converted_data_in_s3 import transform_data_to_compatable_format, input_updated_data_into_s3
 
 def db_connection():
     """
@@ -88,7 +88,8 @@ def find_latest_ingestion_bucket(client):
     return latest_creation["Name"]
 
 
-def my_func():
+def lambda_handler(event, context):
+    conn = None
     try:
         client = boto3.client("s3")
 
@@ -101,9 +102,26 @@ def my_func():
         queried_tables = query_all_tables(conn, latest_updated_time)
 
         input_updated_data_into_s3(client, queried_tables, bucket)
+
+        return {"Message": "Success!"}
     
     except Exception as e:
         return {"Error": e}
     
     finally:
-        conn.close()
+        if conn:
+            conn.close()
+        else:
+            return {"Error": "Connection error"}
+
+client = boto3.client("s3")
+
+bucket = find_latest_ingestion_bucket(client)
+
+conn = db_connection()
+
+latest_updated_time = set_latest_updated_time(bucket, client)
+
+queried_tables = query_all_tables(conn, latest_updated_time)
+
+print(queried_tables)

@@ -1,5 +1,5 @@
-from src.utils.aws_utils import add_json_to_s3_bucket, get_bucket_name
-from src.utils.file_utils import convert_to_dict, get_path_date_time_string
+from utils.aws_utils import add_json_to_s3_bucket, get_bucket_name
+from utils.file_utils import convert_to_dict, get_path_date_time_string
 from copy import deepcopy
 import json
 

@@ -1,9 +1,9 @@
 
 
 data "archive_file" "extraction_lambda" {
-    type        = "zip"
-    source_dir = "${path.module}/../src"
-    output_path = "${path.module}/../deployments/${var.extraction_lambda}.zip"
+  type        = "zip"
+  source_dir  = "${path.module}/../src"  
+  output_path = "${path.module}/../deployments/${var.extraction_lambda}.zip"
 }
 
 resource "aws_s3_object" "extaction_file_upload" {
@@ -19,10 +19,12 @@ resource "aws_lambda_function" "extraction_lambda" {
   s3_bucket     = aws_s3_bucket.code_bucket.id
   s3_key        = aws_s3_object.extaction_file_upload.key
   role          = aws_iam_role.iam_role_extraction_lambda.arn
-  handler = "extraction_lambda.extraction_lambda.lambda_handler"  
+  handler = "extraction_lambda.extraction_lambda.lambda_handler" 
   source_code_hash = data.archive_file.extraction_lambda.output_base64sha256
   layers        = [aws_lambda_layer_version.layer.arn]
   runtime       = var.runtime
+  timeout = 300
+  memory_size = 1024
 
   environment {
     variables = {
