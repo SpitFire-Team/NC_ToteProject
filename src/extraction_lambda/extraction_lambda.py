@@ -89,25 +89,21 @@ def find_latest_ingestion_bucket(client):
 
 
 def my_func():
-   
-    client = boto3.client("s3")
+    try:
+        client = boto3.client("s3")
 
-    bucket = find_latest_ingestion_bucket(client)
+        bucket = find_latest_ingestion_bucket(client)
 
-    conn = db_connection()
+        conn = db_connection()
 
-    latest_updated_time = datetime(
-            1970, 1, 1, 0, 0, 0, 0, tzinfo=timezone.utc
-        ) 
+        latest_updated_time = set_latest_updated_time(bucket, client)
 
-    queried_tables = query_all_tables(conn, latest_updated_time)
-        
-    transformed_data = transform_data_to_compatable_format(queried_tables)
+        queried_tables = query_all_tables(conn, latest_updated_time)
 
-    input_updated_data_into_s3(client, transformed_data)
-
-    print(transformed_data)
-
-    conn.close()
-
-my_func()
+        input_updated_data_into_s3(client, queried_tables, bucket)
+    
+    except Exception as e:
+        return {"Error": e}
+    
+    finally:
+        conn.close()
