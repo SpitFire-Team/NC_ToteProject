@@ -48,3 +48,5 @@ def input_updated_data_into_s3(s3_client, db_updated_values):
             data=json_compatable_data,
             file_path=file_path,
         )
+        
+    return date_time_str

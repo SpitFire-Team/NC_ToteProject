@@ -12,7 +12,6 @@ resource "aws_s3_object" "extaction_file_upload" {
   source = "${data.archive_file.extraction_lambda.output_path}"
 }
 
-## need to add dependencies to the zip files. - maybe layers pip install 
 
 resource "aws_lambda_function" "extraction_lambda" {
   function_name = "${var.extraction_lambda}"
@@ -35,6 +34,7 @@ resource "aws_lambda_function" "extraction_lambda" {
     }
   }
 }
+
  ## Terraform dummy for Lambda step_functions
 
   ## Dummy extraction lambda
