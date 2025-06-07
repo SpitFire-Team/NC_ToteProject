@@ -61,6 +61,30 @@ data "aws_iam_policy_document" "eventbridge_assume_policy" {
   }
 }
 
+### Cloudwatch
+resource "aws_iam_policy" "cloudwatch_log_policy"{
+  name_prefix = "cloudwatch-logs-policy-${var.extraction_lambda}-"
+  policy = data.aws_iam_policy_document.cloudwatch_logs_policy_document.json
+}
+
+data "aws_iam_policy_document" "cloudwatch_logs_policy_document"{
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+
+    resources = ["arn:aws:logs:*:*:*"] #which resources should be allowed
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_cloudwatch_logs_policy_attachment" {
+  role = aws_iam_role.iam_role_extraction_lambda.name
+  policy_arn = aws_iam_policy.cloudwatch_log_policy.arn
+}
 ## IAM roles for step_functions
 
 resource "aws_iam_role" "step_function_role" {

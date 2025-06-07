@@ -2,7 +2,7 @@
 
 data "archive_file" "extraction_lambda" {
     type        = "zip"
-    source_file = "${path.module}/../src/extraction_lambda/${var.extraction_lambda}.py"
+    source_dir = "${path.module}/../src/extraction_lambda"
     output_path = "${path.module}/../deployments/${var.extraction_lambda}.zip"
 }
 
@@ -23,6 +23,17 @@ resource "aws_lambda_function" "extraction_lambda" {
   source_code_hash = data.archive_file.extraction_lambda.output_base64sha256
   layers = [aws_lambda_layer_version.layer.arn]
   runtime = var.runtime
+
+  #Added environment variables 
+  environment {
+    variables = {
+      USER     = var.user
+      PASSWORD = var.password
+      HOST     = var.host
+      PORT     = tostring(var.port)
+      DATABASE = var.database
+    }
+  }
 }
  ## Terraform dummy for Lambda step_functions
 
@@ -98,4 +109,16 @@ resource "aws_lambda_function" "dummy_load_lambda" {
   source_code_hash = data.archive_file.dummy_load_lambda.output_base64sha256
   runtime = var.runtime
 }
+
+/*
+To run the terraform, its needed to export environment variables with the following console commands:
+
+export TF_VAR_user=
+export TF_VAR_password=
+export TF_VAR_host=
+export TF_VAR_port=5432
+export TF_VAR_database=
+
+(insert the database credentials at the end of the variables above)
+*/
 
