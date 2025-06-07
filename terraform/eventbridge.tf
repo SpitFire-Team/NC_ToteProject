@@ -9,48 +9,13 @@ resource "aws_cloudwatch_event_rule" "run_step_function_every_15_minutes" {
 
 resource "aws_cloudwatch_event_target" "trigger_step_function" {
   rule      = aws_cloudwatch_event_rule.run_step_function_every_15_minutes.name
-  target_id = var.step_function
+  target_id = "StepFunctionTarget"
   arn       = aws_sfn_state_machine.StepFunctionsStateMachine.arn
   role_arn  = aws_iam_role.eventbridge_invoke_step_function_role.arn
 }
 
-# IAM role assumed by CloudWatch Events
-resource "aws_iam_role" "eventbridge_invoke_step_function_role" {
-  name = "eventbridge_invoke_step_function"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Effect = "Allow",
-      Principal = {
-        Service = "events.amazonaws.com"
-      },
-      Action = "sts:AssumeRole"
-    }]
-  })
-}
 
-# IAM policy document allowing EventBridge to StartExecution
-data "aws_iam_policy_document" "start_step_function" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "states:StartExecution"
-    ]
-
-    resources = [
-      aws_sfn_state_machine.StepFunctionsStateMachine.arn
-    ]
-  }
-}
-
-# Attach the policy document to the role
-resource "aws_iam_role_policy" "eventbridge_policy" {
-  name   = "allow-start-step-function"
-  role   = aws_iam_role.eventbridge_invoke_step_function_role.id
-  policy = data.aws_iam_policy_document.start_step_function.json
-}
 
 
 data "aws_cloudwatch_event_bus" "default" {

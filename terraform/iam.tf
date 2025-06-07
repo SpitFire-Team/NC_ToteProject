@@ -45,21 +45,47 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_policy_attachment" {
 
 ### Eventbridge 
 
-resource "aws_iam_role" "extraction_lambda_scheduler_role" {
-  name               = "extraction-lambda-scheduler-role"
-  assume_role_policy = data.aws_iam_policy_document.eventbridge_assume_policy.json
+# resource "aws_iam_role" "extraction_lambda_scheduler_role" {
+#   name               = "extraction-lambda-scheduler-role"
+#   assume_role_policy = data.aws_iam_policy_document.eventbridge_assume_policy.json
+# }
+
+resource "aws_iam_role" "eventbridge_invoke_step_function_role" {
+  name = "eventbridge_invoke_step_function"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Principal = {
+        Service = "events.amazonaws.com"
+      },
+      Action = "sts:AssumeRole"
+    }]
+  })
 }
 
-data "aws_iam_policy_document" "eventbridge_assume_policy" {
+# IAM policy document allowing EventBridge to StartExecution
+data "aws_iam_policy_document" "start_step_function" {
   statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-    principals {
-      type        = "Service"
-      identifiers = ["scheduler.amazonaws.com"]
-    }
+    effect = "Allow"
+
+    actions = [
+      "states:StartExecution"
+    ]
+
+    resources = [
+      aws_sfn_state_machine.StepFunctionsStateMachine.arn
+    ]
   }
 }
+
+resource "aws_iam_role_policy" "start_execution_policy" {
+  name   = "start-step-function"
+  role   = aws_iam_role.eventbridge_invoke_step_function_role.id
+  policy = data.aws_iam_policy_document.start_step_function.json
+}
+
 
 ### Cloudwatch
 resource "aws_iam_policy" "cloudwatch_log_policy"{
@@ -85,6 +111,7 @@ resource "aws_iam_role_policy_attachment" "lambda_cloudwatch_logs_policy_attachm
   role = aws_iam_role.iam_role_extraction_lambda.name
   policy_arn = aws_iam_policy.cloudwatch_log_policy.arn
 }
+
 ## IAM roles for step_functions
 
 data "aws_iam_policy_document" "step_function_assume_role" {
