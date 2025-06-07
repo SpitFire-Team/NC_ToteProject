@@ -4,14 +4,19 @@
 #
 #################################################################################
 
-PROJECT_NAME = NC-ToteProject
+PROJECT_NAME = NC_ToteProject
 REGION = eu-west-2
 PYTHON_INTERPRETER = python
-WD=$(shell pwd)
-PYTHONPATH=${WD}
+WD := $(shell pwd)
+PYTHONPATH := ${WD}
 SHELL := /bin/bash
 PROFILE = default
 PIP:=pip
+
+# Prints environment variables to ensure correct python path set
+print-vars:
+	@ echo "WD is $(WD)"
+	@ echo "PYTHONPATH is $(PYTHONPATH)"
 
 ## Create python interpreter environment.
 create-environment:
@@ -51,18 +56,35 @@ black:
 coverage:
 	$(call execute_in_env, $(PIP) install pytest-cov)
 
-## Set up dev requirements (bandit, black & coverage)
-dev-setup: bandit black coverage
+## Install flake8
+flake8:
+	$(call execute_in_env, $(PIP) install flake8)
+
+## Install mypy
+mypy:
+	$(call execute_in_env, $(PIP) install mypy)
+
+## Set up dev requirements (bandit, black, coverage, flake8 & mypy)
+dev-setup: bandit black coverage flake8 mypy
 
 # Build / Run
 
 ## Run the security test (bandit)
 security-test:
-	$(call execute_in_env, bandit -lll *.py *c/*.py)
+	$(call execute_in_env, bandit -r ./src ./test -lll -x ./src/layer/dependencies)
 
 ## Run the black code check
 run-black:
-	$(call execute_in_env, black  ./src/*.py ./test/*.py)
+	$(call execute_in_env, black ./src ./test --exclude src/layer/dependencies)
+
+## Run the flake8 linting check
+run-flake8:
+
+	$(call execute_in_env, flake8 ./src ./test --exclude=src/layer/dependencies --max-line-length=88 --extend-ignore=E501)
+
+## Run the mypy static type checks
+run-mypy:
+	$(call execute_in_env, PYTHONPATH=$(WD)/src mypy src --namespace-packages --explicit-package-bases --ignore-missing-imports --exclude src/layer/dependencies)
 
 ## Run the unit tests
 unit-test:
@@ -70,7 +92,7 @@ unit-test:
 
 ## Run the coverage check
 check-coverage:
-	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest --cov=src test/)
+	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest --cov=src test/ --cov-fail-under=80)
 
 ## Run all checks
-run-checks: security-test run-black unit-test check-coverage
+run-checks: security-test run-black run-flake8 run-mypy unit-test check-coverage 

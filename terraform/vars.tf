@@ -30,3 +30,9 @@ variable "database" {}
 variable "step_function_name" {
   default= "totes-project-stepfuctions"
 }
+
+
+
+variable "step_function_name" {
+  default= "totes-project-stepfuctions"
+}
