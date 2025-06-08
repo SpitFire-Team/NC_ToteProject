@@ -6,12 +6,12 @@ import re
 import pprint
 from datetime import datetime
 
-# from extraction_lambda.get_items_from_database import (
+# from src.extraction_lambda.get_items_from_database import (
 #     set_latest_updated_time,
 #     check_database_updates,
 # )
 
-# from extraction_lambda.store_converted_data_in_s3 import input_updated_data_into_s3
+# from src.extraction_lambda.store_converted_data_in_s3 import input_updated_data_into_s3
 
 
 def db_connection():
