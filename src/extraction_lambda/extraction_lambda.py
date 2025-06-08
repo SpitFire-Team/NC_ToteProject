@@ -6,12 +6,12 @@ import re
 import pprint
 from datetime import datetime
 
-# from src.extraction_lambda.get_items_from_database import (
+# from extraction_lambda.get_items_from_database import (
 #     set_latest_updated_time,
 #     check_database_updates,
 # )
 
-# from src.extraction_lambda.store_converted_data_in_s3 import input_updated_data_into_s3
+# from extraction_lambda.store_converted_data_in_s3 import input_updated_data_into_s3
 
 
 def db_connection():
@@ -94,31 +94,29 @@ def lambda_handler(event, context):
     # use with bucket name to grab last updated time
     # use latest time with query all tables
     #
-    
-
-
-
 
     try:
-        
         # placeholder code below - this information to be returned by input_updated_data_into_s3   
                                                         
         datetime_London = datetime.now()
         date_time_str = datetime_London.strftime("%d/%m/%Y_%H:%M")
         date_time_last_ingestion = date_time_str.replace("/", "-")  # remove /, used for file path
         
-        # future replacement with - date_time_last_ingestion = input_updated_data_into_s3(client,db_updated_values) 
+        return [{"last_ingested_str": date_time_last_ingestion}] # sends json data back to the step funciton placeholder so it runs
                                                
-        return [{"last_ingested_str": date_time_last_ingestion}] # sends json data back to the step funciton
        # placeholder code above
     
         client = boto3.client("s3")
 
         bucket = "random_name"
 
-        conn = db_connection()
+        # conn = db_connection()
 
-        #latest_updated_time = set_latest_updated_time(bucket, client) - commented as not currently running in aws missing src
+        # latest_updated_time = set_latest_updated_time(bucket, client) 
+        
+        # date_time_last_ingestion = input_updated_data_into_s3(client, db_updated_values)  #need to pass in db_updated_values
+        
+        
 
 
     except Exception as e:
