@@ -31,9 +31,10 @@ def input_updated_data_into_s3(s3_client, db_updated_values):
             Returns:
                     none
     """
-    db_values_copy = deepcopy(db_updated_values)
 
     date_time_str = get_path_date_time_string()
+
+    db_values_copy = deepcopy(db_updated_values)
     transformed_data = transform_data_to_compatable_format(db_values_copy)
 
     for table_name, transformed_values in transformed_data.items():
