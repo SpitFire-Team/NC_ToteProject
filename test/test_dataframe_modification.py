@@ -23,4 +23,9 @@ test_dict_list= [{"sales_order": dataframe_1}]
 def test_dataframe_modification_returns_list_of_dicts():
     test_dict_list= [{"sales_order": dataframe_1}]
     assert type(dataframe_modification(test_dict_list)) == list
-    assert "sales_order" in dataframe_modification(test_dict_list)[1].keys
+    assert "sales_order" in dataframe_modification(test_dict_list)[0].keys()
+
+def test_dataframe_moficiation_removes_create_at_collum():
+    assert "created_at" in list(dataframe_1.columns.values) 
+    result = dataframe_modification(test_dict_list)
+    assert "created_at" not in list(result["sales_order"].columns.values) 

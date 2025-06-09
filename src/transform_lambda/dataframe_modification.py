@@ -13,7 +13,13 @@ def dataframe_modification(list_of_dicts):
     """
     modified_list=[]
     for table_dict in list_of_dicts:
-        print(table_dict)
-        new_dict = {key:"test" for key in table_dict}
-        modified_list.append(new_dict)                  
+        table_name =  [key for key in table_dict.keys()]
+        new_dict = {table_name[0] : "test_value"}
+        print(new_dict)
+        # print(table_name)
+        
+        modified_list.append(new_dict)
+       
     return modified_list
+
+
