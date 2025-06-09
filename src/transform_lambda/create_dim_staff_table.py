@@ -1,27 +1,20 @@
 import pandas as pd 
 
 
-def transform_staff():
-    # Load raw data into a DataFrame
-    raw_staff_data = [ ]
+def transform_staff_and_department_tables(staff_dataframe, department_dataframe):
 
-df = pd.DataFrame(raw_staff_data)
+# CREATE Dim_staff_dataframe with the following columns (staff_id, first_name, last_name, department_name,location and email_address)
+# From department_dataframe populate the following columns (department_name, location)
 
-#Renaming the columns 
+    #return new_dataframe
+    dim_staff_col_name_list = ["staff_id", "first_name", "last_name", "department_name","location", "email_address"]
+    dim_staff_df= pd.DataFrame(columns=dim_staff_col_name_list)
+    # From staff_dataframe populate the following columns (staff_id, first_name, last_name, email_address)
+    merge_df= pd.merge(staff_dataframe,department_dataframe, on= "department_id")
+    print(merge_df)
 
-df.rename(columns={
-    "id": "staff_id",
-    "department_id": "department_id"  
-}, inplace=True)
+    return dim_staff_df
 
 
-#  Create full_name field
 
-df["full_name"] = df["first_name"] + " " + df["last_name"]
 
-# Remove sensitive or unused columns like password.
-
-df.drop (columns=["password"], inplace=True)
-
-def transform_currency():
-    pass 
