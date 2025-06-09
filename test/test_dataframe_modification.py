@@ -1,6 +1,7 @@
 from src.transform_lambda.dataframe_modification import dataframe_modification
 import pandas as pd
 import pytest
+
 """
 Test Suite for dataframe_modification function
 """
@@ -28,6 +29,7 @@ string_1 = {
 dataframe_1 = pd.DataFrame(string_1)
 test_dict_list = [{"sales_order": dataframe_1}]
 
+
 def staff_df():
     column_name_list = [
         "staff_id",
@@ -52,6 +54,8 @@ def staff_df():
         data_rows_to_add_df = pd.DataFrame(data, index=[i])
         staff_df = pd.concat([staff_df, data_rows_to_add_df], ignore_index=True)
     return staff_df
+
+
 staff_data = staff_df()
 
 
@@ -64,7 +68,7 @@ def test_dataframe_modification_returns_list_of_dicts():
     test_dict_list_2 = [{"sales_order": dataframe_1}, {"staff": staff_data}]
     assert type(dataframe_modification(test_dict_list)) == list
     assert type(dataframe_modification(test_dict_list_2)) == list
-    assert type(dataframe_modification(test_dict_list_2)[0])== dict
+    assert type(dataframe_modification(test_dict_list_2)[0]) == dict
 
 
 def test_datafram_modification_has_correct_table_keys():
@@ -79,8 +83,8 @@ def test_datafram_modification_has_correct_table_keys():
 
 def test_datafram_modification_has_correct_table_keys_for_multiple_items():
     """
-     This tests that the returned dictionaries have the correct table names as a 
-     key when there are multiple dictionaries in the input list.
+    This tests that the returned dictionaries have the correct table names as a
+    key when there are multiple dictionaries in the input list.
     """
     test_dict_list = [{"sales_order": dataframe_1}, {"staff": staff_data}]
     table_names = []
