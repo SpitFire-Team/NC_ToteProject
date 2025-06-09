@@ -1,9 +1,9 @@
 from dotenv import load_dotenv
 import pg8000
 import os
-import boto3
+
+# import boto3
 import re
-import pprint
 from datetime import datetime
 
 # from src.extraction_lambda.get_items_from_database import (
@@ -110,9 +110,9 @@ def lambda_handler(event, context):
 
         # placeholder code above
 
-        client = boto3.client("s3")
+        # client = boto3.client("s3")
 
-        bucket = "random_name"
+        # bucket = "random_name"
 
         # conn = db_connection()  commented temporarily to allow step function to work.
 
