@@ -69,7 +69,6 @@ def test_datafram_modification_has_correct_table_keys_for_multiple_items():
     for item in dataframe_modification(test_dict_list):
         for key in item.keys():
             table_names.append(key)
-    print(table_names)
     assert "sales_order" in table_names
     assert "staff" in table_names
 
@@ -82,15 +81,28 @@ def test_dataframe_moficiation_removes_create_at_collum():
 def test_dataframe_modification_removes_columns_from_all_items_in_multi_item_list():
     test_dict_list = [{"sales_order": dataframe_1}, {"staff": staff_data}]
     for item in test_dict_list:
-        assert "created_at" in list(item.columns.values)
+        target_dataframe= list(item.values())[0]
+        assert "created_at" in list(target_dataframe.columns.values)
     result = dataframe_modification(test_dict_list)
-    assert "created_at" not in list(result[0]["sales_order"].columns.values)
+    for item in result:
+        target_dataframe= list(item.values())[0]
+        assert "created_at" not in list(target_dataframe.columns.values)
 
 
 def test_dataframe_moficiation_removes_last_updated_column():
     assert "last_updated" in list(dataframe_1.columns.values)
     result = dataframe_modification(test_dict_list)
     assert "last_updated" not in list(result[0]["sales_order"].columns.values)
+
+def test_dataframe_modification_removes_columns_from_all_items_in_multi_item_list():
+    test_dict_list = [{"sales_order": dataframe_1}, {"staff": staff_data}]
+    for item in test_dict_list:
+        target_dataframe= list(item.values())[0]
+        assert "last_updated" in list(target_dataframe.columns.values)
+    result = dataframe_modification(test_dict_list)
+    for item in result:
+        target_dataframe= list(item.values())[0]
+        assert "last_updated" not in list(target_dataframe.columns.values)
 
 
 def test_dataframe_modification_raises_error_if_missing_columns():
