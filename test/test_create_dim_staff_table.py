@@ -1,6 +1,5 @@
 import pytest
 import pandas as pd
-from pprint import pprint
 
 
 from src.transform_lambda.create_dim_staff_table import (
