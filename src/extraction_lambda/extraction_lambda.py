@@ -1,15 +1,11 @@
 from dotenv import load_dotenv
 import pg8000
 import os
-import boto3
-import re
-import pprint
-from datetime import datetime
 
-from src.extraction_lambda.get_items_from_database import (
-    set_latest_updated_time,
-    check_database_updates,
-)
+# import boto3
+import re
+
+# from src.extraction_lambda.get_items_from_database import set_latest_updated_time
 
 
 def db_connection():
@@ -94,13 +90,13 @@ def lambda_handler(event, context):
     #
 
     try:
-        client = boto3.client("s3")
+        # client = boto3.client("s3")
 
-        bucket = "random_name"
+        # bucket = "random_name"
 
         conn = db_connection()
 
-        latest_updated_time = set_latest_updated_time(bucket, client)
+        # latest_updated_time = set_latest_updated_time(bucket, client)
 
     except Exception as e:
         raise Exception(f"Exception: {e}")
