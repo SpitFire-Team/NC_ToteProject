@@ -4,11 +4,8 @@ import psycopg2
 import os
 from dotenv import load_dotenv
 from datetime import datetime, timezone
-
-# from src.extraction_lambda.extraction_lambda import db_connection
-from src.extraction_lambda.get_items_from_database import (
-    check_database_updates,
-)
+from src.extraction_lambda.get_items_from_database import check_database_updates
+from src.utils.aws_utils import get_bucket_name
 
 # load in variables from .env file. Below is configured to find .env in project root, while file is run from test/dir (specifically when root is one level above test dir). Test .dir location with: print("loading .env from:", dotenv_path)
 dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))
@@ -81,10 +78,17 @@ class TestRealTotesysDatabaseConnection:
 
 class TestRealS3Bucket:
     def test_bucket_connection(self, s3_client):
-        s3_files = s3_client.list_objects(Bucket=AWS_REAL_BUCKET_NAME)
+        injested_data_bucket_name = get_bucket_name(s3_client, "ingested-data-bucket-")
+        s3_files = s3_client.list_objects(Bucket=injested_data_bucket_name)
         last_updated = s3_files["Contents"][0]["LastModified"].astimezone(timezone.utc)
-
         assert isinstance(last_updated, datetime)
+
+    # updated test to use a bucket prefix instead of environment variable
+    # def test_bucket_connection(self, s3_client):
+    #     s3_files = s3_client.list_objects(Bucket=AWS_REAL_BUCKET_NAME)
+    #     last_updated = s3_files["Contents"][0]["LastModified"].astimezone(timezone.utc)
+
+    #     assert isinstance(last_updated, datetime)
 
     def test_last_updated_time_passed_from_s3_bucket_into_check_database_query(
         self, s3_client, real_db_connection

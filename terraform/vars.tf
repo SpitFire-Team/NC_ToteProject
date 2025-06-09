@@ -6,6 +6,10 @@ variable "extraction_lambda" {
     default = "extraction_lambda"
 }
 
+variable "step_function" {
+    default = "step_function"
+}
+
 variable "transform_lambda" {
     default = "transform_lambda"
 }
@@ -27,3 +31,17 @@ variable "password" {}
 variable "host" {}
 variable "port" {}
 variable "database" {}
+
+variable "user_load" {}
+variable "password_load" {}
+variable "host_load" {}
+variable "port_load" {}
+variable "database_load" {}
+
+variable "step_function_name" {
+  default= "totes-project-stepfunction"
+}
+
+variable "dummy_step_function_name" {
+  default= "totes-project-dummy_stepfunction"
+}
