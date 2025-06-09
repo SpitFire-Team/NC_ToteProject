@@ -1,20 +1,19 @@
-import pandas as pd 
+import pandas as pd
+from copy import deepcopy
 
 
 def transform_staff_and_department_tables(staff_dataframe, department_dataframe):
-
-# CREATE Dim_staff_dataframe with the following columns (staff_id, first_name, last_name, department_name,location and email_address)
-# From department_dataframe populate the following columns (department_name, location)
-
-    #return new_dataframe
-    dim_staff_col_name_list = ["staff_id", "first_name", "last_name", "department_name","location", "email_address"]
-    dim_staff_df= pd.DataFrame(columns=dim_staff_col_name_list)
-    # From staff_dataframe populate the following columns (staff_id, first_name, last_name, email_address)
-    merge_df= pd.merge(staff_dataframe,department_dataframe, on= "department_id")
-    print(merge_df)
-
-    return dim_staff_df
-
-
-
-
+    staff_df_copy = deepcopy(staff_dataframe)
+    department_df_copy = deepcopy(department_dataframe)
+    dim_staff_col_name_list = [
+        "staff_id",
+        "first_name",
+        "last_name",
+        "department_name",
+        "location",
+        "email_address",
+    ]
+    merge_df = pd.merge(staff_df_copy, department_df_copy, on="department_id")
+    dim_staff_df = merge_df.drop(columns=["department_id", "manager"])
+    dim_staff_df_reordered = dim_staff_df[dim_staff_col_name_list]
+    return dim_staff_df_reordered
