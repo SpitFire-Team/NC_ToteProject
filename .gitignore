@@ -22,7 +22,9 @@ venv
 .pytest_cache
 .coverage
 
-# Ignore Python Lambda layer dependencies and zip
-/src/layer/dependencies/python/
-!**/src/layer/dependencies/
-!**/src/layer/dependencies/.gitkeep
+# Ignore everything in python/
+src/layer/dependencies/python/**
+
+# But keep the utils folder and its .py files
+!src/layer/dependencies/python/utils/
+!src/layer/dependencies/python/utils/*.py
