@@ -96,28 +96,29 @@ def lambda_handler(event, context):
     #
 
     try:
-        # placeholder code below - this information to be returned by input_updated_data_into_s3   
-                                                        
+        # placeholder code below - this information to be returned by input_updated_data_into_s3
+
         datetime_London = datetime.now()
         date_time_str = datetime_London.strftime("%d/%m/%Y_%H:%M")
-        date_time_last_ingestion = date_time_str.replace("/", "-")  # remove /, used for file path
-        
-        return [{"last_ingested_str": date_time_last_ingestion}] # sends json data back to the step funciton placeholder so it runs
-                                               
-       # placeholder code above
-    
+        date_time_last_ingestion = date_time_str.replace(
+            "/", "-"
+        )  # remove /, used for file path
+
+        return [
+            {"last_ingested_str": date_time_last_ingestion}
+        ]  # sends json data back to the step funciton placeholder so it runs
+
+        # placeholder code above
+
         client = boto3.client("s3")
 
         bucket = "random_name"
 
-        # conn = db_connection()
+        # conn = db_connection()  commented temporarily to allow step function to work.
 
-        # latest_updated_time = set_latest_updated_time(bucket, client) 
-        
+        # latest_updated_time = set_latest_updated_time(bucket, client) commented temporarily to allow step function to work.
+
         # date_time_last_ingestion = input_updated_data_into_s3(client, db_updated_values)  #need to pass in db_updated_values
-        
-        
-
 
     except Exception as e:
         raise Exception(f"Exception: {e}")

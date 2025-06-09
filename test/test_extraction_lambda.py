@@ -10,7 +10,6 @@ from src.extraction_lambda.extraction_lambda import (
 )
 
 
-
 @pytest.fixture
 def client():
     with mock_aws():
