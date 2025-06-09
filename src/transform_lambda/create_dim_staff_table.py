@@ -24,4 +24,4 @@ df["full_name"] = df["first_name"] + " " + df["last_name"]
 df.drop (columns=["password"], inplace=True)
 
 def transform_currency():
-    
+    pass 
