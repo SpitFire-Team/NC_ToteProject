@@ -20,7 +20,7 @@ resource "aws_lambda_layer_version" "layer" {
   compatible_runtimes = [var.runtime]
   s3_bucket  = aws_s3_object.lambda_layer.bucket
   s3_key     = aws_s3_object.lambda_layer.key
-  #   filename = "${path.module}/../${var.path_layer}/layer.zip" - code if stored locally
+  source_code_hash = filebase64sha256(data.archive_file.layer_code.output_path)
   depends_on = [data.archive_file.layer_code]
 }
 

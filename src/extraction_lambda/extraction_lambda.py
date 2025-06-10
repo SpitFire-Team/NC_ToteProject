@@ -1,17 +1,17 @@
 from dotenv import load_dotenv
 import pg8000
 import os
-
-# import boto3
+import boto3
 import re
-from datetime import datetime
 
-# from src.extraction_lambda.get_items_from_database import (
-#     set_latest_updated_time,
-#     check_database_updates,
-# )
+from src.extraction_lambda.get_items_from_database import (  # src needs removing
+    set_latest_updated_time,
+    query_all_tables,
+)
 
-# from src.extraction_lambda.store_converted_data_in_s3 import input_updated_data_into_s3
+from src.extraction_lambda.store_converted_data_in_s3 import (
+    input_updated_data_into_s3,
+)  # src
 
 
 def db_connection():
@@ -24,11 +24,11 @@ def db_connection():
     """
     load_dotenv()
 
-    user = os.getenv("USER")
-    password = os.getenv("PASSWORD")
-    host = os.getenv("HOST")
-    port = int(os.getenv("PORT"))
-    database = os.getenv("DATABASE")
+    user = os.getenv("DB_USER")
+    password = os.getenv("DB_PASSWORD")
+    host = os.getenv("DB_HOST")
+    port = int(os.getenv("DB_PORT"))
+    database = os.getenv("DB_NAME")
 
     try:
         conn = pg8000.connect(
@@ -89,40 +89,25 @@ def find_latest_ingestion_bucket(client):
 
 
 def lambda_handler(event, context):
-    # create a client
-    # code to grab bucket name using prefix
-    # use with bucket name to grab last updated time
-    # use latest time with query all tables
-    #
-
+    conn = None
     try:
-        # placeholder code below - this information to be returned by input_updated_data_into_s3
+        client = boto3.client("s3")
 
-        datetime_London = datetime.now()
-        date_time_str = datetime_London.strftime("%d/%m/%Y_%H:%M")
-        date_time_last_ingestion = date_time_str.replace(
-            "/", "-"
-        )  # remove /, used for file path
+        bucket = find_latest_ingestion_bucket(client)
 
-        return [
-            {"last_ingested_str": date_time_last_ingestion}
-        ]  # sends json data back to the step funciton placeholder so it runs
+        latest_updated_time = set_latest_updated_time(bucket, client)
 
-        # placeholder code above
+        queried_tables = query_all_tables(conn, latest_updated_time)
 
-        # client = boto3.client("s3")
+        input_updated_data_into_s3(client, queried_tables, bucket)
 
-        # bucket = "random_name"
-
-        # conn = db_connection()  commented temporarily to allow step function to work.
-
-        # latest_updated_time = set_latest_updated_time(bucket, client) commented temporarily to allow step function to work.
-
-        # date_time_last_ingestion = input_updated_data_into_s3(client, db_updated_values)  #need to pass in db_updated_values
+        return {"Message": "Success!"}
 
     except Exception as e:
-        raise Exception(f"Exception: {e}")
+        return {"Error": e}
 
     finally:
-        pass
-        # conn.close()   commented temporarily to allow step function to work.
+        if conn:
+            conn.close()
+        else:
+            return {"Error": "Connection error"}
