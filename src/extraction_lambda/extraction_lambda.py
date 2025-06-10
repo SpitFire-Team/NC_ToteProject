@@ -113,15 +113,3 @@ def lambda_handler(event, context):
             conn.close()
         else:
             return {"Error": "Connection error"}
-
-client = boto3.client("s3")
-
-bucket = find_latest_ingestion_bucket(client)
-
-conn = db_connection()
-
-latest_updated_time = set_latest_updated_time(bucket, client)
-
-queried_tables = query_all_tables(conn, latest_updated_time)
-
-print(queried_tables)
