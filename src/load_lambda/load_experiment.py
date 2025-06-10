@@ -23,17 +23,6 @@ connection_string= 'postgresql://project_team_09:W0fAc1kiQ1BA5uA@nc-data-eng-pro
 db = create_engine(connection_string)
 conn = db.connect()
 
-data = {
-    "sales_order_id": [2, 3],
-    "design_id": [3, 4],
-    "counterparty_id": [8, 4],
-    "units_sold": [42972, 65839],
-    "unit_price": ["3.94", "2.91"],
-    "currency_id": [2, 3],
-    "agreed_delivery_date": ["2022-11-07", "2022-11-06"],
-    "agreed_payment_date": ["2022-11-08", "2022-11-07"],
-    "agreed_delivery_location_id": [8, 19],
-}
 
 def staff_df():
     column_name_list = [
@@ -63,5 +52,9 @@ staff_data = staff_df()
 
 df = pd.DataFrame(staff_data)
 test_dict_list = [{"test_dim_staff": df}]
+#Create a for loop, that take out the table name, and take out the data frame. 
+
+
 
 df.to_sql('dim_staff', con=conn, if_exists= 'append', index = False)
+#Puts inside the wharehouse 

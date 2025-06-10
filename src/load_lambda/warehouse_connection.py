@@ -12,11 +12,11 @@ def wh_connection():
     """
     load_dotenv()
 
-    user = os.getenv("WH_USER")
-    password = os.getenv("WH_PASSWORD")
-    host = os.getenv("WH_HOST")
-    port = int(os.getenv("WH_PORT"))
-    database = os.getenv("WH_DATABASE")
+    user = "project_team_09"
+    password = "W0fAc1kiQ1BA5uA"
+    host = "nc-data-eng-project-dw-prod.chpsczt8h1nu.eu-west-2.rds.amazonaws.com"
+    port = 5432
+    database = "postgres"
 
     try:
         conn = pg8000.connect(
