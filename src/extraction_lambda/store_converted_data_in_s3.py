@@ -1,4 +1,4 @@
-from src.utils.aws_utils import add_json_to_s3_bucket, get_bucket_name
+from src.utils.aws_utils import add_data_to_s3_bucket, get_bucket_name
 from src.utils.file_utils import convert_to_dict, get_path_date_time_string
 from copy import deepcopy
 import json
@@ -45,7 +45,7 @@ def input_updated_data_into_s3(
         bucket_name = get_bucket_name(s3_client=s3_client, bucket_prefix=bucket_prefix)
         json_compatable_data = json.dumps(transformed_values)
 
-        add_json_to_s3_bucket(
+        add_data_to_s3_bucket(
             s3_client=s3_client,
             bucket_name=bucket_name,
             data=json_compatable_data,
