@@ -15,11 +15,12 @@ resource "aws_s3_object" "extaction_file_upload" {
 
 
 resource "aws_lambda_function" "extraction_lambda" {
-  function_name = var.extraction_lambda
-  s3_bucket     = aws_s3_bucket.code_bucket.id
-  s3_key        = aws_s3_object.extaction_file_upload.key
+  function_name = "${var.extraction_lambda}"
+  s3_bucket     = "${aws_s3_bucket.code_bucket.id}"
+  s3_key        = "${aws_s3_object.extaction_file_upload.key}"
   role          = aws_iam_role.iam_role_extraction_lambda.arn
-  handler = "extraction_lambda.extraction_lambda.lambda_handler" 
+  handler       = "${var.extraction_lambda}.lambda_handler"
+  # handler = "extraction_lambda.extraction_lambda.lambda_handler" 
   source_code_hash = data.archive_file.extraction_lambda.output_base64sha256
   layers        = [aws_lambda_layer_version.layer.arn]
   runtime       = var.runtime
@@ -55,13 +56,13 @@ resource "aws_lambda_function" "transform_lambda" {
   function_name = "${var.transform_lambda}"
   s3_bucket     = "${aws_s3_bucket.code_bucket.id}"
   s3_key        = "${aws_s3_object.transform_file_upload.key}"
-  role          = aws_iam_role.iam_role_extraction_lambda.arn  ## complete this in IAM
+  role          = aws_iam_role.iam_role_transform_lambda.arn  ## complete this in IAM
   handler       = "${var.transform_lambda}.lambda_handler"
   source_code_hash = data.archive_file.transform_lambda.output_base64sha256
   layers = [aws_lambda_layer_version.layer.arn]
   runtime = var.runtime
-
-
+  timeout = 300
+  memory_size = 1024
 }
 
 # Load lambda
@@ -82,11 +83,13 @@ resource "aws_lambda_function" "load_lambda" {
   function_name = "${var.load_lambda}"
   s3_bucket     = "${aws_s3_bucket.code_bucket.id}"
   s3_key        = "${aws_s3_object.load_file_upload.key}"
-  role          = aws_iam_role.iam_role_extraction_lambda.arn  ## complete this in IAM
+  role          = aws_iam_role.iam_role_load_lambda.arn  ## complete this in IAM
   handler       = "${var.load_lambda}.lambda_handler"
   source_code_hash = data.archive_file.load_lambda.output_base64sha256
   layers = [aws_lambda_layer_version.layer.arn]
   runtime = var.runtime
+  timeout = 300
+  memory_size = 1024
 
   #Added environment variables  - Note - should change for final data base!!!
   environment {

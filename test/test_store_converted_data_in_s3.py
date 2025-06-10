@@ -49,6 +49,12 @@ def add_S3_bucket(client, bucket_name):
 
 
 @pytest.fixture
+def bucket_name():
+    temp_bucket_name = "ingested-data-bucket-1"
+    return temp_bucket_name
+
+
+@pytest.fixture
 def s3_client_two_buckets_one_prefix(s3_client):
     bucket_prefix = "ingested-data"
     add_S3_bucket(s3_client, f"{bucket_prefix}-bucket-1")
@@ -91,20 +97,27 @@ class TestTransformDataToCompatableFormat:
             assert table_key == db_data_table_names[oldCount]
 
 
-@pytest.mark.skip
 class TestInputUpdatedDataIntoS3:
 
-    def test_s3_client_not_modified(self, s3_client_two_buckets_one_prefix, db_values):
+    def test_s3_client_not_modified(
+        self, s3_client_two_buckets_one_prefix, db_values, bucket_name
+    ):
         client_before = s3_client_two_buckets_one_prefix
-        input_updated_data_into_s3(s3_client_two_buckets_one_prefix, db_values)
+        input_updated_data_into_s3(
+            s3_client_two_buckets_one_prefix, db_values, bucket_name
+        )
         client_after = s3_client_two_buckets_one_prefix
 
         assert client_before == client_after
         assert client_before is client_after
 
-    def test_db_values_not_modified(self, s3_client_two_buckets_one_prefix, db_values):
+    def test_db_values_not_modified(
+        self, s3_client_two_buckets_one_prefix, db_values, bucket_name
+    ):
         db_values_before = db_values
-        input_updated_data_into_s3(s3_client_two_buckets_one_prefix, db_values)
+        input_updated_data_into_s3(
+            s3_client_two_buckets_one_prefix, db_values, bucket_name
+        )
         db_values_after = db_values
 
         assert db_values_before == db_values_after

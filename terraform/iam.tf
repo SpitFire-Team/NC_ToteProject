@@ -24,7 +24,8 @@ data "aws_iam_policy_document" "s3_extraction_permissions_document" {
   statement {
     actions = [
       "s3:GetObject",
-      "s3:PutObject"
+      "s3:PutObject",
+      "s3:ListBucket", #changes to s3 bucket permissions
     ]
 
     resources = [
@@ -32,15 +33,15 @@ data "aws_iam_policy_document" "s3_extraction_permissions_document" {
     ]
   }
 
-  statement {
-    actions = [
-      "s3:ListBucket" #changes to s3 bucket permissions
-    ]
+  # statement {
+  #   actions = [
+  #     "s3:ListBucket" #changes to s3 bucket permissions
+  #   ]
 
-    resources = [
-      "${aws_s3_bucket.ingestion_bucket.arn}"
-    ]
-  }
+  #   resources = [
+  #     "${aws_s3_bucket.ingestion_bucket.arn}"
+  #   ]
+  # }
 
   statement {
     actions = [
@@ -73,11 +74,21 @@ data "aws_iam_policy_document" "s3_transform_permissions_document" {
     actions   = [
         "s3:GetObject",
         "s3:PutObject",
+        "s3:ListBucket", #changes to s3 bucket permissions
     ]
 
     resources = [
       "${aws_s3_bucket.processed_bucket.arn}/*",
+      "${aws_s3_bucket.ingestion_bucket.arn}/*"
     ]
+  }
+
+  statement {
+    actions = [
+      "s3:ListAllMyBuckets"
+    ]
+
+    resources = ["*"]
   }
 }
 
