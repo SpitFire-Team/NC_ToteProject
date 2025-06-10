@@ -1,4 +1,4 @@
 
 
 def lambda_handler(event, context):
-    pass
+    return event
