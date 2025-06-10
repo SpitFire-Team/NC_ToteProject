@@ -4,12 +4,12 @@ import os
 import boto3
 import re
 
-from src.extraction_lambda.get_items_from_database import (  # src needs removing
+from src.extraction_lambda_package.extraction_lambda.get_items_from_database import (  # src needs removing
     set_latest_updated_time,
     query_all_tables,
 )
 
-from src.extraction_lambda.store_converted_data_in_s3 import (
+from src.extraction_lambda_package.extraction_lambda.store_converted_data_in_s3 import (
     input_updated_data_into_s3,
 )  # src
 
@@ -23,6 +23,8 @@ def db_connection():
         exception if the connection fails due to interface errors.
     """
     load_dotenv()
+    
+    #here
 
     user = os.getenv("DB_USER")
     password = os.getenv("DB_PASSWORD")
@@ -92,24 +94,51 @@ def lambda_handler(event, context):
     conn = None
     try:
         client = boto3.client("s3")
-
         bucket = find_latest_ingestion_bucket(client)
-
+        conn = db_connection()
         latest_updated_time = set_latest_updated_time(bucket, client)
-
         queried_tables = query_all_tables(conn, latest_updated_time)
-
-        date_time_last_ingestion = input_updated_data_into_s3(
-            client, queried_tables, bucket
-        )
-
+        date_time_last_ingestion = input_updated_data_into_s3(client, queried_tables, bucket)
         return [{"last_ingested_str": date_time_last_ingestion}]
-
     except Exception as e:
-        return {"Error": e}
-
+        return {"Error": "error in lambda handler"}
     finally:
         if conn:
             conn.close()
         else:
             return {"Error": "Connection error"}
+
+
+
+
+
+        
+        
+# def lambda_handler(event, context):
+#     conn = None
+#     try:
+#         client = boto3.client("s3")
+        
+#         conn = db_connection()
+        
+#         bucket = find_latest_ingestion_bucket(client)
+
+#         latest_updated_time = set_latest_updated_time(bucket, client)
+
+#         queried_tables = query_all_tables(conn, latest_updated_time)
+
+#         date_time_last_ingestion = input_updated_data_into_s3(
+#             client, queried_tables, bucket
+#         )
+
+#         # return [{"last_ingested_str": date_time_last_ingestion}]
+#         return {"message successful": "message"}
+
+#     except Exception as e:
+#         return {"Error": e}
+
+#     finally:
+#         if conn:
+#             conn.close()
+#         else:
+#             return {"Error": "Connection error"}

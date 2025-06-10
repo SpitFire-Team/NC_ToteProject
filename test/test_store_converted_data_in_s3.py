@@ -1,5 +1,5 @@
 import pytest
-from src.extraction_lambda.store_converted_data_in_s3 import (
+from src.extraction_lambda_package.extraction_lambda.store_converted_data_in_s3 import (
     transform_data_to_compatable_format,
     input_updated_data_into_s3,
 )
