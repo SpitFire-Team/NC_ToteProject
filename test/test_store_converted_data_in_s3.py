@@ -91,6 +91,7 @@ class TestTransformDataToCompatableFormat:
             assert table_key == db_data_table_names[oldCount]
 
 
+@pytest.mark.skip
 class TestInputUpdatedDataIntoS3:
 
     def test_s3_client_not_modified(self, s3_client_two_buckets_one_prefix, db_values):

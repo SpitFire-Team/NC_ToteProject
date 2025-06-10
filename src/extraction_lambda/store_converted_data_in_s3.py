@@ -1,5 +1,5 @@
-from src.utils.aws_utils import add_data_to_s3_bucket, get_bucket_name
-from src.utils.file_utils import convert_to_dict, get_path_date_time_string
+from src.utils.aws_utils import add_data_to_s3_bucket  # src
+from src.utils.file_utils import convert_to_dict, get_path_date_time_string  # src
 from copy import deepcopy
 import json
 
@@ -41,7 +41,7 @@ def input_updated_data_into_s3(
 
     for table_name, transformed_values in transformed_data.items():
         file_path = f"{table_name}/{date_time_str}.json"
-        bucket_name =bucket
+        bucket_name = bucket
         json_compatable_data = json.dumps(transformed_values, default=str)
 
         add_data_to_s3_bucket(

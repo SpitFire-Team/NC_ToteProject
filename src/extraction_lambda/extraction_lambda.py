@@ -1,19 +1,18 @@
 from dotenv import load_dotenv
 import pg8000
 import os
-
 import boto3
 import re
-import pprint
-from datetime import datetime, timezone
 
-from extraction_lambda.get_items_from_database import (
+from src.extraction_lambda.get_items_from_database import (  # src needs removing
     set_latest_updated_time,
     query_all_tables,
-    check_database_updates
 )
 
-from extraction_lambda.store_converted_data_in_s3 import transform_data_to_compatable_format, input_updated_data_into_s3
+from src.extraction_lambda.store_converted_data_in_s3 import (
+    input_updated_data_into_s3,
+)  # src
+
 
 def db_connection():
     """
@@ -25,11 +24,11 @@ def db_connection():
     """
     load_dotenv()
 
-    user = os.getenv("USER")
-    password = os.getenv("PASSWORD")
-    host = os.getenv("HOST")
-    port = int(os.getenv("PORT"))
-    database = os.getenv("DATABASE")
+    user = os.getenv("DB_USER")
+    password = os.getenv("DB_PASSWORD")
+    host = os.getenv("DB_HOST")
+    port = int(os.getenv("DB_PORT"))
+    database = os.getenv("DB_NAME")
 
     try:
         conn = pg8000.connect(
@@ -96,8 +95,6 @@ def lambda_handler(event, context):
 
         bucket = find_latest_ingestion_bucket(client)
 
-        # conn = db_connection()  commented temporarily to allow step function to work.
-
         latest_updated_time = set_latest_updated_time(bucket, client)
 
         queried_tables = query_all_tables(conn, latest_updated_time)
@@ -105,10 +102,10 @@ def lambda_handler(event, context):
         input_updated_data_into_s3(client, queried_tables, bucket)
 
         return {"Message": "Success!"}
-    
+
     except Exception as e:
         return {"Error": e}
-    
+
     finally:
         if conn:
             conn.close()
