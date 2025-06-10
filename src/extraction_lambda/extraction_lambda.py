@@ -99,9 +99,11 @@ def lambda_handler(event, context):
 
         queried_tables = query_all_tables(conn, latest_updated_time)
 
-        input_updated_data_into_s3(client, queried_tables, bucket)
+        date_time_last_ingestion = input_updated_data_into_s3(
+            client, queried_tables, bucket
+        )
 
-        return {"Message": "Success!"}
+        return [{"last_ingested_str": date_time_last_ingestion}]
 
     except Exception as e:
         return {"Error": e}
