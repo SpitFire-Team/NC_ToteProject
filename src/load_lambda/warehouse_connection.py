@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import pg8000
 import os
 
-def db_connection():
+def wh_connection():
     """
     Grabs environment variables and uses them to create a database connection.
     Returns:

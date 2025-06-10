@@ -1,3 +1,4 @@
+from warehouse_connection import wh_connection
 
 def load_to_warehouse():
     """
@@ -10,3 +11,4 @@ def load_to_warehouse():
 
 #
 #CONNECT TO SQL, write dataframe
+
