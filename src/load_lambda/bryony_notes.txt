@@ -1,0 +1,6 @@
+Dataframe to database
+
+{table_name: dataframe} --> table name should match table name in warehouse 
+-->some code which takes the table name and uses it to reference which table to load to
+
+https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
