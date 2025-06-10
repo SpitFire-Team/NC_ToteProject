@@ -1,8 +1,13 @@
 import pytest
-from src.utils.aws_utils import get_bucket_name, add_json_to_s3_bucket
+from src.utils.aws_utils import (
+    get_bucket_name,
+    add_data_to_s3_bucket,
+    read_file_in_bucket,
+)
 from moto import mock_aws
 import boto3
 import json
+import pandas as pd
 
 
 # boto3 fixtures
@@ -26,6 +31,12 @@ def get_num_items_in_bucket(client, bucket_name):
 
     response = client.list_objects_v2(Bucket=bucket_name)
     return response["KeyCount"]
+
+
+@pytest.fixture
+def s3_client_one_bucket_one_file(s3_client):
+    add_S3_bucket(s3_client, "test-bucket-1")
+    return s3_client
 
 
 @pytest.fixture
@@ -63,6 +74,30 @@ def json_data():
     return json.dumps(db_values)
 
 
+@pytest.fixture
+def dummy_df():
+    column_name_list = [
+        "col_1",
+        "col_2",
+        "col_3",
+        "col_4",
+        "col_5",
+    ]
+    staff_df = pd.DataFrame(columns=column_name_list)
+    for i in range(10):
+        data = {
+            column_name_list[0]: f"{column_name_list[0]} values",
+            column_name_list[1]: f"{column_name_list[1]} values",
+            column_name_list[2]: f"{column_name_list[2]} values",
+            column_name_list[3]: f"{column_name_list[3]} values",
+            column_name_list[4]: f"{column_name_list[4]} values",
+        }
+        data_rows_to_add_df = pd.DataFrame(data, index=[i])
+        staff_df = pd.concat([staff_df, data_rows_to_add_df], ignore_index=True)
+
+    return staff_df
+
+
 class TestGeBucketName:
 
     def test_function_returns_string(self, s3_client_two_buckets_one_prefix):
@@ -97,7 +132,7 @@ class TestGeBucketName:
             get_bucket_name(s3_client_two_buckets_with_prefix, bucket_prefix)
 
 
-class TestAddJsonToS3Bucket:
+class TestAddDataToS3Bucket:
     def test_function_adds_a_file_to_bucket(
         self, s3_client_two_buckets_one_prefix, json_data
     ):
@@ -108,7 +143,7 @@ class TestAddJsonToS3Bucket:
             s3_client_two_buckets_one_prefix, bucket_name
         )
 
-        add_json_to_s3_bucket(
+        add_data_to_s3_bucket(
             s3_client_two_buckets_one_prefix, bucket_name, json_data, file_path
         )
 
@@ -129,7 +164,7 @@ class TestAddJsonToS3Bucket:
         file_path = "test/test.json"
         json_data_before = json_data
 
-        add_json_to_s3_bucket(
+        add_data_to_s3_bucket(
             s3_client_two_buckets_one_prefix, bucket_name, json_data, file_path
         )
 
@@ -141,8 +176,9 @@ class TestAddJsonToS3Bucket:
     ):
         file_path = "test/test.json"
         bucket_name = 12
+
         with pytest.raises(Exception):
-            add_json_to_s3_bucket(
+            add_data_to_s3_bucket(
                 s3_client_two_buckets_one_prefix, bucket_name, json_data, file_path
             )
 
@@ -152,8 +188,9 @@ class TestAddJsonToS3Bucket:
         bucket_prefix = "ingested-data"
         bucket_name = f"{bucket_prefix}-bucket-1"
         file_path = 12
+
         with pytest.raises(Exception):
-            add_json_to_s3_bucket(
+            add_data_to_s3_bucket(
                 s3_client_two_buckets_one_prefix, bucket_name, json_data, file_path
             )
 
@@ -164,3 +201,44 @@ class TestAddJsonToS3Bucket:
 class TestMakeS3Client:
     def test_make_s3_client(self):
         assert 1 == 2
+
+
+class TestReadFileInBucket:
+    def test_file_out_put_is_string(self, s3_client_one_bucket_one_file):
+        body = "test-1"
+        s3_client_one_bucket_one_file.put_object(
+            Body=body,
+            Bucket="test-bucket-1",
+            Key="test-file-1",
+        )
+        output = read_file_in_bucket(
+            s3_client_one_bucket_one_file, "test-bucket-1", "test-file-1"
+        )
+        assert type(output) is str
+
+    def test_output_is_body(self, s3_client_one_bucket_one_file):
+        body = "test-1"
+        s3_client_one_bucket_one_file.put_object(
+            Body=body,
+            Bucket="test-bucket-1",
+            Key="test-file-1",
+        )
+        read_file_in_bucket(
+            s3_client_one_bucket_one_file, "test-bucket-1", "test-file-1"
+        )
+        body_after = body
+
+        assert body == body_after
+
+    def test_2(self, s3_client_one_bucket_one_file):
+        body = "test-1"
+        s3_client_one_bucket_one_file.put_object(
+            Body=body,
+            Bucket="test-bucket-1",
+            Key="test-file-1",
+        )
+        output = read_file_in_bucket(
+            s3_client_one_bucket_one_file, "test-bucket-1", "test-file-1"
+        )
+
+        assert output == body

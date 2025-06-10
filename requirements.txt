@@ -7,10 +7,13 @@ black
 pep8
 flake8
 boto3
-pytest>=8.3.5
 moto[s3]
+mypy
+pandas
 psycopg2-binary
 pydantic
+pytest>=8.3.5
 pytest-testdox
 pytz
+types-pytz
 mypy 

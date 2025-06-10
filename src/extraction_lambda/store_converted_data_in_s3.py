@@ -1,5 +1,5 @@
-from utils.aws_utils import add_json_to_s3_bucket, get_bucket_name
-from utils.file_utils import convert_to_dict, get_path_date_time_string
+from src.utils.aws_utils import add_data_to_s3_bucket, get_bucket_name
+from src.utils.file_utils import convert_to_dict, get_path_date_time_string
 from copy import deepcopy
 import json
 
@@ -20,7 +20,9 @@ def transform_data_to_compatable_format(db_updated_values):
     return transformed_values
 
 
-def input_updated_data_into_s3(s3_client, db_updated_values, bucket):
+def input_updated_data_into_s3(
+    s3_client, db_updated_values, bucket
+):  # delete '= None' once passing in db_updated values
     """
     convert db_updated_values in json format seperated by table. uploads to table folder
     in the s3 bucket
@@ -31,9 +33,10 @@ def input_updated_data_into_s3(s3_client, db_updated_values, bucket):
             Returns:
                     none
     """
-    db_values_copy = deepcopy(db_updated_values)
 
     date_time_str = get_path_date_time_string()
+
+    db_values_copy = deepcopy(db_updated_values)
     transformed_data = transform_data_to_compatable_format(db_values_copy)
 
     for table_name, transformed_values in transformed_data.items():
@@ -41,9 +44,11 @@ def input_updated_data_into_s3(s3_client, db_updated_values, bucket):
         bucket_name =bucket
         json_compatable_data = json.dumps(transformed_values, default=str)
 
-        add_json_to_s3_bucket(
+        add_data_to_s3_bucket(
             s3_client=s3_client,
             bucket_name=bucket_name,
             data=json_compatable_data,
             file_path=file_path,
         )
+
+    return date_time_str

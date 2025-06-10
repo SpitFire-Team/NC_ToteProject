@@ -107,7 +107,7 @@ def query_all_tables(conn, last_updated_time):
             if rows:
                 results[(table, tuple(columns))] = rows
 
-        except Exception as e:
+        except Exception:
             print(f"Unable to query table: {table}")
 
     # the below approach orginally output data in true JSON format and was removed to implement the format required by transform_and_store_data function

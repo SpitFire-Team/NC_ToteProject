@@ -26,13 +26,14 @@ def get_bucket_name(s3_client, bucket_prefix: str):
     return result[0]
 
 
-def add_data_to_s3_bucket(s3_client, bucket_name: str, data, file_path: str):
+def add_json_to_s3_bucket(s3_client, bucket_name: str, data: str, file_path: str):
     """
-    puts data in correct table folder in s3 bucket with the data
+    puts json data in correct table folder in s3 bucket with the data and time as the
+    file name
             Parameters:
                     s3_client (boto3.client('s3')): a boto3 client for an s3 bucket
                     bucket_name (string) : prefix of bucket type
-                    data : updated values from databased
+                    data (json compatable format) : updated values from databased
                     converted into a list of dictionaries
             Returns:
                     none
@@ -43,6 +44,8 @@ def add_data_to_s3_bucket(s3_client, bucket_name: str, data, file_path: str):
             Body=data,
             Bucket=bucket_name,
             Key=file_path,
+            # Metadata = f"{table_name} {date_time.strftime('%d/%m/%Y_%H:%M')}",
+            ContentType="application/json",
         )
         return f"data addded to {file_path}"
     except Exception as e:
@@ -67,18 +70,3 @@ def make_s3_client():
         aws_secret_access_key=os.getenv("AWS_SECRET_KEY"),
     )
     return client
-
-
-def read_file_in_bucket(s3_client, bucket_name: str, file_key: str):
-    """
-    reads object in s3 and return content
-            Parameters:
-                    s3_client (boto3.client('s3')): a boto3 client for an s3 bucket
-                    bucket_name (string)
-                    file_key (string))
-            Returns:
-                    full s3 bucket name from aws consol (string)
-    """
-    response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
-    response_body = response["Body"].read().decode("utf-8")
-    return response_body

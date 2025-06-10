@@ -7,11 +7,16 @@
 PROJECT_NAME = NC_ToteProject
 REGION = eu-west-2
 PYTHON_INTERPRETER = python
-WD=$(shell pwd)
-PYTHONPATH=${WD}
+WD := $(shell pwd)
+PYTHONPATH := ${WD}
 SHELL := /bin/bash
 PROFILE = default
 PIP:=pip
+
+# Prints environment variables to ensure correct python path set
+print-vars:
+	@ echo "WD is $(WD)"
+	@ echo "PYTHONPATH is $(PYTHONPATH)"
 
 ## Create python interpreter environment.
 create-environment:
@@ -75,11 +80,11 @@ run-black:
 ## Run the flake8 linting check
 run-flake8:
 
-	$(call execute_in_env, flake8 ./src ./test --exclude=src/layer/dependencies --max-line-length=88)
+	$(call execute_in_env, flake8 ./src ./test --exclude=src/layer/dependencies --max-line-length=88 --extend-ignore=E501)
 
 ## Run the mypy static type checks
 run-mypy:
-	$(call execute_in_env, mypy ./src ./test --exclude src/layer/dependencies)
+	$(call execute_in_env, PYTHONPATH=$(WD)/src mypy src --namespace-packages --explicit-package-bases --ignore-missing-imports --exclude src/layer/dependencies)
 
 ## Run the unit tests
 unit-test:

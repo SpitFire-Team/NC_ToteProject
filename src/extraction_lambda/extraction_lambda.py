@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import pg8000
 import os
+
 import boto3
 import re
 import pprint
@@ -95,7 +96,7 @@ def lambda_handler(event, context):
 
         bucket = find_latest_ingestion_bucket(client)
 
-        conn = db_connection()
+        # conn = db_connection()  commented temporarily to allow step function to work.
 
         latest_updated_time = set_latest_updated_time(bucket, client)
 
