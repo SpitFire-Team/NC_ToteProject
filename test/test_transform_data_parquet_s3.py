@@ -85,7 +85,36 @@ def dummy_dic_list(dummy_df):
     return list_dict
 
 
+@pytest.fixture
+def empty_dict_list():
+    return [{}]
+
+
 class TestTransformDataParquetS3:
+
+    def test_function_adds_nothing_if_empty_dict_list_passed_in(
+        self,
+        s3_client_two_buckets_one_prefix,
+        empty_dict_list,
+        date_time_last_ingestion,
+    ):
+        bucket_prefix = "processed-data"
+        bucket_name = f"{bucket_prefix}-bucket-1"
+
+        files_in_bucket_before = get_num_items_in_bucket(
+            s3_client_two_buckets_one_prefix, bucket_name
+        )
+
+        transform_data_to_parquet_on_s3(
+            s3_client_two_buckets_one_prefix,
+            empty_dict_list,
+            date_time_last_ingestion,
+        )
+
+        files_in_bucket_after = get_num_items_in_bucket(
+            s3_client_two_buckets_one_prefix, bucket_name
+        )
+        assert files_in_bucket_after == files_in_bucket_before
 
     def test_function_adds_a_file_to_bucket(
         self, s3_client_two_buckets_one_prefix, dummy_dic_list, date_time_last_ingestion
