@@ -38,7 +38,9 @@ class TestDatabaseConnection:
         with pytest.raises(Exception, match="Connection failed"):
             db_connection()
 
-    @patch("src.extraction_lambda_package.extraction_lambda.extraction_lambda_function.pg8000.connect")
+    @patch(
+        "src.extraction_lambda_package.extraction_lambda.extraction_lambda_function.pg8000.connect"
+    )
     def test_successful_connection(self, mock_connect, monkeypatch):
         """
         Tests that db_connection returns the connection object when the connection is successful.

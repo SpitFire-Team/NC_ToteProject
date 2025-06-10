@@ -23,8 +23,8 @@ def db_connection():
         exception if the connection fails due to interface errors.
     """
     load_dotenv()
-    
-    #here
+
+    # here
 
     user = os.getenv("DB_USER")
     password = os.getenv("DB_PASSWORD")
@@ -98,47 +98,14 @@ def lambda_handler(event, context):
         conn = db_connection()
         latest_updated_time = set_latest_updated_time(bucket, client)
         queried_tables = query_all_tables(conn, latest_updated_time)
-        date_time_last_ingestion = input_updated_data_into_s3(client, queried_tables, bucket)
+        date_time_last_ingestion = input_updated_data_into_s3(
+            client, queried_tables, bucket
+        )
         return [{"last_ingested_str": date_time_last_ingestion}]
-    except Exception as e:
+    except Exception:
         return {"Error": "error in lambda handler"}
     finally:
         if conn:
             conn.close()
         else:
             return {"Error": "Connection error"}
-
-
-
-
-
-        
-        
-# def lambda_handler(event, context):
-#     conn = None
-#     try:
-#         client = boto3.client("s3")
-        
-#         conn = db_connection()
-        
-#         bucket = find_latest_ingestion_bucket(client)
-
-#         latest_updated_time = set_latest_updated_time(bucket, client)
-
-#         queried_tables = query_all_tables(conn, latest_updated_time)
-
-#         date_time_last_ingestion = input_updated_data_into_s3(
-#             client, queried_tables, bucket
-#         )
-
-#         # return [{"last_ingested_str": date_time_last_ingestion}]
-#         return {"message successful": "message"}
-
-#     except Exception as e:
-#         return {"Error": e}
-
-#     finally:
-#         if conn:
-#             conn.close()
-#         else:
-#             return {"Error": "Connection error"}

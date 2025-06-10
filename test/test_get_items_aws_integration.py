@@ -4,7 +4,9 @@ import psycopg2
 import os
 from dotenv import load_dotenv
 from datetime import datetime, timezone
-from src.extraction_lambda_package.extraction_lambda.get_items_from_database import check_database_updates
+from src.extraction_lambda_package.extraction_lambda.get_items_from_database import (
+    check_database_updates,
+)
 from src.utils.aws_utils import get_bucket_name
 
 # load in variables from .env file. Below is configured to find .env in project root, while file is run from test/dir (specifically when root is one level above test dir). Test .dir location with: print("loading .env from:", dotenv_path)
