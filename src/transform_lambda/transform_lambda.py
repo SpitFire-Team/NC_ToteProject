@@ -1,11 +1,10 @@
 import boto3
+import pandas
 from pprint import pprint
 from src.transform_lambda.read_json_to_dataframe import read_json_to_dataframe
 from src.transform_lambda.dataframe_modification import dataframe_modification
+from src.transform_lambda.create_dim_staff_table import transform_staff_and_department_tables
 from src.utils.aws_utils import make_s3_client, get_bucket_name
-
-
-
 
 
 def lambda_handler(event, context):
@@ -40,19 +39,31 @@ def lambda_handler(event, context):
 
     # from modified dataframes, select specifically the 'staff' and 'department' dataframes to be passed to create_dim_staff_table
 
-    staff_and_department = []
     for dict in modified_data:
-        for key in dict:
-            if key == "staff" or key == "department":
-                staff_and_department.append(dict)
-    print ("in func, staff_and_department", staff_and_department)
+        for key, df in dict.items():
+            if key == "staff":
+                staff_df = df
+                print("staff_df", staff_df)
+            if key == "department":
+                department_df = df
+                print("department_df", department_df)
 
     # create_dim_staff_table returns combined dim_staff table
+    combined_dim_staff = transform_staff_and_department_tables(staff_df, department_df)
+    print("combined_dim_staff", combined_dim_staff)
     
-
-    # add dim_staff table dictionart to list of dicts
+    # add dim_staff table dictionary to list of dicts
     # remove staff and department from list of dicts
     # pass newly transformed list of dicts to transform_data_underscore_s3
     # return event: datetime string (for load lambda handler)
 
     return event
+
+
+    # staff and department list of dicts (not needed)
+    # staff_and_department = []
+    # for dict in modified_data:
+    #     for key in dict:
+    #         if key == "staff" or key == "department":
+    #             staff_and_department.append(dict)
+    # print ("in func, staff_and_department", staff_and_department)

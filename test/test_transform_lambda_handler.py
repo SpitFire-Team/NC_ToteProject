@@ -39,9 +39,19 @@ class TestLambdaHandler:
         result = lambda_handler(dummy_event_fixedtime, [{}])
         # test with mock up s3 bucket - show new list output containing list of dicts with staff and department only
     
-    def test_json_to_dataframe_returns_list_of_dicts(self, dummy_event_fixedtime):
+    @pytest.mark.skip
+    def test_json_to_dataframe_extracts_staff_and_department_dataframes(self, dummy_event_fixedtime):
         result = lambda_handler(dummy_event_fixedtime, [{}])
-        # test with mock up s3 bucket - show new list output containing list of dicts with staff and department only
+        # test with mock up s3 bucket - show staff and department dataframes created
+
+    @pytest.mark.skip
+    def test_json_to_dataframe_returns_combined_dim_staff_table(self, dummy_event_fixedtime):
+        result = lambda_handler(dummy_event_fixedtime, [{}])
+        # test with mock up s3 bucket - show combined dim staff table output
+
+    def test_json_to_dataframe_returns_combined_dim_staff_table(self, dummy_event_fixedtime):
+        result = lambda_handler(dummy_event_fixedtime, [{}])
+        # test with mock up s3 bucket - show combined dim staff table output
 
 
     
