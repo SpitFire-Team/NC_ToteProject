@@ -94,10 +94,19 @@ resource "aws_lambda_function" "load_lambda" {
   role          = aws_iam_role.iam_role_load_lambda.arn 
   handler       = "${var.load_lambda}.${var.load_lambda}_function.lambda_handler"
   source_code_hash = data.archive_file.load_lambda.output_base64sha256
-  layers = [aws_lambda_layer_version.layer1.arn]
   runtime = var.runtime
   timeout = 300
   memory_size = 1024
+
+  layers = [
+    aws_lambda_layer_version.layer2.arn,
+    aws_lambda_layer_version.layer1.arn   
+  ]
+
+  depends_on = [
+    null_resource.create_layer2_dependencies,
+    null_resource.create_layer1_dependencies
+  ]
 
   #Added environment variables  - Note - should change for final data base!!!
   environment {
