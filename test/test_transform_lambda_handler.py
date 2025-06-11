@@ -16,7 +16,7 @@ def dummy_event_fixedtime():
     ]  # this timestamp includes files with created_at and last_updated columns
 
 
-@pytest.mark.skip("Skipped testing directly to AWS due to time constraints")
+# @pytest.mark.skip("Skipped testing directly to AWS due to time constraints")
 class TestLambdaHandler:
     @pytest.mark.skip
     def test_datetime_string_passed_into_lambda_handler(self, dummy_event_timenow):
