@@ -10,27 +10,36 @@ Test Suite for dataframe_modification function
 Below is some model data to be used in the tests:
 
 """
+@pytest.fixture
+def test_string():
+    string_1 = {
+        "sales_order_id": [2, 3],
+        "created_at": ["2022-11-03 14:20:52.186000", "2022-11-03 14:20:52.188000"],
+        "last_updated": ["2022-11-03 14:20:52.186000", "2022-11-03 14:20:52.188000"],
+        "design_id": [3, 4],
+        "staff_id": [19, 10],
+        "counterparty_id": [8, 4],
+        "units_sold": [42972, 65839],
+        "unit_price": ["3.94", "2.91"],
+        "currency_id": [2, 3],
+        "agreed_delivery_date": ["2022-11-07", "2022-11-06"],
+        "agreed_payment_date": ["2022-11-08", "2022-11-07"],
+        "agreed_delivery_location_id": [8, 19],
+    }
+    return string_1
 
-string_1 = {
-    "sales_order_id": [2, 3],
-    "created_at": ["2022-11-03 14:20:52.186000", "2022-11-03 14:20:52.188000"],
-    "last_updated": ["2022-11-03 14:20:52.186000", "2022-11-03 14:20:52.188000"],
-    "design_id": [3, 4],
-    "staff_id": [19, 10],
-    "counterparty_id": [8, 4],
-    "units_sold": [42972, 65839],
-    "unit_price": ["3.94", "2.91"],
-    "currency_id": [2, 3],
-    "agreed_delivery_date": ["2022-11-07", "2022-11-06"],
-    "agreed_payment_date": ["2022-11-08", "2022-11-07"],
-    "agreed_delivery_location_id": [8, 19],
-}
+@pytest.fixture
+def test_data_frame(test_string):
+    dataframe_1 = pd.DataFrame(test_string)
+    return dataframe_1
+    
+@pytest.fixture
+def test_dict_list(test_data_frame):
+    test_dict_list = [{"sales_order": test_data_frame}]
+    return test_dict_list
 
-dataframe_1 = pd.DataFrame(string_1)
-test_dict_list = [{"sales_order": dataframe_1}]
-
-
-def staff_df():
+@pytest.fixture
+def test_staff_df():
     column_name_list = [
         "staff_id",
         "first_name",
@@ -56,60 +65,57 @@ def staff_df():
     return staff_df
 
 
-staff_data = staff_df()
-
-
-def test_dataframe_modification_returns_list_of_dicts():
+def test_dataframe_modification_returns_list_of_dicts(test_data_frame, test_staff_df):
     """
     This tests that the function returns a list of dictionaries as the return value.
 
     """
-    test_dict_list = [{"sales_order": dataframe_1}]
-    test_dict_list_2 = [{"sales_order": dataframe_1}, {"staff": staff_data}]
+    test_dict_list = [{"sales_order": test_data_frame}]
+    test_dict_list_2 = [{"sales_order": test_data_frame}, {"staff": test_staff_df}]
     assert type(dataframe_modification(test_dict_list)) == list
     assert type(dataframe_modification(test_dict_list_2)) == list
     assert type(dataframe_modification(test_dict_list_2)[0]) == dict
 
 
-def test_datafram_modification_has_correct_table_keys():
+def test_datafram_modification_has_correct_table_keys(test_staff_df):
     """
     This tests that the returned dictionaries have the correct table names as a key.
     """
-    test_dict_list = [{"sales_order": dataframe_1}]
-    test_staff_list = [{"staff": staff_data}]
-    assert "sales_order" in dataframe_modification(test_dict_list)[0].keys()
+    test_dict_list = [{"sales_order": test_staff_df}]
+    test_staff_list = [{"staff": test_staff_df}]
+    assert "fact_sales_order" in dataframe_modification(test_dict_list)[0].keys()
     assert "staff" in dataframe_modification(test_staff_list)[0].keys()
 
 
-def test_datafram_modification_has_correct_table_keys_for_multiple_items():
+def test_datafram_modification_has_correct_table_keys_for_multiple_items(test_data_frame, test_staff_df):
     """
     This tests that the returned dictionaries have the correct table names as a
     key when there are multiple dictionaries in the input list.
     """
-    test_dict_list = [{"sales_order": dataframe_1}, {"staff": staff_data}]
+    test_dict_list = [{"sales_order": test_data_frame}, {"staff": test_staff_df}]
     table_names = []
     for item in dataframe_modification(test_dict_list):
         for key in item.keys():
             table_names.append(key)
-    assert "sales_order" in table_names
+    assert "fact_sales_order" in table_names
     assert "staff" in table_names
 
-
-def test_dataframe_moficiation_removes_create_at_column():
+#fail
+def test_dataframe_moficiation_removes_create_at_column(test_data_frame, test_dict_list):
     """
     This tests that the returned dataframes have the "created_at" column removed.
     """
-    assert "created_at" in list(dataframe_1.columns.values)
+    assert "created_at" in list(test_data_frame.columns.values)
     result = dataframe_modification(test_dict_list)
-    assert "created_at" not in list(result[0]["sales_order"].columns.values)
+    assert "created_at" not in list(result[0]["fact_sales_order"].columns.values)
 
 
-def test_dataframe_modification_removes_created_at_column_from_all_items_in_multi_item_list():
+def test_dataframe_modification_removes_created_at_column_from_all_items_in_multi_item_list(test_data_frame, test_staff_df):
     """
     This tests that the returned dataframes have the "created_at" column removed
     when there are multiple dictionaries in the input list.
     """
-    test_dict_list = [{"sales_order": dataframe_1}, {"staff": staff_data}]
+    test_dict_list = [{"sales_order": test_data_frame}, {"staff": test_staff_df}]
     for item in test_dict_list:
         target_dataframe = list(item.values())[0]
         assert "created_at" in list(target_dataframe.columns.values)
@@ -118,22 +124,22 @@ def test_dataframe_modification_removes_created_at_column_from_all_items_in_mult
         target_dataframe = list(item.values())[0]
         assert "created_at" not in list(target_dataframe.columns.values)
 
-
-def test_dataframe_moficiation_removes_last_updated_column():
+#fail
+def test_dataframe_moficiation_removes_last_updated_column(test_data_frame, test_dict_list):
     """
     This tests that the returned dataframes have the "last_updated" column removed.
     """
-    assert "last_updated" in list(dataframe_1.columns.values)
+    assert "last_updated" in list(test_data_frame.columns.values)
     result = dataframe_modification(test_dict_list)
-    assert "last_updated" not in list(result[0]["sales_order"].columns.values)
+    assert "last_updated" not in list(result[0]["fact_sales_order"].columns.values)
 
 
-def test_dataframe_modification_removes_last_updated_column_from_all_items_in_multi_item_list():
+def test_dataframe_modification_removes_last_updated_column_from_all_items_in_multi_item_list(test_data_frame, test_staff_df):
     """
     This tests that the returned dataframes have the "last_updated" column removed
     when there are multiple dictionaries in the input list.
     """
-    test_dict_list = [{"sales_order": dataframe_1}, {"staff": staff_data}]
+    test_dict_list = [{"sales_order": test_data_frame}, {"staff": test_staff_df}]
     for item in test_dict_list:
         target_dataframe = list(item.values())[0]
         assert "last_updated" in list(target_dataframe.columns.values)
