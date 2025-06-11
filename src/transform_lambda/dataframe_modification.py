@@ -13,7 +13,7 @@ def dataframe_modification(list_of_dicts):
         table_name = list(item.keys())[0]
         target_dataframe = item[table_name]
         modified_dataframe = target_dataframe.drop(
-            ["created_at", "last_updated"], axis=1
+            ["created_at", "last_updated"], axis=1, errors="ignore"
         )
         new_dict = {table_name: modified_dataframe}
         modified_list.append(new_dict)

@@ -7,7 +7,7 @@ from unittest.mock import Mock
 from datetime import datetime, timezone
 
 # from src.extraction_lambda.extraction_lambda import db_connection
-from src.extraction_lambda.get_items_from_database import (
+from src.extraction_lambda_package.extraction_lambda.get_items_from_database import (
     set_latest_updated_time,
     check_database_updates,
     query_all_tables,
