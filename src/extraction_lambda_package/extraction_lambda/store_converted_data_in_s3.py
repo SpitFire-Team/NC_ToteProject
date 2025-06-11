@@ -3,16 +3,16 @@ import json
 
 # - uncomment for deployment
 
-# from utils.aws_utils import add_data_to_s3_bucket  
-# from utils.file_utils import convert_to_dict, get_path_date_time_string  
+# from utils.aws_utils import add_data_to_s3_bucket
+# from utils.file_utils import convert_to_dict, get_path_date_time_string
 
 # - uncomment for deployment
 
 
 # - uncomment for testing
 
-from src.utils.aws_utils import add_data_to_s3_bucket 
-from src.utils.file_utils import convert_to_dict, get_path_date_time_string 
+from src.utils.aws_utils import add_data_to_s3_bucket
+from src.utils.file_utils import convert_to_dict, get_path_date_time_string
 
 # - uncomment for testing
 

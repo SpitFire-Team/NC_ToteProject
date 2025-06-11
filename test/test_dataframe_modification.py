@@ -1,4 +1,6 @@
-from src.transform_lambda_package.transform_lambda.dataframe_modification import dataframe_modification
+from src.transform_lambda_package.transform_lambda.dataframe_modification import (
+    dataframe_modification,
+)
 import pandas as pd
 import pytest
 
@@ -10,6 +12,8 @@ Test Suite for dataframe_modification function
 Below is some model data to be used in the tests:
 
 """
+
+
 @pytest.fixture
 def test_string():
     string_1 = {
@@ -28,15 +32,18 @@ def test_string():
     }
     return string_1
 
+
 @pytest.fixture
 def test_data_frame(test_string):
     dataframe_1 = pd.DataFrame(test_string)
     return dataframe_1
-    
+
+
 @pytest.fixture
 def test_dict_list(test_data_frame):
     test_dict_list = [{"sales_order": test_data_frame}]
     return test_dict_list
+
 
 @pytest.fixture
 def test_staff_df():
@@ -87,7 +94,9 @@ def test_datafram_modification_has_correct_table_keys(test_staff_df):
     assert "staff" in dataframe_modification(test_staff_list)[0].keys()
 
 
-def test_datafram_modification_has_correct_table_keys_for_multiple_items(test_data_frame, test_staff_df):
+def test_datafram_modification_has_correct_table_keys_for_multiple_items(
+    test_data_frame, test_staff_df
+):
     """
     This tests that the returned dictionaries have the correct table names as a
     key when there are multiple dictionaries in the input list.
@@ -100,8 +109,11 @@ def test_datafram_modification_has_correct_table_keys_for_multiple_items(test_da
     assert "fact_sales_order" in table_names
     assert "staff" in table_names
 
-#fail
-def test_dataframe_moficiation_removes_create_at_column(test_data_frame, test_dict_list):
+
+# fail
+def test_dataframe_moficiation_removes_create_at_column(
+    test_data_frame, test_dict_list
+):
     """
     This tests that the returned dataframes have the "created_at" column removed.
     """
@@ -110,7 +122,9 @@ def test_dataframe_moficiation_removes_create_at_column(test_data_frame, test_di
     assert "created_at" not in list(result[0]["fact_sales_order"].columns.values)
 
 
-def test_dataframe_modification_removes_created_at_column_from_all_items_in_multi_item_list(test_data_frame, test_staff_df):
+def test_dataframe_modification_removes_created_at_column_from_all_items_in_multi_item_list(
+    test_data_frame, test_staff_df
+):
     """
     This tests that the returned dataframes have the "created_at" column removed
     when there are multiple dictionaries in the input list.
@@ -124,8 +138,11 @@ def test_dataframe_modification_removes_created_at_column_from_all_items_in_mult
         target_dataframe = list(item.values())[0]
         assert "created_at" not in list(target_dataframe.columns.values)
 
-#fail
-def test_dataframe_moficiation_removes_last_updated_column(test_data_frame, test_dict_list):
+
+# fail
+def test_dataframe_moficiation_removes_last_updated_column(
+    test_data_frame, test_dict_list
+):
     """
     This tests that the returned dataframes have the "last_updated" column removed.
     """
@@ -134,7 +151,9 @@ def test_dataframe_moficiation_removes_last_updated_column(test_data_frame, test
     assert "last_updated" not in list(result[0]["fact_sales_order"].columns.values)
 
 
-def test_dataframe_modification_removes_last_updated_column_from_all_items_in_multi_item_list(test_data_frame, test_staff_df):
+def test_dataframe_modification_removes_last_updated_column_from_all_items_in_multi_item_list(
+    test_data_frame, test_staff_df
+):
     """
     This tests that the returned dataframes have the "last_updated" column removed
     when there are multiple dictionaries in the input list.

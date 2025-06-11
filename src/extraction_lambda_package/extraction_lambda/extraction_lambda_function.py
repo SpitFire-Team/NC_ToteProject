@@ -31,6 +31,7 @@ from src.extraction_lambda_package.extraction_lambda.store_converted_data_in_s3 
 
 # - uncomment for testing
 
+
 def db_connection():
     """
     Grabs environment variables and uses them to create a database connection.
@@ -111,34 +112,32 @@ def lambda_handler(event, context):
     conn = None
     client = boto3.client("s3")
 
-    try: 
-        conn = db_connection()      
+    try:
+        conn = db_connection()
         try:
             bucket_name = find_latest_ingestion_bucket(client)
-        except: 
+        except Exception:
             return {"Error": "error in find ingestion bucket"}
-        
+
         try:
             latest_updated_time = set_latest_updated_time(bucket_name, client)
-        except: 
+        except Exception:
             return {"Error": "error latest_updated_time"}
-        
+
         queried_tables = query_all_tables(conn, latest_updated_time)
-        
-        if len(queried_tables) == 0: 
+
+        if len(queried_tables) == 0:
             return [{"last_ingested_str": "no data ingested"}]
         else:
             date_time_last_ingestion = input_updated_data_into_s3(
                 client, queried_tables, bucket_name
             )
             return [{"last_ingested_str": date_time_last_ingestion}]
-    
-    except: 
+
+    except Exception:
         return {"Error": "error in db_connection"}
     finally:
         if conn:
             conn.close()
         else:
             return {"Error": "Connection error"}
- 
-
