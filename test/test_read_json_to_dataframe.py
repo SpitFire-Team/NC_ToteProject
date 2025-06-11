@@ -46,7 +46,6 @@ def test_read_json_to_dataframe_returns_a_list(
 
     assert isinstance(results, list)
 
-
 def test_read_json_to_dataframe_returns_a_list_with_single_dict(
     s3_client, ingested_data_bucket_name, latest_ingestion
 ):
