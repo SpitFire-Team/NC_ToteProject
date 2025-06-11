@@ -2,6 +2,7 @@ import boto3
 import pandas as pd
 from io import BytesIO
 
+
 def load_parquet_from_s3(bucket_name, table_names):
     """
     Loads latest Parquet file for each table from S3 and returns a list of dictionaries.
@@ -24,9 +25,6 @@ def load_parquet_from_s3(bucket_name, table_names):
         obj = s3.get_object(Bucket=bucket_name, Key=key)
         df = pd.read_parquet(BytesIO(obj["Body"].read()))
 
-        result.append({
-            "table_name": table,
-            "data": df.to_dict(orient="records")
-        })
+        result.append({"table_name": table, "data": df.to_dict(orient="records")})
 
     return result
