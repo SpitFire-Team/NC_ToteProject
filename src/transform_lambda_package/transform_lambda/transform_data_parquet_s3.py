@@ -3,14 +3,14 @@ from io import BytesIO
 
 # - uncomment for testing
 
-from src.utils.aws_utils import get_bucket_name, add_data_to_s3_bucket
+# from src.utils.aws_utils import get_bucket_name, add_data_to_s3_bucket
 
 # - uncomment for testing
 
 
 # - uncomment for deployment
 
-# from utils.aws_utils import get_bucket_name, add_data_to_s3_bucket
+from utils.aws_utils import get_bucket_name, add_data_to_s3_bucket
 
 # - uncomment for deployment
 

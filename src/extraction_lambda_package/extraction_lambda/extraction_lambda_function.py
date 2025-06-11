@@ -109,20 +109,36 @@ def find_latest_ingestion_bucket(client):
 
 def lambda_handler(event, context):
     conn = None
-    try:
-        client = boto3.client("s3")
-        bucket = find_latest_ingestion_bucket(client)
-        conn = db_connection()
-        latest_updated_time = set_latest_updated_time(bucket, client)
+    client = boto3.client("s3")
+
+    try: 
+        conn = db_connection()      
+        try:
+            bucket_name = find_latest_ingestion_bucket(client)
+        except: 
+            return {"Error": "error in find ingestion bucket"}
+        
+        try:
+            latest_updated_time = set_latest_updated_time(bucket_name, client)
+        except: 
+            return {"Error": "error latest_updated_time"}
+        
         queried_tables = query_all_tables(conn, latest_updated_time)
-        date_time_last_ingestion = input_updated_data_into_s3(
-            client, queried_tables, bucket
-        )
-        return [{"last_ingested_str": date_time_last_ingestion}]
-    except Exception:
-        return {"Error": "error in lambda handler"}
+        
+        if len(queried_tables) == 0: 
+            return [{"last_ingested_str": "no data ingested"}]
+        else:
+            date_time_last_ingestion = input_updated_data_into_s3(
+                client, queried_tables, bucket_name
+            )
+            return [{"last_ingested_str": date_time_last_ingestion}]
+    
+    except: 
+        return {"Error": "error in db_connection"}
     finally:
         if conn:
             conn.close()
         else:
             return {"Error": "Connection error"}
+ 
+
