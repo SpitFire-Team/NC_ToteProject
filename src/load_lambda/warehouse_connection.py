@@ -1,6 +1,21 @@
 from dotenv import load_dotenv
 import pg8000
 import os
+from sqlalchemy import create_engine
+
+load_dotenv()
+
+
+def wh_connection_engine():
+    user = os.getenv("WH_USER")
+    password = os.getenv("WH_PASSWORD")
+    host = os.getenv("WH_HOST")
+    database = os.getenv("WH_NAME")
+    connection_string = f"postgresql://{user}:{password}@{host}/{database}"
+    db = create_engine(connection_string)
+    conn = db.connect()
+    return conn
+
 
 def wh_connection():
     """
