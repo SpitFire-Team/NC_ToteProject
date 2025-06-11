@@ -29,11 +29,11 @@ class TestDatabaseConnection:
         """
         Tests that db_connection raises an error when the database fails to connect.
         """
-        monkeypatch.setenv("USER", "test_user")
-        monkeypatch.setenv("PASSWORD", "test_password")
-        monkeypatch.setenv("HOST", "test_host")
-        monkeypatch.setenv("PORT", "5342")
-        monkeypatch.setenv("DATABASE", "test_database")
+        monkeypatch.setenv("DB_USER", "test_user")
+        monkeypatch.setenv("DB_PASSWORD", "test_password")
+        monkeypatch.setenv("DB_HOST", "test_host")
+        monkeypatch.setenv("DB_PORT", "5342")
+        monkeypatch.setenv("DB_NAME", "test_database")
 
         with pytest.raises(Exception, match="Connection failed"):
             db_connection()
@@ -43,11 +43,11 @@ class TestDatabaseConnection:
         """
         Tests that db_connection returns the connection object when the connection is successful.
         """
-        monkeypatch.setenv("USER", "test_user")
-        monkeypatch.setenv("PASSWORD", "test_password")
-        monkeypatch.setenv("HOST", "test_host")
-        monkeypatch.setenv("PORT", "5342")
-        monkeypatch.setenv("DATABASE", "test_database")
+        monkeypatch.setenv("DB_USER", "test_user")
+        monkeypatch.setenv("DB_PASSWORD", "test_password")
+        monkeypatch.setenv("DB_HOST", "test_host")
+        monkeypatch.setenv("DB_PORT", "5342")
+        monkeypatch.setenv("DB_NAME", "test_database")
 
         mock_conn = Mock()
         mock_connect.return_value = mock_conn
@@ -60,11 +60,11 @@ class TestDatabaseConnection:
         """
         Tests that db_connection correctly reads environment variables.
         """
-        monkeypatch.setenv("USER", "test_user")
-        monkeypatch.setenv("PASSWORD", "test_password")
-        monkeypatch.setenv("HOST", "test_host")
-        monkeypatch.setenv("PORT", "5342")
-        monkeypatch.setenv("DATABASE", "test_database")
+        monkeypatch.setenv("DB_USER", "test_user")
+        monkeypatch.setenv("DB_PASSWORD", "test_password")
+        monkeypatch.setenv("DB_HOST", "test_host")
+        monkeypatch.setenv("DB_PORT", "5342")
+        monkeypatch.setenv("DB_NAME", "test_database")
 
         with patch(
             "src.extraction_lambda.extraction_lambda.pg8000.connect"

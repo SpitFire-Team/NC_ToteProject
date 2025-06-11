@@ -1,5 +1,5 @@
-from src.utils.aws_utils import add_data_to_s3_bucket, get_bucket_name
-from src.utils.file_utils import convert_to_dict, get_path_date_time_string
+from src.utils.aws_utils import add_data_to_s3_bucket  # src
+from src.utils.file_utils import convert_to_dict, get_path_date_time_string  # src
 from copy import deepcopy
 import json
 
@@ -20,9 +20,7 @@ def transform_data_to_compatable_format(db_updated_values):
     return transformed_values
 
 
-def input_updated_data_into_s3(
-    s3_client, db_updated_values
-):  # delete '= None' once passing in db_updated values
+def input_updated_data_into_s3(s3_client, db_updated_values, bucket_name):
     """
     convert db_updated_values in json format seperated by table. uploads to table folder
     in the s3 bucket
@@ -41,9 +39,8 @@ def input_updated_data_into_s3(
 
     for table_name, transformed_values in transformed_data.items():
         file_path = f"{table_name}/{date_time_str}.json"
-        bucket_prefix = "ingested-data"
-        bucket_name = get_bucket_name(s3_client=s3_client, bucket_prefix=bucket_prefix)
-        json_compatable_data = json.dumps(transformed_values)
+        bucket_name = bucket_name
+        json_compatable_data = json.dumps(transformed_values, default=str)
 
         add_data_to_s3_bucket(
             s3_client=s3_client,

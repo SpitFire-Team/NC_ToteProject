@@ -17,3 +17,5 @@ pytest-testdox
 pytz
 types-pytz
 mypy 
+fastparquet
+pyarrow
