@@ -1,11 +1,16 @@
 import pytest
 from unittest.mock import patch, Mock, call
-from src.load_lambda.warehouse_load import wh_connection_engine, load_to_warehouse_loop
+from src.load_lambda_package.load_lambda.warehouse_load import (
+    wh_connection_engine,
+    load_to_warehouse_loop,
+)
 
 
 @pytest.fixture
 def mock_db_engine():
-    with patch("src.load_lambda.warehouse_load.create_engine") as mock_create_engine:
+    with patch(
+        "src.load_lambda_package.load_lambda.warehouse_load.create_engine"
+    ) as mock_create_engine:
         mock_engine = Mock()
         mock_create_engine.return_value = mock_engine
         yield mock_engine

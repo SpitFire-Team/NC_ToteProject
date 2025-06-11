@@ -30,3 +30,4 @@ src/layer/dependencies2/python/**
 !src/layer/dependencies1/python/
 !src/layer/dependencies1/python/utils/
 !src/layer/dependencies1/python/utils/*.py
+.coverage

@@ -5,7 +5,7 @@ from io import BytesIO
 from moto import mock_aws
 from datetime import datetime, timezone
 
-from src.transform_lambda.read_paquet import load_parquet_from_s3
+from src.load_lambda_package.load_lambda.read_paquet import load_parquet_from_s3
 
 
 @pytest.fixture
