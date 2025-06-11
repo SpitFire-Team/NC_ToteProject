@@ -22,10 +22,11 @@ venv
 .pytest_cache
 .coverage
 
-# Ignore everything in python/
+# Ignore everything in dependencies1/python and dependencies2/python
 src/layer/dependencies1/python/**
 src/layer/dependencies2/python/**
 
-# But keep the utils folder and its .py files
+# Then allow just the utils folder and its Python files
+!src/layer/dependencies1/python/
 !src/layer/dependencies1/python/utils/
 !src/layer/dependencies1/python/utils/*.py
