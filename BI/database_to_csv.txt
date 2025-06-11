@@ -1,0 +1,24 @@
+To get local copies of the data warehouse tables you can connect to psql and create cv copies of each table
+To do this, you will need to connect to pqsl using the following command:
+
+    psql -h <host> -p <port> -U <user> -d <database> # these credentials can be found on the slack channel
+
+You will then be prompted to enter a password to successfully connect to the remote database. 
+
+Once you have connected to psql, you will need to run a command to copy tables to local csv files.
+This will be in the format:
+    \copy (SELECT * from <table_name>) to '<desired_file_location>' with csv header
+
+for example:
+    \copy (SELECT * from dim_staff) to 'BI\dim_staff.csv' with csv header
+
+    \copy (SELECT * from dim_counterparty) to 'BI/dim_counterparty.csv' with csv header
+
+If the copy has been successful, you will see a copy statement in the terminal followed by how many rows were successfully copied
+    e.g 
+        postgres=> \copy (SELECT * from dim_currency) to 'BI/dim_currency.csv' with csv header
+        COPY 3
+
+You should also be able to see the new csv files in your desired file location
+
+You can use the command \q to exit psql
