@@ -1,15 +1,30 @@
+
+#uncomment for testing
 from src.transform_lambda.read_json_to_dataframe import read_json_to_dataframe
 from src.transform_lambda.dataframe_modification import dataframe_modification
 
-
-import boto3 #- uncomment for AWS
 from src.transform_lambda.create_dim_staff_table import (
     transform_staff_and_department_tables,
 )
 from src.transform_lambda.transform_data_parquet_s3 import (
     transform_data_to_parquet_on_s3,
 )
-from src.utils.aws_utils import get_bucket_name #, make_s3_client uncomment for testing
+from src.utils.aws_utils import get_bucket_name, make_s3_client
+
+
+
+# uncomment for deployment
+# from transform_lambda.read_json_to_dataframe import read_json_to_dataframe
+# from transform_lambda.dataframe_modification import dataframe_modification
+# import boto3 #- uncomment for AWS
+
+# from transform_lambda.create_dim_staff_table import (
+#     transform_staff_and_department_tables,
+# )
+# from transform_lambda.transform_data_parquet_s3 import (
+#     transform_data_to_parquet_on_s3,
+# )
+# from utils.aws_utils import get_bucket_name #, make_s3_client uncomment for testing
 
 
 

@@ -1,6 +1,11 @@
-from src.utils.aws_utils import get_bucket_name, add_data_to_s3_bucket
 from copy import deepcopy
 from io import BytesIO
+
+# uncomment for testing
+from src.utils.aws_utils import get_bucket_name, add_data_to_s3_bucket
+
+#uncomment for deployment
+# from utils.aws_utils import get_bucket_name, add_data_to_s3_bucket
 
 
 def transform_data_to_parquet_on_s3(s3_client, table_df_list, date_time_str):
