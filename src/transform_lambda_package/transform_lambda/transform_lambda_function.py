@@ -1,5 +1,5 @@
 
-#uncomment for testing
+# - uncomment for testing
 from src.transform_lambda.read_json_to_dataframe import read_json_to_dataframe
 from src.transform_lambda.dataframe_modification import dataframe_modification
 
@@ -11,9 +11,11 @@ from src.transform_lambda.transform_data_parquet_s3 import (
 )
 from src.utils.aws_utils import get_bucket_name, make_s3_client
 
+# - uncomment for testing
 
 
-# uncomment for deployment
+# - uncomment for deployment
+
 # from transform_lambda.read_json_to_dataframe import read_json_to_dataframe
 # from transform_lambda.dataframe_modification import dataframe_modification
 # import boto3 #- uncomment for AWS
@@ -26,6 +28,8 @@ from src.utils.aws_utils import get_bucket_name, make_s3_client
 # )
 # from utils.aws_utils import get_bucket_name #, make_s3_client uncomment for testing
 
+# - uncomment for deployment
+
 
 
 def lambda_handler(event, context):
@@ -33,13 +37,16 @@ def lambda_handler(event, context):
     date_time_str_last_ingestion = event[0]["last_ingested_str"]
 
     # create s3 client
-    # s3_client = make_s3_client()
+    s3_client = make_s3_client()  # - uncomment for testing
 
-    #  uncomment for AWS implementation:
+    # - uncomment for deployment:
+    
     # create s3 client
-    s3_client = boto3.client(
-        "s3"
-    )
+    # s3_client = boto3.client(
+    #     "s3"
+    # )
+    
+    # - uncomment for deployment
 
     # retreive full s3 bucket name
     bucket_prefix = "ingested-data"
