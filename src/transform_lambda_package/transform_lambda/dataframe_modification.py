@@ -15,6 +15,13 @@ def dataframe_modification(list_of_dicts):
         modified_dataframe = target_dataframe.drop(
             ["created_at", "last_updated"], axis=1, errors="ignore"
         )
-        new_dict = {table_name: modified_dataframe}
+        if table_name == "sales_order" or table_name == "payment":
+            new_table_name = f"fact_{table_name}"
+        elif table_name == "staff" or table_name == "department": 
+            new_table_name = table_name
+        else: 
+            new_table_name = f"dim_{table_name}"
+            
+        new_dict = {new_table_name: modified_dataframe}
         modified_list.append(new_dict)
     return modified_list
