@@ -5,7 +5,7 @@ name: NC-ToteProject
 on:
   push:
     branches:
-      - github-actions-continued
+      - github-actions-demo
     # uncomment to revert back to main branch  - main
 
 jobs:
