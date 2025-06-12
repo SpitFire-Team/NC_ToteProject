@@ -3,6 +3,8 @@ import pandas as pd
 from io import BytesIO
 
 
+
+
 def load_parquet_from_s3(bucket_name, table_names):
     """
     Loads latest Parquet file for each table from S3 and returns a list of dictionaries.
