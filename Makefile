@@ -96,4 +96,3 @@ check-coverage:
 
 ## Run all checks
 run-checks: security-test run-black run-flake8 run-mypy 
-
