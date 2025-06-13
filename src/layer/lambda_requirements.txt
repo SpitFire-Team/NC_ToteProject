@@ -1,4 +1,0 @@
-pg8000
-dotenv
-pytz
-types-pytz
