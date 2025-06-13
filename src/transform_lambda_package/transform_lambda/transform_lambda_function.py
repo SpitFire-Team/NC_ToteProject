@@ -7,8 +7,11 @@ from src.transform_lambda_package.transform_lambda.dataframe_modification import
     dataframe_modification,
 )
 
-from src.transform_lambda_package.transform_lambda.create_dim_staff_table import (
-    transform_staff_and_department_tables,
+from src.transform_lambda_package.transform_lambda.transform_tables import (
+    transform_staff_and_department_tables, 
+    transform_dim_location_table, 
+    transform_dim_counterparty_table, 
+    transform_fact_payment_table
 )
 from src.transform_lambda_package.transform_lambda.transform_data_parquet_s3 import (
     transform_data_to_parquet_on_s3,
@@ -24,8 +27,8 @@ from src.utils.aws_utils import get_bucket_name, make_s3_client
 # from transform_lambda.dataframe_modification import dataframe_modification
 # import boto3
 
-# from transform_lambda.create_dim_staff_table import (
-#     transform_staff_and_department_tables,
+# from transform_lambda.transform_tables import (
+#     transform_staff_and_department_tables, transform_dim_counterparty_table,transform_dim_location_table, transform_fact_payment_table, transform_dim_counterparty_table 
 # )
 # from transform_lambda.transform_data_parquet_s3 import (
 #     transform_data_to_parquet_on_s3,
@@ -66,23 +69,28 @@ def lambda_handler(event, context):
     )
 
     if len(ingested_data) == 0:
-        return [{"No data ingested": "no data ingested"}]
+        return [{"error": "no data ingested"}]
 
-    print("ingested_data len >>>>", len(ingested_data))
-    print("ingested_data >>>>", ingested_data)
+    # print("ingested_data len >>>>", len(ingested_data))
+    # print("ingested_data >>>>", ingested_data)
 
     # pass the list of dicts to dataframe_modification which removes unnecessary columns
     modified_data = dataframe_modification(ingested_data)
-    print("modified_data_len >>>>", len(modified_data))
-    print("modified_data >>>>", modified_data)
+    # print("modified_data_len >>>>", len(modified_data))
+    # print("modified_data >>>>", modified_data)
+    
+    if len(modified_data) == 0:
+        return [{"error": "error in modification"}]
 
     # from the newly modified dataframes, select the 'staff' and 'department' dataframes to be passed to create_dim_staff_table
 
     staff_df_exists = False
     department_df_exists = False
-
+    counterparty_df_exists = False
+    
     for dict in modified_data:
         for key, df in dict.items():
+            print(key)
             if key == "staff":
                 staff_df = df
                 # print("staff_df >>>>", staff_df)
@@ -92,6 +100,28 @@ def lambda_handler(event, context):
                 department_df = df
                 # print("department_df >>>>", department_df)
                 department_df_exists = True
+            if key == "counterparty":
+                counterparty_df = df
+                # print("department_df >>>>", department_df)
+                counterparty_df_exists = True
+                print("here counterparty true")
+                
+            if key == "address":
+                dim_location_df = transform_dim_location_table(df)
+                modified_data.append({"dim_location": dim_location_df})
+                
+                if counterparty_df_exists:
+                    dim_counterpart_df = transform_dim_counterparty_table(
+                    df, counterparty_df
+                    )
+                    modified_data.append({"dim_counterparty": dim_counterpart_df})
+
+            if key == "payment":
+                payment_df_exists = True
+                fact_payment_df = transform_fact_payment_table(df)
+                modified_data.append({"fact_payment": fact_payment_df})
+                print("here payment true")
+
 
     # create_dim_staff_table returns combined dim_staff dataframe
     if staff_df_exists and department_df_exists:
@@ -99,30 +129,42 @@ def lambda_handler(event, context):
             staff_df, department_df
         )
         # print("combined_dim_staff >>>>", combined_dim_staff)
-
-        # add dim_staff table dictionary to list of dicts
         modified_data.append({"dim_staff": combined_dim_staff})
-        print("modified_data_len2 >>>>", len(modified_data))
-        print("modified_data2 >>>>", modified_data)
-
+        
         # remove staff and department from list of dicts
         for dict in modified_data:
             dict.pop("staff", None)
             dict.pop("department", None)
+            dict.pop("counterparty", None)
+            dict.pop("department", None)
+            dict.pop("address", None)
+            dict.pop("payment", None)
+            # dict.pop("purchaise_order", None)
+                           
 
     # remove empty dicts
     modified_data = [dict for dict in modified_data if dict]
 
-    print("modified_data_len3 >>>>", len(modified_data))
-    print("modified_data3 >>>>", modified_data)
+    # print("modified_data_len3 >>>>", len(modified_data))
+    # print("modified_data3 >>>>", modified_data)
     for dict in modified_data:
-        print("Updated modified data table >>>", dict.keys())
+        pass
+        # print("Updated modified data table >>>", dict.keys())
 
     # pass newly transformed list of dicts to transform_data_parquet_s3
-    transformed_data = transform_data_to_parquet_on_s3(
+    files_uploaded = transform_data_to_parquet_on_s3(
         s3_client, modified_data, date_time_str_last_ingestion
     )
-    print("transformed data >>>>", transformed_data)
+    print(f"{files_uploaded} files uploaded to processed data data")
 
     # return event: datetime string (for load lambda handler)
     return event
+
+
+event = [
+  {
+    "last_ingested_str": "12-06-2025_01:17"
+  }
+]
+
+print(lambda_handler(event, {}))

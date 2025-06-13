@@ -26,6 +26,7 @@ def transform_data_to_parquet_on_s3(s3_client, table_df_list, date_time_str):
     """
 
     table_df_list_copy = deepcopy(table_df_list)
+    count_uploaded = 0
 
     for table_dict in table_df_list_copy:
         for table_name, table_df in table_dict.items():
@@ -44,3 +45,7 @@ def transform_data_to_parquet_on_s3(s3_client, table_df_list, date_time_str):
                 data=out_buffer.getvalue(),
                 file_path=file_path,
             )
+            count_uploaded += 1
+            
+    return count_uploaded
+
