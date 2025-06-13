@@ -1,6 +1,6 @@
 import pytest
 from src.utils.file_utils import get_path_date_time_string
-from src.transform_lambda.transform_lambda import lambda_handler
+from src.transform_lambda_package.transform_lambda.transform_lambda_function import lambda_handler
 
 
 @pytest.fixture
