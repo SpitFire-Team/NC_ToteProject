@@ -111,11 +111,11 @@ resource "aws_lambda_function" "load_lambda" {
   #Added environment variables  - Note - should change for final data base!!!
   environment {
     variables = {
-      USER     = var.user_load
-      PASSWORD = var.password_load
-      HOST     = var.host_load
-      PORT     = tostring(var.port_load)
-      DATABASE = var.database_load
+      WH_USER  = var.user_load
+      WH_PASSWORD = var.password_load
+      WH_HOST     = var.host_load
+      WH_PORT     = tostring(var.port_load)
+      WH_NAME     = var.database_load
     }
   }
 }
