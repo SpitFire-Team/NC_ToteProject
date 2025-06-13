@@ -41,7 +41,3 @@ variable "database_load" {}
 variable "step_function_name" {
   default= "totes-project-stepfunction"
 }
-
-variable "dummy_step_function_name" {
-  default= "totes-project-dummy_stepfunction"
-}

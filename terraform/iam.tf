@@ -85,6 +85,18 @@ data "aws_iam_policy_document" "s3_transform_permissions_document" {
     ]
   }
 
+   statement {
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject"
+    ]
+
+    resources = [
+      "${aws_s3_bucket.ingestion_bucket.arn}/*",
+      "${aws_s3_bucket.processed_bucket.arn}/*"
+    ]
+  }
+
   statement {
     actions = [
       "s3:ListAllMyBuckets"
@@ -111,6 +123,53 @@ resource "aws_iam_role" "iam_role_load_lambda" {
   name_prefix        = "role-${var.load_lambda}-"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
 }
+
+data "aws_iam_policy_document" "s3_load_permissions_document" {
+  statement   {
+    actions   = [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:ListBucket", #changes to s3 bucket permissions
+    ]
+
+    resources = [
+      "${aws_s3_bucket.processed_bucket.arn}/*",
+      # "${aws_s3_bucket.ingestion_bucket.arn}",
+      # "${aws_s3_bucket.ingestion_bucket.arn}/"
+    ]
+  }
+
+   statement {
+    actions = [
+      "s3:GetObject",
+      # "s3:PutObject"
+    ]
+
+    resources = [
+      # "${aws_s3_bucket.ingestion_bucket.arn}/*",
+      "${aws_s3_bucket.processed_bucket.arn}/*"
+    ]
+  }
+
+  statement {
+    actions = [
+      "s3:ListAllMyBuckets"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "s3_load_policy" {
+  name_prefix = "s3-policy-${var.load_lambda}-"
+  policy      = data.aws_iam_policy_document.s3_load_permissions_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_s3_load_policy_attachment" {
+  role        = aws_iam_role.iam_role_load_lambda.name
+  policy_arn  = aws_iam_policy.s3_load_policy.arn
+}
+
 
 
 ### Eventbridge 
@@ -193,32 +252,6 @@ data "aws_iam_policy_document" "step_function_assume_role" {
     sid = "StepFunctionAssumeRole"
   }
 }
-
-#   ## dummy_step_function_role - to clean
-
-# resource "aws_iam_role" "dummy_step_function_role" {
-#   name               = "${var.dummy_step_function_name}-role"
-#   assume_role_policy = data.aws_iam_policy_document.step_function_assume_role.json
-# }
-
-# data "aws_iam_policy_document" "dummy_step_function_permissions" {
-#   statement {
-#     effect = "Allow"
-#     actions = ["lambda:InvokeFunction"]
-#     resources = [
-#       "${aws_lambda_function.dummy_extraction_lambda.arn}:*",
-#       "${aws_lambda_function.dummy_transform_lambda.arn}:*",
-#       "${aws_lambda_function.dummy_load_lambda.arn}:*"
-#     ]
-#   }
-# }
-
-# resource "aws_iam_role_policy" "dummy_step_function_policy" {
-#   name   = "${var.dummy_step_function_name}-policy"
-#   role   = aws_iam_role.dummy_step_function_role.id
-#   policy = data.aws_iam_policy_document.dummy_step_function_permissions.json
-# }
-
 
 
   ## step_function_role 
