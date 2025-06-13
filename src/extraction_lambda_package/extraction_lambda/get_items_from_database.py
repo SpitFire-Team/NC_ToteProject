@@ -11,13 +11,14 @@ def set_latest_updated_time(bucket, client):
         - s3 bucket from lambda handler
         - client from lambda handler
     This function checks the contents of an s3 bucket.
-    It determines the latest LastModified timestamp by looping through all objects in the s3 bucket.
-    Function returns the latest LastModified time.
-    Or returns a default unix time (1970) if no objects are found.
+    It determines the latest LastModified timestamp by looping through
+    all objects in the s3 bucket. Function returns the latest LastModified
+    time. Or returns a default unix time (1970) if no objects are found.
 
     """
 
-    s3_files = client.list_objects(Bucket=bucket)  # check the s3 bucket for objects
+    s3_files = client.list_objects(Bucket=bucket)
+    # check the s3 bucket for objects
 
     if "Contents" not in s3_files:
         return datetime(
@@ -29,9 +30,7 @@ def set_latest_updated_time(bucket, client):
     )  # if there is an item, set the curret time to the earliest object
 
     for object in s3_files["Contents"]:
-        if (
-            object["LastModified"].astimezone(timezone.utc) > last_updated
-        ):  # loop through the objects checking if any have a later date than the current latest time
+        if object["LastModified"].astimezone(timezone.utc) > last_updated:
             last_updated = object["LastModified"]
 
     return last_updated.astimezone(timezone.utc)

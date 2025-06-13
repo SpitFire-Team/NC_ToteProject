@@ -71,28 +71,30 @@ dev-setup: bandit black coverage flake8 mypy
 
 ## Run the security test (bandit)
 security-test:
-	$(call execute_in_env, bandit -r ./src ./test -lll -x ./src/layer/dependencies)
+	$(call execute_in_env, bandit -r ./src ./test -lll -x ./src/layer/dependencies1, ./src/layer/dependencies2)
 
 ## Run the black code check
 run-black:
-	$(call execute_in_env, black ./src ./test --exclude src/layer/dependencies)
+	$(call execute_in_env, black ./src ./test --exclude src/layer/dependencies1,src/layer/dependencies2)
 
 ## Run the flake8 linting check
 run-flake8:
 
-	$(call execute_in_env, flake8 ./src ./test --exclude=src/layer/dependencies --max-line-length=88 --extend-ignore=E501)
+	$(call execute_in_env, flake8 ./src ./test --exclude src/layer/dependencies1,src/layer/dependencies2 --max-line-length=88 --extend-ignore=E501)
 
 ## Run the mypy static type checks
 run-mypy:
-	$(call execute_in_env, PYTHONPATH=$(WD)/src mypy src --namespace-packages --explicit-package-bases --ignore-missing-imports --exclude src/layer/dependencies)
+	$(call execute_in_env, PYTHONPATH=$(WD)/src mypy src --namespace-packages --explicit-package-bases --ignore-missing-imports --exclude src/layer/dependencies1,src/layer/dependencies2)
 
 ## Run the unit tests
 unit-test:
-	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest -v)
+	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest -v --ignore=src/layer/dependencies1 --ignore=src/layer/dependencies2)
 
 ## Run the coverage check
 check-coverage:
-	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest --cov=src test/ --cov-fail-under=80)
+	$(call execute_in_env, PYTHONPATH=${PYTHONPATH} pytest --cov=src test/ --cov-fail-under=80 --ignore=src/layer/dependencies1 --ignore=src/layer/dependencies2)
+
+	
 
 ## Run all checks
-run-checks: security-test run-black run-flake8 run-mypy unit-test check-coverage
+run-checks: security-test run-black run-mypy unit-test check-coverage run-flake8

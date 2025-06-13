@@ -1,15 +1,20 @@
 from copy import deepcopy
 import json
 
-# deployment
-# from utils.aws_utils import add_data_to_s3_bucket  # src
-# from utils.file_utils import convert_to_dict, get_path_date_time_string  # src
+# - uncomment for deployment
 
-# testing
+# from utils.aws_utils import add_data_to_s3_bucket
+# from utils.file_utils import convert_to_dict, get_path_date_time_string
+
+# - uncomment for deployment
 
 
-from src.utils.aws_utils import add_data_to_s3_bucket  # src
-from src.utils.file_utils import convert_to_dict, get_path_date_time_string  # src
+# - uncomment for testing
+
+from src.utils.aws_utils import add_data_to_s3_bucket
+from src.utils.file_utils import convert_to_dict, get_path_date_time_string
+
+# - uncomment for testing
 
 
 def transform_data_to_compatable_format(db_updated_values):

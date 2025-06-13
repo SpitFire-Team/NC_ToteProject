@@ -1,8 +1,11 @@
-def lambda_handler(event, context):
-    return event
-# import boto3 - uncomment for AWS
-from src.transform_lambda_package.transform_lambda.read_json_to_dataframe import read_json_to_dataframe
-from src.transform_lambda_package.transform_lambda.dataframe_modification import dataframe_modification
+# - uncomment for testing:
+
+from src.transform_lambda_package.transform_lambda.read_json_to_dataframe import (
+    read_json_to_dataframe,
+)
+from src.transform_lambda_package.transform_lambda.dataframe_modification import (
+    dataframe_modification,
+)
 from src.transform_lambda_package.transform_lambda.create_dim_staff_table import (
     transform_staff_and_department_tables,
 )
@@ -11,19 +14,43 @@ from src.transform_lambda_package.transform_lambda.transform_data_parquet_s3 imp
 )
 from src.utils.aws_utils import make_s3_client, get_bucket_name
 
+# - uncomment for testing:
+
+
+# - uncomment for deployment:
+
+# import boto3
+
+# from transform_lambda.read_json_to_dataframe import read_json_to_dataframe
+# from transform_lambda.dataframe_modification import dataframe_modification
+# from transform_lambda.create_dim_staff_table import (
+#     transform_staff_and_department_tables,
+# )
+# from transform_lambda.transform_data_parquet_s3 import (
+#     transform_data_to_parquet_on_s3,
+# )
+# from utils.aws_utils import get_bucket_name
+
+# - uncomment for deployment:
+
 
 def lambda_handler(event, context):
 
     date_time_str_last_ingestion = event[0]["last_ingested_str"]
 
-    # create s3 client
+    # - uncomment for testing:
+
     s3_client = make_s3_client()
 
-    """ uncomment for AWS implementation:
-    # create s3 client
-    s3_client = boto3.client(
-        "s3"
-    )"""
+    # - uncomment for testing:
+
+    # - uncomment for deployment:
+
+    # s3_client = boto3.client(
+    #     "s3"
+    # )
+
+    # - uncomment for deployment:
 
     # retreive full s3 bucket name
     bucket_prefix = "ingested-data"
@@ -51,8 +78,11 @@ def lambda_handler(event, context):
                 department_df = df
                 # print("department_df >>>>", department_df)
 
-    # create_dim_staff_table returns combined dim_staff dataframe
-    combined_dim_staff = transform_staff_and_department_tables(staff_df, department_df)
+    if staff_df is not None and department_df is not None:
+        # create_dim_staff_table returns combined dim_staff dataframe
+        combined_dim_staff = transform_staff_and_department_tables(
+            staff_df, department_df
+        )
     # print("combined_dim_staff >>>>", combined_dim_staff)
 
     # add dim_staff table dictionary to list of dicts

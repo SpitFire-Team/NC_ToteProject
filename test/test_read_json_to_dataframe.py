@@ -4,7 +4,9 @@ import os
 import pandas as pd
 from dotenv import load_dotenv
 from src.utils.aws_utils import get_bucket_name
-from src.transform_lambda_package.transform_lambda.read_json_to_dataframe import read_json_to_dataframe
+from src.transform_lambda_package.transform_lambda.read_json_to_dataframe import (
+    read_json_to_dataframe,
+)
 
 # load .env from project root (configured to find .env in project root, when file is run from test/dir)
 dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))

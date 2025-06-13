@@ -4,7 +4,7 @@ import os
 import boto3
 import re
 
-# deployment
+# - uncomment for deployment
 
 # from extraction_lambda.get_items_from_database import (  # src needs removing
 #     set_latest_updated_time,
@@ -15,7 +15,10 @@ import re
 #     input_updated_data_into_s3,
 # )
 
-# testing
+# - uncomment for deployment
+
+
+# - uncomment for testing
 
 
 from src.extraction_lambda_package.extraction_lambda.get_items_from_database import (  # src needs removing
@@ -26,6 +29,8 @@ from src.extraction_lambda_package.extraction_lambda.get_items_from_database imp
 from src.extraction_lambda_package.extraction_lambda.store_converted_data_in_s3 import (
     input_updated_data_into_s3,
 )
+
+# - uncomment for testing
 
 
 def db_connection():

@@ -1,4 +1,6 @@
-from src.transform_lambda_package.transform_lambda.dataframe_modification import dataframe_modification
+from src.transform_lambda_package.transform_lambda.dataframe_modification import (
+    dataframe_modification,
+)
 import pandas as pd
 import pytest
 
