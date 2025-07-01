@@ -38,6 +38,7 @@ from src.utils.aws_utils import get_bucket_name, make_s3_client
 # - uncomment for deployment
 
 
+
 def lambda_handler(event, context):
 
     date_time_str_last_ingestion = event[0]["last_ingested_str"]
