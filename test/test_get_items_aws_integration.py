@@ -4,7 +4,7 @@ import psycopg2
 import os
 from dotenv import load_dotenv
 from datetime import datetime, timezone
-from src.extraction_lambda_package.extraction_lambda.get_items_from_database import (
+from src.extraction_lambda_pkg.extraction_lambda.get_items_from_database import (
     check_database_updates,
 )
 from src.utils.aws_utils import get_bucket_name

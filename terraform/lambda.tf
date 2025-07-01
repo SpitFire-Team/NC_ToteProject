@@ -2,7 +2,7 @@
 
 data "archive_file" "extraction_lambda" {
     type        = "zip"
-    source_dir = "${path.module}/../src/${var.extraction_lambda}_package"
+    source_dir = "${path.module}/../src/${var.extraction_lambda}_pkg"
     output_path = "${path.module}/../deployments/${var.extraction_lambda}.zip"
 }
 
@@ -40,7 +40,7 @@ resource "aws_lambda_function" "extraction_lambda" {
 
 data "archive_file" "transform_lambda" {
     type        = "zip"
-    source_dir = "${path.module}/../src/${var.transform_lambda}_package"
+    source_dir = "${path.module}/../src/${var.transform_lambda}_pkg"
     output_path = "${path.module}/../deployments/${var.transform_lambda}.zip"
 }
 
@@ -76,7 +76,7 @@ resource "aws_lambda_function" "transform_lambda" {
 
 data "archive_file" "load_lambda" {
     type        = "zip"
-    source_dir = "${path.module}/../src/${var.load_lambda}_package"
+    source_dir = "${path.module}/../src/${var.load_lambda}_pkg"
     output_path = "${path.module}/../deployments/${var.load_lambda}.zip"
 }
 

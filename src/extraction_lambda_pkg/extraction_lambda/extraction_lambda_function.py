@@ -21,12 +21,12 @@ import re
 # - uncomment for testing
 
 
-from src.extraction_lambda_package.extraction_lambda.get_items_from_database import (  # src needs removing
+from src.extraction_lambda_pkg.extraction_lambda.get_items_from_database import (  # src needs removing
     set_latest_updated_time,
     query_all_tables,
 )
 
-from src.extraction_lambda_package.extraction_lambda.store_converted_data_in_s3 import (
+from src.extraction_lambda_pkg.extraction_lambda.store_converted_data_in_s3 import (
     input_updated_data_into_s3,
 )
 

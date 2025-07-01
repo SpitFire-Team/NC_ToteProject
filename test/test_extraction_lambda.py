@@ -3,7 +3,7 @@ import pytest
 import time
 from moto import mock_aws
 from unittest.mock import patch, Mock
-from src.extraction_lambda_package.extraction_lambda.extraction_lambda_function import (
+from src.extraction_lambda_pkg.extraction_lambda.extraction_lambda_function import (
     db_connection,
     filter_buckets,
     find_latest_ingestion_bucket,
@@ -22,7 +22,7 @@ class TestDatabaseConnection:
     """
 
     @patch(
-        "src.extraction_lambda_package.extraction_lambda.extraction_lambda_function.pg8000.connect",
+        "src.extraction_lambda_pkg.extraction_lambda.extraction_lambda_function.pg8000.connect",
         side_effect=Exception("Connection failed"),
     )
     def test_failed_connection(self, mock_connect, monkeypatch):
@@ -39,7 +39,7 @@ class TestDatabaseConnection:
             db_connection()
 
     @patch(
-        "src.extraction_lambda_package.extraction_lambda.extraction_lambda_function.pg8000.connect"
+        "src.extraction_lambda_pkg.extraction_lambda.extraction_lambda_function.pg8000.connect"
     )
     def test_successful_connection(self, mock_connect, monkeypatch):
         """
@@ -69,7 +69,7 @@ class TestDatabaseConnection:
         monkeypatch.setenv("DB_NAME", "test_database")
 
         with patch(
-            "src.extraction_lambda_package.extraction_lambda.extraction_lambda_function.pg8000.connect"
+            "src.extraction_lambda_pkg.extraction_lambda.extraction_lambda_function.pg8000.connect"
         ) as mock_connect:
             mock_conn = Mock()
             mock_connect.return_value = mock_conn
