@@ -35,7 +35,7 @@ def load_to_warehouse_loop(dict_list, conn):
         raise Exception(f"Could not append to table: {e}")
 
 
-## below is updated version modified for deploying lambdas branch. 
+## below is updated version modified for deploying lambdas branch.
 
 
 # def load_to_warehouse_loop(dict_list, conn):
@@ -63,7 +63,7 @@ def load_to_warehouse_loop(dict_list, conn):
 #             items_loaded += 1
 #         else:
 #             print(f"Table '{table_name}' does not exist. Skipping.")
-            
+
 
 #     return f"items loaded {items_loaded}"
 #     # except Exception as e:

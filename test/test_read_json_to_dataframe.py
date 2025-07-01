@@ -4,7 +4,7 @@ import os
 import pandas as pd
 from dotenv import load_dotenv
 from src.utils.aws_utils import get_bucket_name
-from src.transform_lambda_package.transform_lambda.read_json_to_dataframe import (
+from src.transform_lambda_pkg.transform_lambda.read_json_to_dataframe import (
     read_json_to_dataframe,
 )
 

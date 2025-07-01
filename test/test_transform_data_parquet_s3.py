@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from src.transform_lambda_package.transform_lambda.transform_data_parquet_s3 import (
+from src.transform_lambda_pkg.transform_lambda.transform_data_parquet_s3 import (
     transform_data_to_parquet_on_s3,
 )
 from src.utils.file_utils import get_path_date_time_string
