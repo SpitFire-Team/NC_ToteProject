@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 # data = {'col_1': [3, 2, 1, 0], 'col_2': ['a', 'b', 'c', 'd']}
 
 # test_df = pd.DataFrame.from_dict(data)
@@ -44,7 +43,14 @@ def add_prefix_to_table_name(table_dict, prefix):
 def merge_dataframes(df1, df2, merge_column, column_names):
     if merge_column not in df1.columns or merge_column not in df2.columns:
         raise Exception("Merge column not in both dataframes")
-
+    
+    if df1.shape[0] != df2.shape[0]:
+        raise Exception("Dataframes don't have the same number of values")
+        
+    for col in df1.columns:
+        if col in df2.columns and col != merge_column:
+            raise Exception("Shared column")
+        
     try:    
         merge_df = pd.merge(df1, df2, on=merge_column)
     
@@ -58,8 +64,6 @@ def merge_dataframes(df1, df2, merge_column, column_names):
             delete_columns.append(col)
         
     merge_df.drop(columns=delete_columns)
-
-    print(merge_df)
 
     for col in column_names:
         if col not in merge_df.columns:

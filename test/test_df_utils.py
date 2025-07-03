@@ -37,6 +37,16 @@ def dummy_df2():
     test_df = pd.DataFrame.from_dict(data)
     return test_df
 
+@pytest.fixture
+def dummy_df3():
+    data = {
+        "currency_id": [4, 5, 6, 7],
+        "test_col3": [1, 2, 3, 4],
+        "test_col4": [8, 9, 10, 11],
+    }
+    test_df = pd.DataFrame.from_dict(data)
+    return test_df
+
 class TestRemoveDataFrameColumns:
 
     def test_empty_list_warns_user_and_returns_df_unchanged(self, dummy_df):
@@ -127,23 +137,75 @@ class TestMergeColumns:
         with pytest.raises(Exception):
             merge_dataframes(dummy_df, dummy_df2, merge_column, column_names)
 
-    def test_if_dataframes_share_column_throws_exception(self, dummy_df, dummy_df2):
+    def test_if_dataframes_share_column_throws_exception(self, dummy_df):
         merge_column = "currency_id"
+
+        dummy_df_copy = dummy_df.copy()
 
         column_names = ["currency_id", "currency_code", "test_col1"]
 
         with pytest.raises(Exception):
-            merge_dataframes(dummy_df, dummy_df, merge_column, column_names)
-
-        assert 1 == 2
-    '''def test_dataframes_merged_all_columns(self, dummy_df, dummy_df2):
+            merge_dataframes(dummy_df, dummy_df_copy, merge_column, column_names)
+        
+    def test_dataframes_merged_all_columns(self, dummy_df, dummy_df3):
         merge_column = "currency_id"
 
         column_names = ["currency_id", "currency_code", 
-                        "test_col1", "last_updated", "created_at", 
-                        "test_col2"]
+                        "test_col3", "last_updated", "created_at", 
+                        "test_col4"]
         
-        result = merge_dataframes(dummy_df, dummy_df2, merge_column, column_names)
+        result = merge_dataframes(dummy_df, dummy_df3, merge_column, column_names)
 
         for col in column_names:
-            assert col in result.columns'''
+            assert col in result.columns
+
+    def test_dataframes_not_mutated(self, dummy_df, dummy_df3):
+        merge_column = "currency_id"
+
+        column_names = ["currency_id", "currency_code", 
+                        "test_col3", "last_updated", "created_at", 
+                        "test_col4"]
+
+        dummy_df_copy = dummy_df.copy()
+
+        dummy_df3_copy = dummy_df3.copy()
+
+        merge_dataframes(dummy_df, dummy_df3, merge_column, column_names)
+
+        assert dummy_df.equals(dummy_df_copy)
+        assert dummy_df3.equals(dummy_df3_copy)
+
+    def test_empty_dataframe_throws_error(self, dummy_df):
+        merge_column = "currency_id"
+
+        column_names = ["currency_id", "currency_code", 
+                        "test_col3", "last_updated", "created_at", 
+                        "test_col4"]
+        
+        df_empty = pd.DataFrame({'A' : []})
+
+        with pytest.raises(Exception):
+            merge_dataframes(dummy_df, df_empty, merge_column, column_names)
+        
+        with pytest.raises(Exception):
+            merge_dataframes(df_empty, dummy_df, merge_column, column_names)
+        
+        df_empty = pd.DataFrame({'currency_id' : []})
+
+        with pytest.raises(Exception):
+            merge_dataframes(dummy_df, df_empty, merge_column, column_names)
+        
+        with pytest.raises(Exception):
+            merge_dataframes(df_empty, dummy_df, merge_column, column_names)
+
+        df_empty = pd.DataFrame({'currency_id' : [],
+                                'test_col3': [],
+                                'test_col4': []}) 
+
+        with pytest.raises(Exception):
+            merge_dataframes(dummy_df, df_empty, merge_column, column_names)
+        
+        with pytest.raises(Exception):
+            merge_dataframes(df_empty, dummy_df, merge_column, column_names)
+
+
