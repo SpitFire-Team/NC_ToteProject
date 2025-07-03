@@ -1,4 +1,4 @@
-from src.utils.df_utils import remove_dataframe_columns, add_prefix_to_table_name
+from src.utils.df_utils import remove_dataframe_columns, add_prefix_to_table_name, merge_dataframes
 import pandas as pd
 import pytest
 import datetime
@@ -26,6 +26,16 @@ def dummy_df():
     test_df = pd.DataFrame.from_dict(data)
     return test_df
 
+@pytest.fixture
+def dummy_df2():
+    data = {
+        "currency_id": [4, 5, 6, 7],
+        "test_col1": [1, 2, 3, 4],
+        "test_col2": [8, 9, 10, 11],
+        "last_updated": [12, 13, 14, 15],
+    }
+    test_df = pd.DataFrame.from_dict(data)
+    return test_df
 
 class TestRemoveDataFrameColumns:
 
@@ -99,3 +109,41 @@ class TestAddPrefixToTableName:
 
         assert data.keys() == data_copy.keys()
         assert data["test"].equals(data_copy["test"])
+
+class TestMergeColumns:
+    def test_no_shared_merge_column(self, dummy_df, dummy_df2):
+        merge_column = "test_col1"
+
+        column_names = []
+
+        with pytest.raises(Exception):
+            merge_dataframes(dummy_df, dummy_df2, merge_column, column_names)
+
+    def test_column_names_does_not_match_merge_column_names(self, dummy_df, dummy_df2):
+        merge_column = "currency_id"
+
+        column_names = ["currency_id", "currency_code", "test_col1", "non_existent"]
+
+        with pytest.raises(Exception):
+            merge_dataframes(dummy_df, dummy_df2, merge_column, column_names)
+
+    def test_if_dataframes_share_column_throws_exception(self, dummy_df, dummy_df2):
+        merge_column = "currency_id"
+
+        column_names = ["currency_id", "currency_code", "test_col1"]
+
+        with pytest.raises(Exception):
+            merge_dataframes(dummy_df, dummy_df, merge_column, column_names)
+
+        assert 1 == 2
+    '''def test_dataframes_merged_all_columns(self, dummy_df, dummy_df2):
+        merge_column = "currency_id"
+
+        column_names = ["currency_id", "currency_code", 
+                        "test_col1", "last_updated", "created_at", 
+                        "test_col2"]
+        
+        result = merge_dataframes(dummy_df, dummy_df2, merge_column, column_names)
+
+        for col in column_names:
+            assert col in result.columns'''

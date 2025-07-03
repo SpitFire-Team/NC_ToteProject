@@ -40,3 +40,46 @@ def add_prefix_to_table_name(table_dict, prefix):
 
     keys = list(table_dict.keys())
     return {prefix + keys[0]: table_dict[keys[0]].copy()}
+
+def merge_dataframes(df1, df2, merge_column, column_names):
+    if merge_column not in df1.columns or merge_column not in df2.columns:
+        raise Exception("Merge column not in both dataframes")
+
+    try:    
+        merge_df = pd.merge(df1, df2, on=merge_column)
+    
+    except:
+        raise Exception("Merge failed")
+
+    delete_columns = []
+
+    for col in merge_df.columns:
+        if col not in column_names:
+            delete_columns.append(col)
+        
+    merge_df.drop(columns=delete_columns)
+
+    print(merge_df)
+
+    for col in column_names:
+        if col not in merge_df.columns:
+            raise Exception("Necessary column not in dataframe")
+
+    return merge_df
+
+
+'''def transform_staff_and_department_tables(staff_dataframe, department_dataframe):
+    staff_df_copy = deepcopy(staff_dataframe)
+    department_df_copy = deepcopy(department_dataframe)
+    dim_staff_col_name_list = [
+        "staff_id",
+        "first_name",
+        "last_name",
+        "department_name",
+        "location",
+        "email_address",
+    ]
+    merge_df = pd.merge(staff_df_copy, department_df_copy, on="department_id")
+    dim_staff_df = merge_df.drop(columns=["department_id", "manager"])
+    dim_staff_df_reordered = dim_staff_df[dim_staff_col_name_list]
+    return dim_staff_df_reordered'''
