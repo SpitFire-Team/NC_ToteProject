@@ -34,6 +34,7 @@ def add_prefix_to_table_name(table_dict, prefix):
     keys = list(table_dict.keys())
     return {prefix + keys[0]: table_dict[keys[0]].copy()}
 
+
 def merge_dataframes(df1, df2, merge_column, column_names):
     """
     Merges two dataframes and reorders based on list of column names
@@ -44,20 +45,20 @@ def merge_dataframes(df1, df2, merge_column, column_names):
 
     Returns: merged dataframe
     """
-    
+
     if merge_column not in df1.columns or merge_column not in df2.columns:
         raise Exception("Merge column not in both dataframes")
-    
+
     if df1.shape[0] != df2.shape[0]:
         raise Exception("Dataframes don't have the same number of values")
-        
+
     for col in df1.columns:
         if col in df2.columns and col != merge_column:
             raise Exception("Shared column")
-        
-    try:    
+
+    try:
         merge_df = pd.merge(df1, df2, on=merge_column)
-    
+
     except:
         raise Exception("Merge failed")
 
@@ -66,7 +67,7 @@ def merge_dataframes(df1, df2, merge_column, column_names):
     for col in merge_df.columns:
         if col not in column_names:
             delete_columns.append(col)
-        
+
     merge_df.drop(columns=delete_columns)
 
     for col in column_names:
@@ -74,6 +75,7 @@ def merge_dataframes(df1, df2, merge_column, column_names):
             raise Exception("Necessary column not in dataframe")
 
     return reorder_dataframe(merge_df, column_names)
+
 
 def reorder_dataframe(df, list_column_names):
     """
@@ -84,14 +86,13 @@ def reorder_dataframe(df, list_column_names):
 
     Returns: reordered dataframe
     """
-    
+
     for col in list_column_names:
         if col not in df.columns:
             raise Exception("Can't reorder df, column not in dataframe")
-        
+
     for col in df.columns:
         if col not in list_column_names:
             raise Exception("Can't reorder df, column in dataframe but not in list")
-        
+
     return df[list_column_names]
- 

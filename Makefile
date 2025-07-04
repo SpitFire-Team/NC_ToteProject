@@ -97,4 +97,4 @@ check-coverage:
 	
 
 ## Run all checks
-run-checks: security-test run-black run-mypy unit-test check-coverage run-flake8
+run-checks: security-test run-black run-mypy unit-test run-flake8 check-coverage
