@@ -101,6 +101,6 @@ def reorder_dataframe(df, list_column_names):
 # function to split time stames into date and time - see_fact sales order
 
 
-# function to rename columns 
+# function to rename columns
 
 # function to rename df

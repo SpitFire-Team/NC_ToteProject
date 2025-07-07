@@ -1,4 +1,3 @@
-
 star_schema_ref = {
     "fact_sales_order": [
         "sales_record_id",
@@ -15,7 +14,7 @@ star_schema_ref = {
         "design_id",
         "agreed_payment_date",
         "agreed_delivery_date",
-        "agreed_delivery_location_id"
+        "agreed_delivery_location_id",
     ],
     "fact_purchase_order": [
         "purchase_record_id",
@@ -32,7 +31,7 @@ star_schema_ref = {
         "currency_id",
         "agreed_delivery_date",
         "agreed_payment_date",
-        "agreed_delivery_location_id"
+        "agreed_delivery_location_id",
     ],
     "fact_payment": [
         "payment_record_id",
@@ -47,7 +46,7 @@ star_schema_ref = {
         "currency_id",
         "payment_type_id",
         "paid",
-        "payment_date"
+        "payment_date",
     ],
     "dim_date": [
         "date_id",
@@ -57,7 +56,7 @@ star_schema_ref = {
         "day_of_week",
         "day_name",
         "month_name",
-        "quarter"
+        "quarter",
     ],
     "dim_staff": [
         "staff_id",
@@ -65,7 +64,7 @@ star_schema_ref = {
         "last_name",
         "department_name",
         "location",
-        "email_address"
+        "email_address",
     ],
     "dim_location": [
         "location_id",
@@ -75,19 +74,10 @@ star_schema_ref = {
         "city",
         "postal_code",
         "country",
-        "phone"
+        "phone",
     ],
-    "dim_currency": [
-        "currency_id",
-        "currency_code",
-        "currency_name"
-    ],
-    "dim_design": [
-        "design_id",
-        "design_name",
-        "file_location",
-        "file_name"
-    ],
+    "dim_currency": ["currency_id", "currency_code", "currency_name"],
+    "dim_design": ["design_id", "design_name", "file_location", "file_name"],
     "dim_counterparty": [
         "counterparty_id",
         "counterparty_legal_name",
@@ -97,16 +87,13 @@ star_schema_ref = {
         "counterparty_legal_city",
         "counterparty_legal_postal_code",
         "counterparty_legal_country",
-        "counterparty_legal_phone_number"
+        "counterparty_legal_phone_number",
     ],
-    "dim_payment_type": [
-        "payment_type_id",
-        "payment_type_name"
-    ],
+    "dim_payment_type": ["payment_type_id", "payment_type_name"],
     "dim_transaction": [
         "transaction_id",
         "transaction_type",
         "sales_order_id",
-        "purchase_order_id"
-    ]
+        "purchase_order_id",
+    ],
 }
