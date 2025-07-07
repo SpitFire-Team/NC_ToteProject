@@ -1,4 +1,4 @@
-from src.extraction_lambda.extraction_lambda import db_connection 
+from src.extraction_lambda_pkg.extraction_lambda.extraction_lambda_function import db_connection 
 import pg8000.native
 from pprint import pprint
 from src.utils.file_utils import convert_to_dict

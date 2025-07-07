@@ -23,11 +23,11 @@ venv
 .coverage
 
 # Ignore everything in dependencies1/python and dependencies2/python
-src/layer/dependencies1/python/**
-src/layer/dependencies2/python/**
+deployments/layer/dependencies1/python/**
+deployments/layer/dependencies2/python/**
 
 # Then allow just the utils folder and its Python files
-!src/layer/dependencies1/python/
-!src/layer/dependencies1/python/utils/
-!src/layer/dependencies1/python/utils/*.py
+!deployments/layer/dependencies1/python/
+!deployments/layer/dependencies1/python/utils/
+!deployments/layer/dependencies1/python/utils/*.py
 .coverage
