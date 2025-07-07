@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 
 
-from src.transform_lambda_pkg.transform_lambda.create_dim_staff_table import (
+from src.transform_lambda_pkg.transform_lambda.merge_tables import (
     transform_staff_and_department_tables,
 )
 
