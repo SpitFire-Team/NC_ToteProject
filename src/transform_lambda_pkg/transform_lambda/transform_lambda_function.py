@@ -74,15 +74,15 @@ def lambda_handler(event, context):
 
     # - uncomment for testing:
 
-    s3_client = make_s3_client()
+    # s3_client = make_s3_client()
 
     # - uncomment for testing:
 
     # - uncomment for deployment:
 
-    # s3_client = boto3.client(
-    #     "s3"
-    # )
+    s3_client = boto3.client(
+        "s3"
+    )
 
     # - uncomment for deployment:
 

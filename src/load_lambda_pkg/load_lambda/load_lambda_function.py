@@ -31,8 +31,8 @@ def lambda_handler(event, context):
     if date_time_str_last_ingestion == "no data ingested":
         return [{"last_ingested_str": "no data ingested"}]
 
-    # s3_client = boto3.client("s3")
-    s3_client = make_s3_client()
+    s3_client = boto3.client("s3")
+    # s3_client = make_s3_client()
     bucket_prefix = "processed-data"
     bucket_name = get_bucket_name(s3_client, bucket_prefix)
 
