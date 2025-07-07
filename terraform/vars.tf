@@ -23,7 +23,7 @@ variable "runtime" {
 }
 
 variable "path_layer" {
-  default = "src/layer"
+  default = "deployments/layer"
 }
 
 variable "user" {}
