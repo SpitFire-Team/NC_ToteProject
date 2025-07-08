@@ -1,5 +1,7 @@
 import pandas as pd
 from copy import deepcopy
+from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref, transform_table_names 
+
 
 
 def transform_staff_and_department_tables(staff_dataframe, department_dataframe):
@@ -53,5 +55,25 @@ def create_merged_datastructure(tables, star_schema_ref):
     
     elif len(dim_staff_dfs) != 2:
         raise Exception(f"dim_staff dfs not correctly added for merge. df count: {len(dim_staff_dfs)}")
+
+    return return_data_structure
+
+#Output: [{"table1_name": df1, "col_list":[col1, col2]}, {"table2_name": df2, "col_list":[col1, col2]}]
+#using ds_merge_data - [{"table1_name": df1}, {"table2_name": df2}]
+
+def create_non_merged_datastructure(tables, table_names):
+    return_data_structure = []
+
+    for table in tables:
+        table_dict = {}
+
+        table_name = list(table.keys())[0]
+
+        if table_name in table_names:
+            table_dict[table_name] = table[table_name]
+            table_dict["col_list"] = star_schema_ref[transform_table_names[table_name]]
+
+        if table_dict:
+            return_data_structure.append(table_dict)
 
     return return_data_structure

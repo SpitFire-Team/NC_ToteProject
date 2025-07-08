@@ -5,10 +5,11 @@ from copy import deepcopy
 
 from src.transform_lambda_pkg.transform_lambda.merge_tables import (
     transform_staff_and_department_tables,
-    create_merged_datastructure
+    create_merged_datastructure,
+    create_non_merged_datastructure
 )
 
-from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref 
+from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref, transform_table_names
 
 
 @pytest.fixture
@@ -37,6 +38,24 @@ def staff_df():
 
 @pytest.fixture
 def department_df():
+    department_name_list = ["department_id", "department_name", "location", "manager"]
+    department_df = pd.DataFrame(columns=department_name_list)
+    for i in range(10):
+        data = {
+            department_name_list[0]: i,
+            department_name_list[1]: f"department_name_{i}",
+            department_name_list[2]: f"location_{i}",
+            department_name_list[3]: f"manager_{i}",
+        }
+
+        data_rows_to_add_df = pd.DataFrame(data, index=[i])
+        department_df = pd.concat(
+            [department_df, data_rows_to_add_df], ignore_index=True
+        )
+    return department_df
+
+@pytest.fixture
+def currency_df():
     department_name_list = ["department_id", "department_name", "location", "manager"]
     department_df = pd.DataFrame(columns=department_name_list)
     for i in range(10):
@@ -219,3 +238,57 @@ class TestCreateMergedDatastructure:
             
         assert str(exc_info.value) == "dim_staff dfs not correctly added for merge. df count: 3"
 
+class TestCreateNonMergedDatastructure:
+    def test_returns_list_of_dicts(self, tables_for_md):
+        result = create_non_merged_datastructure(tables_for_md, [])
+
+        assert type(result) == list
+
+        for table in result:
+            assert type(table) == dict
+    
+    def test_adds_required_tables_to_datastructure(self, tables_for_md):
+        tables_to_add = ["address", "staff"]
+
+        result = create_non_merged_datastructure(tables_for_md, tables_to_add)
+
+        result_tables = []
+
+        for table in result:
+            result_tables.append(list(table.keys())[0])
+        
+        for table_name in tables_to_add:
+            assert table_name in result_tables
+
+        for table in result_tables:
+            assert table in tables_to_add
+
+        assert len(tables_to_add) == len(result_tables) 
+    
+    def test_adds_required_column_list(self, tables_for_md):
+        tables_to_add = ["address", "staff"]
+
+        result = create_non_merged_datastructure(tables_for_md, tables_to_add)
+
+        address_columns1 = star_schema_ref["dim_location"]
+        staff_columns1 = star_schema_ref["dim_staff"]
+
+        address_columns2 = star_schema_ref[transform_table_names["address"]]
+        staff_columns2 = star_schema_ref[transform_table_names["staff"]]
+
+        result_address_columns = result[0]["col_list"]
+        result_staff_columns = result[1]["col_list"]
+
+        assert result_address_columns == address_columns1
+        assert result_address_columns == address_columns2
+
+        assert result_staff_columns == staff_columns1
+        assert result_staff_columns == staff_columns2
+
+    def test_stores_correct_dataframes(self, tables_for_md, staff_df, department_df):
+        tables_to_add = ["address", "staff"]
+
+        result = create_non_merged_datastructure(tables_for_md, tables_to_add)
+
+        department_df.equals(result[0]["address"])
+        staff_df.equals(result[1]["staff"])

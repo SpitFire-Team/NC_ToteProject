@@ -97,3 +97,17 @@ star_schema_ref = {
         "purchase_order_id",
     ],
 }
+
+transform_table_names = {
+    "sales_order": "fact_sales_order",
+    "purchase_order": "fact_purchase_order",
+    "payment": "fact_payment",
+    "date": "dim_date",
+    "staff": "dim_staff",
+    "address": "dim_location",
+    "currency": "dim_currency",
+    "design": "dim_design",
+    "counterparty": "dim_counterparty",
+    "payment_type": "dim_payment_type",
+    "transaction": "dim_transaction"
+}
