@@ -1,0 +1,5 @@
+pg8000
+dotenv
+pytz
+sqlalchemy
+psycopg2-binary
