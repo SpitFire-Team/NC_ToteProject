@@ -64,17 +64,22 @@ def merge_dataframes(df1, df2, merge_column, column_names):
 
     delete_columns = []
 
+    ## put in own util
     for col in merge_df.columns:
         if col not in column_names:
             delete_columns.append(col)
 
-    merge_df.drop(columns=delete_columns)
+    merge_df = merge_df.drop(columns=delete_columns)
 
     for col in column_names:
         if col not in merge_df.columns:
             raise Exception("Necessary column not in dataframe")
+        
+    ## put in own util - see ticket
+        
+    reordered_df = reorder_dataframe(merge_df, column_names)
 
-    return reorder_dataframe(merge_df, column_names)
+    return reordered_df
 
 
 def reorder_dataframe(df, list_column_names):
@@ -102,5 +107,6 @@ def reorder_dataframe(df, list_column_names):
 
 
 # function to rename columns
+# def rename_columns_df(df, )
 
 # function to rename df

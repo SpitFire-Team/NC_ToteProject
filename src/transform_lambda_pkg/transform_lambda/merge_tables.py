@@ -1,24 +1,8 @@
 import pandas as pd
 from copy import deepcopy
 from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref, transform_table_names 
+from src.utils.df_utils import merge_dataframes
 
-
-
-def transform_staff_and_department_tables(staff_dataframe, department_dataframe):
-    staff_df_copy = deepcopy(staff_dataframe)
-    department_df_copy = deepcopy(department_dataframe)
-    dim_staff_col_name_list = [
-        "staff_id",
-        "first_name",
-        "last_name",
-        "department_name",
-        "location",
-        "email_address",
-    ]
-    merge_df = pd.merge(staff_df_copy, department_df_copy, on="department_id")
-    dim_staff_df = merge_df.drop(columns=["department_id", "manager"])
-    dim_staff_df_reordered = dim_staff_df[dim_staff_col_name_list]
-    return dim_staff_df_reordered
 
 
 def create_merged_datastructure(tables, star_schema_ref):
@@ -32,7 +16,7 @@ def create_merged_datastructure(tables, star_schema_ref):
 
     return_data_structure = [
         {"dim_counterparty": [], "col_list": star_schema_ref["dim_counterparty"]},
-        {"dim_staff": [], "col_list": star_schema_ref["dim_staff"]},
+        {"dim_staff": [], "col_list": star_schema_ref["dim_staff"]}
     ]
 
     dim_counterparty_dfs = []
@@ -95,3 +79,43 @@ def create_non_merged_datastructure(tables, table_names):
             return_data_structure.append(table_dict)
 
     return return_data_structure
+
+
+#inputs: [{"table1_name": df1, "col_list":[col1, col2]}, {"table2_name": df2, "col_list":[col1, col2]}]
+
+    # Merge  - using ds_merge_data - outputs [{"dim/fact_table1_name": df1}, {"dim/fact_table2_name": df2}]
+    
+    # def merge_dataframes(df1, df2, merge_column, column_names):
+
+def merge_tables(merge_datastructure):
+    # loop through each dictionary in list
+        # grab list of dfs to merge (value of dictorary [table name])
+        # merge dataframes together - merged_df - merge_dataframes(df1, df2, merge_column, column_names)
+        # create new dictionary with key: table name as in merge_datastructure, value: merged_df
+        # save dictionary to list of merged tables
+        # return new list of merged tables
+        
+    return_list = []
+        
+    for item in merge_datastructure:
+        name = list(item.keys())[0]
+        df1 = item[name][0]
+        df2 = item[name][1]
+        col_names = item["col_list"]
+        
+        if name == "dim_counterparty":
+            merge_col = "legal_address_id" # rename address_df - address_id 
+        elif name == "dim_staff":
+            merge_col = "department_id"
+        else:
+            continue
+        
+        merge_df = merge_dataframes(df1,df2, merge_col, col_names)
+        merge_table = {name: merge_df}
+        
+        return_list.append(merge_table)
+        
+    return return_list
+        
+    
+        

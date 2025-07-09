@@ -4,9 +4,9 @@ from copy import deepcopy
 
 
 from src.transform_lambda_pkg.transform_lambda.merge_tables import (
-    transform_staff_and_department_tables,
     create_merged_datastructure,
-    create_non_merged_datastructure
+    create_non_merged_datastructure,
+    merge_tables
 )
 
 from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref, transform_table_names
@@ -38,14 +38,65 @@ def staff_df():
 
 @pytest.fixture
 def department_df():
-    department_name_list = ["department_id", "department_name", "location", "manager"]
+    department_name_list = ["department_id", 
+                            "department_name", 
+                            "location", 
+                            ]
     department_df = pd.DataFrame(columns=department_name_list)
     for i in range(10):
         data = {
             department_name_list[0]: i,
             department_name_list[1]: f"department_name_{i}",
             department_name_list[2]: f"location_{i}",
-            department_name_list[3]: f"manager_{i}",
+        }
+
+        data_rows_to_add_df = pd.DataFrame(data, index=[i])
+        department_df = pd.concat(
+            [department_df, data_rows_to_add_df], ignore_index=True
+        )
+    return department_df
+
+
+@pytest.fixture
+def counterparty_df():
+    department_name_list = ["counterparty_id", 
+                            "counterparty_legal_name", 
+                            "legal_address_id"] #dropped before, "created_at", "last_updated"]
+    department_df = pd.DataFrame(columns=department_name_list)
+    for i in range(10):
+        data = {
+            department_name_list[0]: i,
+            department_name_list[1]: f"counterparty_legal_name {i}",
+            department_name_list[2]: f"legal_address_id {i}",
+        }
+
+        data_rows_to_add_df = pd.DataFrame(data, index=[i])
+        department_df = pd.concat(
+            [department_df, data_rows_to_add_df], ignore_index=True
+        )
+    return department_df
+
+@pytest.fixture
+def renamed_address_df():
+    department_name_list = ["legal_address_id", 
+                            "counterparty_legal_address_line_1", 
+                            "counterparty_legal_address_line_2", 
+                            "counterparty_legal_district", 
+                            "counterparty_legal_city", 
+                            "counterparty_legal_postal_code", 
+                            "counterparty_legal_country", 
+                            "counterparty_legal_phone_number"] #dropped before, "created_at", "last_updated"]
+    department_df = pd.DataFrame(columns=department_name_list)
+    for i in range(10):
+        data = {
+            department_name_list[0]: i,
+            department_name_list[1]: f"counterparty_legal_address_line_1 {i}",
+            department_name_list[2]: f"counterparty_legal_address_line_2 {i}",
+            department_name_list[3]: f"counterparty_legal_district {i}",
+            department_name_list[4]: f"counterparty_legal_city {i}",
+            department_name_list[5]: f"counterparty_legal_postal_code {i}",
+            department_name_list[6]: f"counterparty_legal_country {i}",
+            department_name_list[7]: f"counterparty_legal_phone_number {i}",
         }
 
         data_rows_to_add_df = pd.DataFrame(data, index=[i])
@@ -95,39 +146,6 @@ def tables_not_for_md(department_df, staff_df):
     return [{"not_address": department_df}, {"not_counterparty": staff_df}, 
             {"not_staff": staff_df}, {"not_department": department_df}]
 
-class TestTransformStaffAndDepartmentTables:
-    def test_function_returns_dataframe(self, staff_df, department_df):
-        data_frame = transform_staff_and_department_tables(staff_df, department_df)
-        assert type(data_frame) is type(staff_df)
-
-    def test_dataframe_has_correct_names(self, staff_df, department_df, df_column_name):
-        data_frame = transform_staff_and_department_tables(staff_df, department_df)
-        assert data_frame.columns.tolist() == df_column_name
-
-    def test_function_pulls_required_data_from_staff_table(
-        self, staff_df, department_df
-    ):
-        data_frame = transform_staff_and_department_tables(staff_df, department_df)
-        staff_columns_to_check = [
-            "staff_id",
-            "first_name",
-            "last_name",
-            "email_address",
-        ]
-        for column in staff_columns_to_check:
-            staff_value_list = staff_df.get(column).tolist()
-            result_value_list = data_frame.get(column).tolist()
-            assert staff_value_list == result_value_list
-
-    def test_function_pulls_required_data_from_department_table(
-        self, staff_df, department_df
-    ):
-        data_frame = transform_staff_and_department_tables(staff_df, department_df)
-        department_columns_to_check = ["department_name", "location"]
-        for column in department_columns_to_check:
-            department_value_list = department_df.get(column).tolist()
-            result_value_list = data_frame.get(column).tolist()
-            assert department_value_list == result_value_list
 
 class TestCreateMergedDatastructure:
     def test_returns_list_of_dicts(self, tables_for_md):
@@ -382,3 +400,26 @@ class TestCreateNonMergedDatastructure:
             create_non_merged_datastructure(table, tables_to_add)
             
         assert str(exc_info.value) == "Table names should a list of strings"
+
+@pytest.fixture
+def mock_merge_ds(department_df, staff_df, renamed_address_df, counterparty_df):
+    return_datastructure = [{"dim_counterparty": [renamed_address_df, counterparty_df], "col_list": star_schema_ref["dim_counterparty"]},
+                            {"dim_staff": [department_df, staff_df], "col_list": star_schema_ref["dim_staff"]}]
+    
+    return return_datastructure
+    
+
+# [{"table1_name": df1, "col_list":[col1, col2]}, {"table2_name": df2, "col_list":[col1, col2]}]
+
+class TestCreateNonMergedDatastructure:
+    
+    #"dim_staff": mock_df (with merge col - department_id)
+    #"dim_counterparty": mock_df (with merge col - legal_address)
+    
+    def test_returns_list_of_dicts(self, mock_merge_ds):
+        result = merge_tables(mock_merge_ds)
+
+        assert type(result) == list
+
+        for table in result:
+            assert type(table) == dict
