@@ -1,3 +1,8 @@
+
+
+from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref, transform_table_names 
+
+
 def dataframe_modification(list_of_dicts):
     """This function takes a list of dictionaries
     containing table name keys and dataframe values,
@@ -19,7 +24,7 @@ def dataframe_modification(list_of_dicts):
         modified_list.append(new_dict)
     return modified_list
 
-def create_non_merged_datastructure(tables, table_names):
+def create_modify_tables_datastructure(tables, table_names):
 
     if type(tables) != list:
         raise Exception("Tables should be type list")
