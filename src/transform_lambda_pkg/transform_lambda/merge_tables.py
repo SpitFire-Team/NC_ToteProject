@@ -62,13 +62,31 @@ def create_merged_datastructure(tables, star_schema_ref):
 #using ds_merge_data - [{"table1_name": df1}, {"table2_name": df2}]
 
 def create_non_merged_datastructure(tables, table_names):
-    return_data_structure = []
 
+    if type(tables) != list:
+        raise Exception("Tables should be type list")
+    elif tables: 
+        for item in tables:
+            if type(item) != dict:
+                raise Exception("Tables should a list of dictionaries")
+    else: 
+        raise Exception("Tables should not be empty")
+    
+    
+    if type(table_names) != list:
+        raise Exception("Table names should be type list")
+    elif table_names: 
+        for item in table_names:
+            if type(item) != str:
+                raise Exception("Table names should a list of strings")
+    else: 
+        raise Exception("Table names should not be empty")
+    
+    return_data_structure = []
     for table in tables:
         table_dict = {}
 
         table_name = list(table.keys())[0]
-
         if table_name in table_names:
             table_dict[table_name] = table[table_name]
             table_dict["col_list"] = star_schema_ref[transform_table_names[table_name]]

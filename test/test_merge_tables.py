@@ -240,7 +240,8 @@ class TestCreateMergedDatastructure:
 
 class TestCreateNonMergedDatastructure:
     def test_returns_list_of_dicts(self, tables_for_md):
-        result = create_non_merged_datastructure(tables_for_md, [])
+        tables_to_add = ["address", "staff"]
+        result = create_non_merged_datastructure(tables_for_md, tables_to_add)
 
         assert type(result) == list
 
@@ -292,3 +293,92 @@ class TestCreateNonMergedDatastructure:
 
         department_df.equals(result[0]["address"])
         staff_df.equals(result[1]["staff"])
+
+    def test_unneeded_tables_not_added_to_datastructure(self, tables_for_md):
+
+        tables_to_add = ["address", "staff"]
+        
+        result = create_non_merged_datastructure(tables_for_md, tables_to_add)
+        
+        result_tables = []
+        for item in result:
+            result_tables.append(list(item.keys())[0])
+           
+        original_tables = [] 
+        for item in tables_for_md:
+            original_tables.append(list(item.keys())[0])
+        
+        for item in tables_to_add:
+            assert item in result_tables and item in original_tables
+        
+        assert len(result_tables) <= len(original_tables)
+        
+        
+    def test_star_schema_not_mutated(self, tables_for_md):
+        tables_to_add = ["address", "staff"]
+        star_schema_ref_copy = deepcopy(star_schema_ref)
+
+        create_non_merged_datastructure(tables_for_md, tables_to_add)
+
+        assert star_schema_ref == star_schema_ref_copy
+
+    def test_dataframes_not_mutated(self, staff_df, department_df):
+        
+        tables_to_add = ["address", "staff"]
+        table = [{"address": department_df}, {"counterparty": staff_df}, 
+            {"staff": staff_df}, {"department": department_df}]
+        
+        staff_df_copy = staff_df.copy()
+        department_df_copy = department_df.copy()
+
+        create_non_merged_datastructure(table, tables_to_add)
+
+        assert staff_df.equals(staff_df_copy)
+        assert department_df.equals(department_df_copy)
+      
+    def test_raises_error_when_empty_data_passed_in(self):
+        tables_to_add = ["address", "staff"]
+        table = []
+        
+        with pytest.raises(Exception) as exc_info:
+            create_non_merged_datastructure(table, tables_to_add)
+            
+        assert str(exc_info.value) == "Tables should not be empty"
+            
+    def test_raises_error_when_tables_not_correct_type(self):
+        tables_to_add = ["address", "staff"]
+        table = ["test", 1,2,3]
+        
+        with pytest.raises(Exception) as exc_info:
+            create_non_merged_datastructure(table, tables_to_add)
+            
+        assert str(exc_info.value) == "Tables should a list of dictionaries"
+        
+    def test_raises_error_when_tables_not_correct_type(self):
+        tables_to_add = ["address", "staff"]
+        table = {}
+        
+        with pytest.raises(Exception) as exc_info:
+            create_non_merged_datastructure(table, tables_to_add)
+            
+        assert str(exc_info.value) == "Tables should be type list"
+                                                        
+    def test_raises_error_when_table_names_is_empty(self):
+        tables_to_add = []
+        table = [{"address": department_df}, {"counterparty": staff_df}, 
+            {"staff": staff_df}, {"department": department_df}]
+        
+        with pytest.raises(Exception) as exc_info:
+            create_non_merged_datastructure(table, tables_to_add)
+            
+        assert str(exc_info.value) == "Table names should not be empty"
+        
+    def test_raises_error_when_table_names_is_empty(self):
+        tables_to_add = [2,3,1,2]
+        table = [{"address": department_df}, {"counterparty": staff_df}, 
+            {"staff": staff_df}, {"department": department_df}]
+        
+        with pytest.raises(Exception) as exc_info:
+            create_non_merged_datastructure(table, tables_to_add)
+            
+        assert str(exc_info.value) == "Table names should a list of strings"
