@@ -411,7 +411,7 @@ def mock_merge_ds(department_df, staff_df, renamed_address_df, counterparty_df):
 
 # [{"table1_name": df1, "col_list":[col1, col2]}, {"table2_name": df2, "col_list":[col1, col2]}]
 
-class TestCreateNonMergedDatastructure:
+class TestMergeTables:
     
     #"dim_staff": mock_df (with merge col - department_id)
     #"dim_counterparty": mock_df (with merge col - legal_address)
