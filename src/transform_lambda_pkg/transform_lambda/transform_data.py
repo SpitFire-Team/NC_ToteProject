@@ -98,6 +98,121 @@ star_schema_ref = {
     ],
 }
 
+
+db_ref = {
+    "sales_order": [
+        "sales_order_id",
+        "created_at",
+        "last_updated",
+        "design_id",
+        "staff_id",
+        "counterparty_id",
+        "units_sold",
+        "unit_price",
+        "currency_id",
+        "agreed_delivery_date",
+        "agreed_payment_date",
+        "agreed_delivery_location_id"
+    ],
+    "design": [
+        "design_id",
+        "created_at",
+        "last_updated",
+        "design_name",
+        "file_location",
+        "file_name"
+    ],
+    "currency": [
+        "currency_id",
+        "currency_code",
+        "created_at",
+        "last_updated"
+    ],
+    "staff": [
+        "staff_id",
+        "first_name",
+        "last_name",
+        "department_id",
+        "email_address",
+        "created_at",
+        "last_updated"
+    ],
+    "counterparty": [
+        "counterparty_id",
+        "counterparty_legal_name",
+        "legal_address_id",
+        "commercial_contact",
+        "delivery_contact",
+        "created_at",
+        "last_updated"
+    ],
+    "address": [
+        "address_id",
+        "address_line_1",
+        "address_line_2",
+        "district",
+        "city",
+        "postal_code",
+        "country",
+        "phone",
+        "created_at",
+        "last_updated"
+    ],
+    "department": [
+        "department_id",
+        "department_name",
+        "location",
+        "manager",
+        "created_at",
+        "last_updated"
+    ],
+    "purchase_order": [
+        "purchase_order_id",
+        "created_at",
+        "last_updated",
+        "staff_id",
+        "counterparty_id",
+        "item_code",
+        "item_quantity",
+        "item_unit_price",
+        "currency_id",
+        "agreed_delivery_date",
+        "agreed_payment_date",
+        "agreed_delivery_location_id"
+    ],
+    "payment_type": [
+        "payment_type_id",
+        "payment_type_name",
+        "created_at",
+        "last_updated"
+    ],
+    "payment": [
+        "payment_id",
+        "created_at",
+        "last_updated",
+        "transaction_id",
+        "counterparty_id",
+        "payment_amount",
+        "currency_id",
+        "payment_type_id",
+        "paid",
+        "payment_date",
+        "company_ac_number",
+        "counterparty_ac_number"
+    ],
+    "transaction": [
+        "transaction_id",
+        "transaction_type",
+        "sales_order_id",
+        "purchase_order_id",
+        "created_at",
+        "last_updated"
+    ]
+}
+
+
+
+
 transform_table_names = {
     "sales_order": "fact_sales_order",
     "purchase_order": "fact_purchase_order",

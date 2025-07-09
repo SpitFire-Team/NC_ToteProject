@@ -3,7 +3,7 @@
 from src.transform_lambda_pkg.transform_lambda.read_json_to_dataframe import (
     read_json_to_dataframe,
 )
-from src.transform_lambda_pkg.transform_lambda.dataframe_modification import (
+from src.transform_lambda_pkg.transform_lambda.modify_tables import (
     dataframe_modification,
 )
 from src.transform_lambda_pkg.transform_lambda.merge_tables import (
