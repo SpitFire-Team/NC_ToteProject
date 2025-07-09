@@ -69,7 +69,7 @@ def merge_dataframes(df1, df2, merge_column, column_names):
         if col not in column_names:
             delete_columns.append(col)
 
-    merge_df = merge_df.drop(columns=delete_columns)
+    merge_df = remove_dataframe_columns(merge_df, delete_columns)
 
     for col in column_names:
         if col not in merge_df.columns:

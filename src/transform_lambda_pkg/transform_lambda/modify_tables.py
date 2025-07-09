@@ -24,6 +24,8 @@ def dataframe_modification(list_of_dicts):
         modified_list.append(new_dict)
     return modified_list
 
+
+
 def create_modify_tables_datastructure(tables, table_names):
 
     if type(tables) != list:
