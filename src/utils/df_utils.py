@@ -100,6 +100,7 @@ def reorder_dataframe(df, list_column_names):
         if col not in list_column_names:
             raise Exception("Can't reorder df, column in dataframe but not in list")
 
+
     return df[list_column_names]
 
 
