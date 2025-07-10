@@ -81,6 +81,9 @@ def merge_dataframes(df1, df2, merge_column, column_names):
         
     reordered_df = reorder_dataframe(merge_df, column_names)
 
+    if merge_df.empty:
+        raise Exception("Merge failed: no shared values in merge column")
+
     return reordered_df
 
 
