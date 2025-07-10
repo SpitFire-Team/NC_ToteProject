@@ -3,11 +3,17 @@ from src.utils.df_utils import (
     add_prefix_to_table_name,
     merge_dataframes,
     reorder_dataframe,
+    rename_dataframe_columns
 )
+
+from src.transform_lambda_pkg.transform_lambda.transform_data import db_ref, rename_col_names_ref
+
 import pandas as pd
 import pytest
 import datetime
 from copy import deepcopy
+
+
 
 
 @pytest.fixture
@@ -54,6 +60,24 @@ def dummy_df3():
     test_df = pd.DataFrame.from_dict(data)
     return test_df
 
+
+@pytest.fixture
+def address_df():
+    column_name_list = db_ref["address"]
+    rows = []
+    for i in range(10):
+        row = {}
+        for col_name in column_name_list:
+            row[col_name] = f"{i}"
+        rows.append(row) 
+    df = pd.DataFrame(rows, columns=column_name_list)
+    return df
+
+@pytest.fixture
+def cols_to_rename_addr():
+    rename_addr_cols = deepcopy(rename_col_names_ref['dim_counterparty'])
+    print(rename_addr_cols)
+    return rename_addr_cols
 
 class TestRemoveDataFrameColumns:
 
@@ -322,12 +346,80 @@ class TestReorderDataframe:
             == "Can't reorder df, column in dataframe but not in list"
         )
 
+class TestRenameDataframeColumns:
+    def test_returns_df(self, address_df, cols_to_rename_addr):
+        renamed_col_df = rename_dataframe_columns(address_df, cols_to_rename_addr)
+        assert type(renamed_col_df) == type(address_df)
+    
+    def test_returns_error_if_df_is_empty(self, cols_to_rename_addr):
+        df = pd.DataFrame()
+        with pytest.raises(Exception) as exc_info: 
+            rename_dataframe_columns(df, cols_to_rename_addr)
+        
+        assert str(exc_info.value) == "Column rename failed: has no columns"
 
-# def dummy_df2():
-#     data = {
-#         "currency_id": [4, 5, 6, 7],
-#         "test_col1": [1, 2, 3, 4],
-#         "test_col2": [8, 9, 10, 11],
-#         "last_updated": [12, 13, 14, 15],
-#     }
-#     test_df = pd.DataFrame.from_dict(data)
+        df = None
+        
+        with pytest.raises(Exception) as exc_info: 
+            rename_dataframe_columns(df, cols_to_rename_addr)
+            
+        assert str(exc_info.value) == "Column rename failed: dataframe is None"
+
+    def test_returns_error_if_cols_to_rename_is_not_a_dict(self, address_df):
+        cols_to_rename = ["address_line_1"]
+        
+        with pytest.raises(Exception) as exc_info:
+                rename_dataframe_columns(address_df, cols_to_rename)
+
+        assert str(exc_info.value) == "Column rename failed: cols_to_rename must be a dictionary"
+
+    def test_returns_error_if_col_to_rename_not_in_df(self, address_df, cols_to_rename_addr):
+        
+        cols_to_rename_addr["col name not in df"] = "renamed col"
+
+        with pytest.raises(Exception) as exc_info:
+                rename_dataframe_columns(address_df, cols_to_rename_addr)
+                
+        assert str(exc_info.value) == "Column rename failed: column name not in df"
+        
+        
+    def test_returns_error_if_col_to_rename_and_renamed_value_not_strings(self, address_df, cols_to_rename_addr):
+        
+        cols_to_rename_addr["address_line_1"] = 12
+
+        with pytest.raises(Exception) as exc_info:
+                rename_dataframe_columns(address_df, cols_to_rename_addr)
+                
+        assert str(exc_info.value) == "Column rename failed: column name and new name must be strings"
+
+        cols_to_rename_addr["address_line_1"] = "counterparty_legal_address_line_1"
+        cols_to_rename_addr[12] = "counterparty_legal_address_line_1"
+
+        with pytest.raises(Exception) as exc_info:
+                rename_dataframe_columns(address_df, cols_to_rename_addr)
+                
+        assert str(exc_info.value) == "Column rename failed: column name and new name must be strings"
+        
+    def test_renames_columns(self, address_df, cols_to_rename_addr):
+        column_names_before = list(address_df.columns)
+        renamed_col_df = rename_dataframe_columns(address_df, cols_to_rename_addr)
+        new_names_check = list(cols_to_rename_addr.values())
+        new_col_names = list(renamed_col_df.columns)
+
+        for new_col in new_col_names:
+            if new_col in column_names_before and new_col not in new_names_check:
+                continue
+            assert new_col in new_names_check
+    
+    def test_raises_error_if_names_the_same(self, address_df, cols_to_rename_addr):
+        
+        old_col_names = list(cols_to_rename_addr.keys())
+        
+        for key in cols_to_rename_addr.keys():
+            cols_to_rename_addr[key] = key
+
+        with pytest.raises(Exception) as exc_info:
+                rename_dataframe_columns(address_df, cols_to_rename_addr)
+        
+        assert str(exc_info.value) == "Column rename failed: new names cannot be the same as old names"
+
