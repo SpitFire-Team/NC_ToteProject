@@ -226,3 +226,15 @@ transform_table_names = {
     "payment_type": "dim_payment_type",
     "transaction": "dim_transaction"
 }
+
+
+rename_col_names_ref = {"dim_counterparty":{"address_id":"legal_address_id",
+                                        "address_line_1":"counterparty_legal_address_line_1",
+                                        "address_line_2": "counterparty_legal_address_line_2",
+                                        "district":"counterparty_legal_district",
+                                        "city":"counterparty_legal_city",
+                                        "postal_code":"counterparty_legal_postal_code",
+                                        "country":"counterparty_legal_country",
+                                        "phone": "counterparty_legal_phone_number"}
+                    }
+

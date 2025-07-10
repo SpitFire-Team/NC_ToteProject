@@ -1,4 +1,6 @@
 import pandas as pd
+# from src.transform_lambda_pkg.transform_lambda.transform_data import rename_col_names_ref
+
 
 
 def remove_dataframe_columns(df, column_list):
@@ -101,6 +103,44 @@ def reorder_dataframe(df, list_column_names):
             raise Exception("Can't reorder df, column in dataframe but not in list")
 
     return df[list_column_names]
+
+
+def rename_dataframe_columns(df, cols_to_rename):
+    """
+    inputs: df to rename 
+            cols_to_rename: dictionary {old_col_name (string): new_col_name (string)}  
+    outputs: df with columns renamed
+    
+    """
+    if type(cols_to_rename) is not dict:
+        raise Exception("Column rename failed: cols_to_rename must be a dictionary")
+    
+    if df is None:
+        raise Exception("Column rename failed: dataframe is None")
+    
+    if len(list(df.columns)) == 0:
+        raise Exception("Column rename failed: has no columns")
+    
+    old_col_list = list(df.columns)
+    
+    for key, value in cols_to_rename.items():
+        if type(key) is not str or type(value) is not str:
+            raise Exception("Column rename failed: column name and new name must be strings")
+        elif key not in old_col_list:
+            raise Exception("Column rename failed: column name not in df")
+        
+    
+    renamed_cols_df = df.rename(columns=cols_to_rename)
+    
+    new_col_list = list(renamed_cols_df.columns)
+    
+    if old_col_list == new_col_list: 
+        raise Exception("Column rename failed: new names cannot be the same as old names")
+        
+    return renamed_cols_df
+
+
+
 
 
 # function to split time stames into date and time - see_fact sales order
