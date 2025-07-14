@@ -1,5 +1,4 @@
-from src.transform_lambda_pkg.transform_lambda.modify_tables import (
-    dataframe_modification, create_modify_tables_datastructure
+from src.transform_lambda_pkg.transform_lambda.modify_tables import (    dataframe_modification, create_modify_tables_datastructure, rename_table_and_remove_uneeded_df_columns
 )
 
 from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref, db_ref, transform_table_names
@@ -67,63 +66,6 @@ def transaction_df():
         rows.append(row) 
     df = pd.DataFrame(rows, columns=column_name_list)
     return df
-
-# @pytest.fixture
-# def sales_order_df():
-#     sales_order_dict = {
-#         "sales_order_id": [2, 3],
-#         "created_at": ["2022-11-03 14:20:52.186000", "2022-11-03 14:20:52.188000"],
-#         "last_updated": ["2022-11-03 14:20:52.186000", "2022-11-03 14:20:52.188000"],
-#         "design_id": [3, 4],
-#         "staff_id": [19, 10],
-#         "counterparty_id": [8, 4],
-#         "units_sold": [42972, 65839],
-#         "unit_price": ["3.94", "2.91"],
-#         "currency_id": [2, 3],
-#         "agreed_delivery_date": ["2022-11-07", "2022-11-06"],
-#         "agreed_payment_date": ["2022-11-08", "2022-11-07"],
-#         "agreed_delivery_location_id": [8, 19],
-#     }
-#     df = pd.DataFrame(sales_order_dict)
-#     return df
-
-
-
-# @pytest.fixture
-# def staff_df():
-#     column_name_list = [
-#         "staff_id",
-#         "first_name",
-#         "last_name",
-#         "department_id",
-#         "email_address",
-#         "created_at",
-#         "last_updated",
-#     ]
-#     staff_df = pd.DataFrame(columns=column_name_list)
-#     for i in range(10):
-#         data = {
-#             column_name_list[0]: i,
-#             column_name_list[1]: f"first_name_{i}",
-#             column_name_list[2]: f"last_name_{i}",
-#             column_name_list[3]: i,
-#             column_name_list[4]: f"email_address{i}",
-#             column_name_list[5]: i,
-#             column_name_list[6]: i,
-#         }
-#         data_rows_to_add_df = pd.DataFrame(data, index=[i])
-#         staff_df = pd.concat([staff_df, data_rows_to_add_df], ignore_index=True)
-#     return staff_df
-
-# @pytest.fixture
-# def tables_for_modify_1(currency_df):
-#     tables_1 = [{"currency": currency_df}]
-#     return tables_1
-
-# @pytest.fixture
-# def tables_for_modify_2(currency_df, design_df):
-#     tables_2 = [{"currency": currency_df},{"design": design_df}]
-#     return tables_2
 
 @pytest.fixture
 def tables_for_modify(currency_df, design_df, payment_type_df, transaction_df):
@@ -353,8 +295,6 @@ class TestCreateModifyTablesDatastructure:
             
         assert str(exc_info.value) == "Tables should a list of dictionaries"
         
-    def test_raises_error_when_tables_not_correct_type(self):
-        table_names = ["currency", "design"]
         table = {}
         
         with pytest.raises(Exception) as exc_info:
@@ -372,7 +312,7 @@ class TestCreateModifyTablesDatastructure:
             
         assert str(exc_info.value) == "Table names should not be empty"
         
-    def test_raises_error_when_table_names_is_empty(self, currency_df, design_df, payment_type_df,transaction_df):
+    def test_raises_error_when_table_names_are_not_strings(self, currency_df, design_df, payment_type_df,transaction_df):
         table_names = [2,3,1,2]
         tables = [{"currency": currency_df}, {"design": design_df}, 
             {"payment_type": payment_type_df}, {"transaction": transaction_df}]
@@ -381,3 +321,58 @@ class TestCreateModifyTablesDatastructure:
             create_modify_tables_datastructure(tables, table_names)
             
         assert str(exc_info.value) == "Table names should a list of strings"
+        
+        
+class TestRenameTableAndRemoveUneededDfColumns:
+    
+    def test_returns_list_of_dictionaries(self, tables_for_modify):
+        results = rename_table_and_remove_uneeded_df_columns(tables_for_modify)
+
+        assert type(results) == list
+
+        for table in results:
+            assert type(table) == dict
+            
+    def test_tables_are_renamed(self, tables_for_modify):
+        results = rename_table_and_remove_uneeded_df_columns(tables_for_modify)
+
+        expected_table_names = sorted(["dim_currency", "dim_design", "dim_payment_type", "dim_transaction"])
+        
+        result_table_names = []
+        
+        for table in results: 
+            result_table_names.append(list(table.keys())[0])
+            
+        assert sorted(result_table_names) == expected_table_names    
+        
+    def test_columns_are_removed(self, tables_for_modify):
+        results = rename_table_and_remove_uneeded_df_columns(tables_for_modify)
+        star_schema_ref_copy = deepcopy(star_schema_ref)
+        
+        for table in results:
+            table_name = list(table.keys())[0]
+            if table_name != "dim_currency":
+                df = table[table_name]
+                df_columns = list(df.columns)
+                expected_columns = sorted(star_schema_ref_copy[table_name])
+                assert sorted(df_columns) == expected_columns
+       
+
+    def test_tables_is_not_mutated(self, tables_for_modify):
+        
+        tables_copy = deepcopy(tables_for_modify)
+        rename_table_and_remove_uneeded_df_columns(tables_for_modify)
+        
+        for i in range(len(tables_copy)):
+            table_name_before = list(tables_copy[i].keys())[0] 
+            table_name_after = list(tables_for_modify[i].keys())[0] 
+            
+            df_before = list(tables_copy[i].values())[0] 
+            df_after = list(tables_for_modify[i].values())[0] 
+            
+            assert table_name_before == table_name_after
+            assert df_before.equals(df_after)
+            
+        assert len(tables_copy) == len(tables_for_modify)
+     
+

@@ -56,12 +56,19 @@ def lambda_sudo():
 
     # Transform Data
     # Merge  - using ds_merge_data - [{"dim/fact_table1_name": df1}, {"dim/fact_table2_name": df2}]
-
-    # rename tables that need to be renamed (address to location)
-
-    # Remove unneeded columns - [{"dim/fact_table1_name": df1}, {"dim/fact_table2_name": df2}]
+    
+    # merged_tables ds  [{"dim/fact_table1_name": df1}, {"dim/fact_table2_name": df2}] - ready to go
+    # modify_tables ds [{"dim/fact_table1_name": df1}, {"dim/fact_table2_name": df2}]
+    
+    # create extra columns - modify_tables - utils required: currency_code -> currency_name, one util(created_at -> created_date, created_time, lasted_updated -> last_updated_date, last_updated_time)
+    
+    # rename_table_and_remove_uneeded_df_columns
+        # rename tables (address to location) 
+        # Remove unneeded columns - [{"dim/fact_table1_name": df1}, {"dim/fact_table2_name": df2}]
 
     # Add merged and modified dfs - [{"dim/fact_table1_name": df1}, {"dim/fact_table2_name": df2}]
+    
+    
 
     # final check agaist star schema ref dictionary
 

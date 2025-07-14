@@ -1,7 +1,9 @@
 
 
 from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref, transform_table_names 
+from src.utils.df_utils import remove_dataframe_columns
 
+from copy import deepcopy
 
 def dataframe_modification(list_of_dicts):
     """This function takes a list of dictionaries
@@ -60,3 +62,25 @@ def create_modify_tables_datastructure(tables, table_names):
             return_data_structure.append(table_dict)
 
     return return_data_structure
+
+
+
+def rename_table_and_remove_uneeded_df_columns(tables):
+    star_schema_ref_copy = deepcopy(star_schema_ref)
+    return_tables = []
+    
+    for table in tables:
+        table_name = list(table.keys())[0]
+        new_table_name = transform_table_names[table_name]
+        df = table[table_name]
+        remove_cols = [column for column in df.columns if column not in star_schema_ref_copy[new_table_name]]
+        new_df = remove_dataframe_columns(df, remove_cols)
+        
+        return_tables.append({new_table_name: new_df})
+        
+    return return_tables
+
+
+
+# think about columns that need to be added i.e currency name created from currency code - see transform data
+#perhaps a function to add new columns as this happen with created_date and created_time from created_at time_stamp

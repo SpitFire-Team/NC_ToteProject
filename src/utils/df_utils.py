@@ -81,6 +81,9 @@ def merge_dataframes(df1, df2, merge_column, column_names):
         
     reordered_df = reorder_dataframe(merge_df, column_names)
 
+    if merge_df.empty:
+        raise Exception("Merge failed: no shared values in merge column")
+
     return reordered_df
 
 
@@ -101,6 +104,7 @@ def reorder_dataframe(df, list_column_names):
     for col in df.columns:
         if col not in list_column_names:
             raise Exception("Can't reorder df, column in dataframe but not in list")
+
 
     return df[list_column_names]
 
@@ -138,6 +142,7 @@ def rename_dataframe_columns(df, cols_to_rename):
         raise Exception("Column rename failed: new names cannot be the same as old names")
         
     return renamed_cols_df
+
 
 
 

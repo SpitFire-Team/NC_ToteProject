@@ -8,7 +8,7 @@ from src.transform_lambda_pkg.transform_lambda.merge_tables import (
     merge_tables
 )
 
-from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref
+from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref, db_ref
 
 
 @pytest.fixture
@@ -66,7 +66,7 @@ def counterparty_df():
         data = {
             department_name_list[0]: i,
             department_name_list[1]: f"counterparty_legal_name {i}",
-            department_name_list[2]: f"legal_address_id {i}",
+            department_name_list[2]: i,
         }
 
         data_rows_to_add_df = pd.DataFrame(data, index=[i])
@@ -76,33 +76,16 @@ def counterparty_df():
     return department_df
 
 @pytest.fixture
-def renamed_address_df():
-    department_name_list = ["legal_address_id", 
-                            "counterparty_legal_address_line_1", 
-                            "counterparty_legal_address_line_2", 
-                            "counterparty_legal_district", 
-                            "counterparty_legal_city", 
-                            "counterparty_legal_postal_code", 
-                            "counterparty_legal_country", 
-                            "counterparty_legal_phone_number"] #dropped before, "created_at", "last_updated"]
-    department_df = pd.DataFrame(columns=department_name_list)
+def address_df():
+    column_name_list = db_ref["address"]
+    rows = []
     for i in range(10):
-        data = {
-            department_name_list[0]: i,
-            department_name_list[1]: f"counterparty_legal_address_line_1 {i}",
-            department_name_list[2]: f"counterparty_legal_address_line_2 {i}",
-            department_name_list[3]: f"counterparty_legal_district {i}",
-            department_name_list[4]: f"counterparty_legal_city {i}",
-            department_name_list[5]: f"counterparty_legal_postal_code {i}",
-            department_name_list[6]: f"counterparty_legal_country {i}",
-            department_name_list[7]: f"counterparty_legal_phone_number {i}",
-        }
-
-        data_rows_to_add_df = pd.DataFrame(data, index=[i])
-        department_df = pd.concat(
-            [department_df, data_rows_to_add_df], ignore_index=True
-        )
-    return department_df
+        row = {}
+        for col_name in column_name_list:
+            row[col_name] = i
+        rows.append(row) 
+    df = pd.DataFrame(rows, columns=column_name_list)
+    return df
 
 @pytest.fixture
 def currency_df():
@@ -136,8 +119,8 @@ def df_column_name():
     return column_names
 
 @pytest.fixture
-def tables_for_merge(department_df, staff_df):
-    return [{"address": department_df}, {"counterparty": staff_df}, 
+def tables_for_merge(address_df, department_df, staff_df, counterparty_df):
+    return [{"address": address_df}, {"counterparty": counterparty_df}, 
             {"staff": staff_df}, {"department": department_df}]
 
 @pytest.fixture
@@ -166,11 +149,11 @@ class TestCreateMergedDatastructure:
             for key in keys:
                 assert type(table[key]) == list
 
-    def test_storing_correct_df_for_merge(self, tables_for_merge, staff_df, department_df):
+    def test_storing_correct_df_for_merge(self, tables_for_merge, staff_df, address_df, department_df, counterparty_df):
         result = create_merged_datastructure(tables_for_merge, star_schema_ref)
 
-        assert result[0]["dim_counterparty"][0].equals(department_df) 
-        assert result[0]["dim_counterparty"][1].equals(staff_df)
+        assert result[0]["dim_counterparty"][0].equals(address_df) 
+        assert result[0]["dim_counterparty"][1].equals(counterparty_df)
 
         assert result[1]["dim_staff"][0].equals(staff_df) 
         assert result[1]["dim_staff"][1].equals(department_df)    
@@ -258,19 +241,13 @@ class TestCreateMergedDatastructure:
 
 
 @pytest.fixture
-def mock_merge_ds(department_df, staff_df, renamed_address_df, counterparty_df):
-    return_datastructure = [{"dim_counterparty": [renamed_address_df, counterparty_df], "col_list": star_schema_ref["dim_counterparty"]},
+def mock_merge_ds(department_df, staff_df, address_df, counterparty_df):
+    return_datastructure = [{"dim_counterparty": [address_df, counterparty_df], "col_list": star_schema_ref["dim_counterparty"]},
                             {"dim_staff": [department_df, staff_df], "col_list": star_schema_ref["dim_staff"]}]
     
     return return_datastructure
-    
-
-# [{"table1_name": df1, "col_list":[col1, col2]}, {"table2_name": df2, "col_list":[col1, col2]}]
 
 class TestMergeTables:
-    
-    #"dim_staff": mock_df (with merge col - department_id)
-    #"dim_counterparty": mock_df (with merge col - legal_address)
     
     def test_returns_list_of_dicts(self, mock_merge_ds):
         result = merge_tables(mock_merge_ds)
@@ -279,3 +256,27 @@ class TestMergeTables:
 
         for table in result:
             assert type(table) == dict
+    
+    def test_dataframes_merging(self, mock_merge_ds):
+        counterparty_col_names = star_schema_ref["dim_counterparty"]
+        staff_col_names = star_schema_ref["dim_staff"]
+
+        result = merge_tables(mock_merge_ds)
+
+        for table in result:
+            value = list(table.keys())[0]
+            if value == "dim_counterparty":
+                counterparty_df = table["dim_counterparty"]
+            if value == "dim_staff":
+                staff_df = table["dim_staff"]
+
+        assert list(counterparty_df.columns) == counterparty_col_names
+        assert list(staff_df.columns) == staff_col_names
+
+    def test_len_of_merge_ds_equal_len_return(self, mock_merge_ds):
+        merge_ds_len = len(mock_merge_ds)
+
+        result = merge_tables(mock_merge_ds)
+
+        assert len(result) == merge_ds_len
+

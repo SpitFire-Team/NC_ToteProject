@@ -1,5 +1,7 @@
 import pandas as pd
-from src.utils.df_utils import merge_dataframes
+from src.utils.df_utils import merge_dataframes, rename_dataframe_columns
+from src.transform_lambda_pkg.transform_lambda.transform_data import rename_col_names_ref
+from copy import deepcopy
 
 
 
@@ -40,25 +42,16 @@ def create_merged_datastructure(tables, star_schema_ref):
 
     return return_data_structure
 
-#Output: [{"table1_name": df1, "col_list":[col1, col2]}, {"table2_name": df2, "col_list":[col1, col2]}]
-#using ds_merge_data - [{"table1_name": df1}, {"table2_name": df2}]
-
-
-
-
-#inputs: [{"table1_name": df1, "col_list":[col1, col2]}, {"table2_name": df2, "col_list":[col1, col2]}]
-
-    # Merge  - using ds_merge_data - outputs [{"dim/fact_table1_name": df1}, {"dim/fact_table2_name": df2}]
-    
-    # def merge_dataframes(df1, df2, merge_column, column_names):
-
 def merge_tables(merge_datastructure):
-    # loop through each dictionary in list
-        # grab list of dfs to merge (value of dictorary [table name])
-        # merge dataframes together - merged_df - merge_dataframes(df1, df2, merge_column, column_names)
-        # create new dictionary with key: table name as in merge_datastructure, value: merged_df
-        # save dictionary to list of merged tables
-        # return new list of merged tables
+    """
+    Merges all tables in the merge datastructure
+
+    inputs: list of dictionaries of star schema table names as key with dataframes to merge as value, also has col_list as key with star schema column names for new dataframe as value 
+    [{"table1_name": [df1, df2], "col_list":[col1, col2]}, {"table2_name": df2, "col_list":[col1, col2]}]
+
+    Returns: a list of dictionaries with merged table name as key and merged dataframe as value
+    [{"dim/fact_table1_name": df1}, {"dim/fact_table2_name": df2}]
+    """
         
     return_list = []
         
@@ -69,7 +62,17 @@ def merge_tables(merge_datastructure):
         col_names = item["col_list"]
         
         if name == "dim_counterparty":
-            merge_col = "legal_address_id" # rename address_df - address_id 
+            if "address_id" in df1.columns:
+                address_df = df1
+                rename_addr_cols = deepcopy(rename_col_names_ref['dim_counterparty'])
+                df1 = rename_dataframe_columns(address_df, rename_addr_cols)
+
+            else:
+                address_df = df2
+                rename_addr_cols = deepcopy(rename_col_names_ref['dim_counterparty'])
+                df2 = rename_dataframe_columns(address_df, rename_addr_cols)
+
+            merge_col = "legal_address_id"
         elif name == "dim_staff":
             merge_col = "department_id"
         else:
@@ -81,7 +84,5 @@ def merge_tables(merge_datastructure):
         return_list.append(merge_table)
         
     return return_list
-        
-
 
         

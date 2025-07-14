@@ -19,7 +19,7 @@ from copy import deepcopy
 @pytest.fixture
 def dummy_df():
     data = {
-        "currency_id": [3, 2, 1, 0],
+        "currency_id": [4, 5, 6, 7],
         "currency_code": ["a", "b", "c", "d"],
         "created_at": [
             datetime.datetime.now(),
@@ -60,6 +60,15 @@ def dummy_df3():
     test_df = pd.DataFrame.from_dict(data)
     return test_df
 
+@pytest.fixture
+def dummy_df4():
+    data = {
+        "currency_id": [1, 2, 3, 10],
+        "test_col9": [1, 2, 3, 4],
+        "test_col10": [8, 9, 10, 11],
+    }
+    test_df = pd.DataFrame.from_dict(data)
+    return test_df
 
 @pytest.fixture
 def address_df():
@@ -305,6 +314,15 @@ class TestMergeDataframes:
 
         assert str(exc_info.value) == "Dataframes don't have the same number of values"
 
+    def test_exception_thrown_when_no_shared_merge_values(self, dummy_df3, dummy_df4):
+        column_names = ["test_col3", "test_col4", "test_col9", "test_col10", "currency_id"]
+
+        merge_column = "currency_id"
+
+        with pytest.raises(Exception) as exc_info:
+            merge_dataframes(dummy_df3, dummy_df4, merge_column, column_names)
+
+        assert str(exc_info.value) == "Merge failed: no shared values in merge column"
 
 class TestReorderDataframe:
 
