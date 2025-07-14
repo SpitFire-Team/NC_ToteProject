@@ -1,12 +1,15 @@
+from datetime import datetime, timezone
 from src.utils.df_utils import (
     remove_dataframe_columns,
     add_prefix_to_table_name,
     merge_dataframes,
     reorder_dataframe,
-    rename_dataframe_columns
+    rename_dataframe_columns,
+    currency_code_to_currency_name,
+    convert_timestamp
 )
 
-from src.transform_lambda_pkg.transform_lambda.transform_data import db_ref, rename_col_names_ref
+from src.transform_lambda_pkg.transform_lambda.transform_data import db_ref, rename_col_names_ref, currency_dict
 
 import pandas as pd
 import pytest
@@ -87,6 +90,54 @@ def cols_to_rename_addr():
     rename_addr_cols = deepcopy(rename_col_names_ref['dim_counterparty'])
     print(rename_addr_cols)
     return rename_addr_cols
+
+@pytest.fixture
+def currency_df():
+    currency_name_list = db_ref["currency"]
+    df = pd.DataFrame(columns=currency_name_list)
+    for i in range(10):
+        data = {
+            currency_name_list[0]: i,
+            currency_name_list[1]: list(currency_dict.keys())[i],
+            currency_name_list[2]: f"{i}",
+            currency_name_list[3]: f"{i}",
+        }
+
+        data_rows_to_add_df = pd.DataFrame(data, index=[i])
+        df = pd.concat(
+            [df, data_rows_to_add_df], ignore_index=True
+        )
+    return df
+
+@pytest.fixture
+def purchase_order_df():
+    column_name_list = db_ref["purchase_order"]
+    rows = []
+    for i in range(10):
+        row = {}
+        for col_name in column_name_list:
+            if col_name == "last_updated" or col_name == "created_at":
+                row[col_name] = datetime.datetime(2000, 1, 1, tzinfo=timezone.utc).isoformat()
+            else:
+                row[col_name] = f"{i}"
+        rows.append(row) 
+    df = pd.DataFrame(rows, columns=column_name_list)
+    return df
+
+@pytest.fixture
+def sales_order_df():
+    column_name_list = db_ref["sales_order"]
+    rows = []
+    for i in range(10):
+        row = {}
+        for col_name in column_name_list:
+            if col_name == "last_updated" or col_name == "created_at":
+                row[col_name] = datetime.datetime(2000, 1, 1, tzinfo=timezone.utc).isoformat()
+            else:
+                row[col_name] = f"{i}"
+        rows.append(row) 
+    df = pd.DataFrame(rows, columns=column_name_list)
+    return df
 
 class TestRemoveDataFrameColumns:
 
@@ -441,3 +492,110 @@ class TestRenameDataframeColumns:
         
         assert str(exc_info.value) == "Column rename failed: new names cannot be the same as old names"
 
+class TestCurrecncyCodeToCurrencyName:
+    def test_returns_df(self, currency_df):
+        result = currency_code_to_currency_name(currency_df)
+
+        assert type(result) == type(currency_df)
+    
+    def test_input_df_modified(self, currency_df):
+        result = currency_code_to_currency_name(currency_df)
+
+        assert not result.equals(currency_df)
+
+    def test_currency_df_passed_in(self, address_df):
+        with pytest.raises(Exception) as exc_info:
+            currency_code_to_currency_name(address_df)
+        
+        assert str(exc_info.value) == "Currency code: incorrect df"
+
+    def test_new_currency_name_column_created(self, currency_df):
+        result = currency_code_to_currency_name(currency_df)
+
+        assert "currency_name" not in list(currency_df.columns)
+        assert "currency_name" in list(result.columns)
+    
+    def test_if_df_has_incorrect_currency_code_records_error(self, currency_df):
+        currency_df["currency_code"] = currency_df["currency_code"] + "x"
+
+        result = currency_code_to_currency_name(currency_df)
+        
+        for val in result["currency_name"]:
+            assert val == "Error"
+
+    def test_code_converts_correctly(self, currency_df):
+        result = currency_code_to_currency_name(currency_df)
+
+        for i, row in result.iterrows():
+            
+            currency_code = row["currency_code"]
+            currency_name = row["currency_name"]
+
+            
+            assert currency_name == currency_dict[currency_code]
+
+class TestConvertTimestamp:
+    def test_returns_df(self, purchase_order_df):
+        result = convert_timestamp(purchase_order_df)
+
+        assert type(result) == type(purchase_order_df)
+
+    def test_input_df_modified(self, purchase_order_df):
+        result = convert_timestamp(purchase_order_df)
+
+        assert not result.equals(purchase_order_df)
+
+    def test_new_columns_created(self, sales_order_df):
+        result = convert_timestamp(sales_order_df)
+
+        assert "last_updated_date" not in list(sales_order_df.columns)
+        assert "last_updated_time" in list(result.columns)
+        
+        assert "created_at_date" not in list(sales_order_df.columns)
+        assert "created_at_time" in list(result.columns)
+
+    def test_timestamp_split_into_date_and_time(self, purchase_order_df):
+        result = convert_timestamp(purchase_order_df)
+
+        date = datetime.date(2000, 1, 1)
+        time = datetime.time(0, 0)
+
+        for val in result["last_updated_date"]:
+            assert type(val) == type(date)
+
+        for val in result["last_updated_time"]:
+            assert type(val) == type(time)
+
+        for val in result["created_at_date"]:
+            assert type(val) == type(date)
+
+        for val in result["created_at_time"]:
+            assert type(val) == type(time)
+
+    def test_values_split_correctly(self, sales_order_df):
+        result = convert_timestamp(sales_order_df)
+
+        date = datetime.date(2000, 1, 1)
+        time = datetime.time(0, 0)
+
+        for val in result["last_updated_date"]:
+            assert val == date
+
+        for val in result["last_updated_time"]:
+            assert val == time
+
+        for val in result["created_at_date"]:
+            assert val == date
+
+        for val in result["created_at_time"]:
+            assert val == time
+
+    def test_error_raised_if_df_does_not_have_needed_columns(self, currency_df):
+        currency_df = currency_df.drop(["last_updated", "created_at"],
+                         axis=1,
+                         errors="ignore",)
+
+        with pytest.raises(Exception) as exc_info:
+            convert_timestamp(currency_df)
+
+        assert str(exc_info.value) == "Datetime conversion error: df doesnt have last_updated/created_at"

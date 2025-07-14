@@ -1,5 +1,5 @@
 import pandas as pd
-# from src.transform_lambda_pkg.transform_lambda.transform_data import rename_col_names_ref
+from src.transform_lambda_pkg.transform_lambda.transform_data import currency_dict, db_ref
 
 
 
@@ -143,16 +143,47 @@ def rename_dataframe_columns(df, cols_to_rename):
         
     return renamed_cols_df
 
+def currency_code_to_currency_name(df):
+    """
+    Adds currency_name column to a currency dataframe
 
+    Inputs: Currency datafrane
 
+    Returns: Modified currency dataframe
+    """
+    if list(df.columns) != db_ref["currency"]:
+        raise Exception("Currency code: incorrect df")
 
+    modify_df = df.copy()
 
+    modify_df["currency_name"] = df["currency_code"]
 
+    for i, val in enumerate(modify_df["currency_name"]):
+        try:
+            val = currency_dict[val]
+        
+        except KeyError:
+            val = "Error"
 
-# function to split time stames into date and time - see_fact sales order
+        modify_df.at[i, "currency_name"] = val
 
+    return modify_df
 
-# function to rename columns
-# def rename_columns_df(df, )
+#one util(created_at -> created_date, created_time, lasted_updated -> last_updated_date, last_updated_time)
+def convert_timestamp(df):
+    modify_df = df.copy()
+    df_cols = modify_df.columns
 
-# function to rename df
+    if "last_updated" not in df_cols or "created_at" not in df_cols:
+        raise Exception("Datetime conversion error: df doesnt have last_updated/created_at")
+      
+    modify_columns = ["last_updated", "created_at"]
+
+    for col_name in modify_columns:
+        if col_name in df_cols:
+            modify_df[col_name] = pd.to_datetime(modify_df[col_name])
+            modify_df[col_name + "_date"] = modify_df[col_name].dt.date
+            modify_df[col_name + "_time"] = modify_df[col_name].dt.time
+
+    return modify_df
+

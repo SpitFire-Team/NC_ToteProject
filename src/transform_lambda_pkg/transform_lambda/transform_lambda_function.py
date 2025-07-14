@@ -61,6 +61,7 @@ def lambda_sudo():
     # modify_tables ds [{"dim/fact_table1_name": df1}, {"dim/fact_table2_name": df2}]
     
     # create extra columns - modify_tables - utils required: currency_code -> currency_name, one util(created_at -> created_date, created_time, lasted_updated -> last_updated_date, last_updated_time)
+    # in main function, check for currency_code errors, log the errors and the currency codes that caused them
     
     # rename_table_and_remove_uneeded_df_columns
         # rename tables (address to location) 
