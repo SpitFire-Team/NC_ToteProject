@@ -1,5 +1,5 @@
 import pandas as pd
-# from src.transform_lambda_pkg.transform_lambda.transform_data import rename_col_names_ref
+from src.transform_lambda_pkg.transform_lambda.transform_data import currency_dict, db_ref
 
 
 
@@ -145,11 +145,25 @@ def rename_dataframe_columns(df, cols_to_rename):
 
 
 
+ #currency_code -> currency_name
+def currency_code_to_currency_name(df):
+    if list(df.columns) != db_ref["currency"]:
+        raise Exception("Currency code: incorrect df")
 
+    modify_df = df.copy()
 
+    modify_df["currency_name"] = df["currency_code"]
 
+    for i, val in enumerate(modify_df["currency_name"]):
+        try:
+            val = currency_dict[val]
+        
+        except KeyError:
+            val = "Error"
 
-# function to split time stames into date and time - see_fact sales order
+        modify_df.at[i, "currency_name"] = val
+
+    return modify_df
 
 
 # function to rename columns

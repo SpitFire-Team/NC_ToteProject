@@ -3,10 +3,11 @@ from src.utils.df_utils import (
     add_prefix_to_table_name,
     merge_dataframes,
     reorder_dataframe,
-    rename_dataframe_columns
+    rename_dataframe_columns,
+    currency_code_to_currency_name
 )
 
-from src.transform_lambda_pkg.transform_lambda.transform_data import db_ref, rename_col_names_ref
+from src.transform_lambda_pkg.transform_lambda.transform_data import db_ref, rename_col_names_ref, currency_dict
 
 import pandas as pd
 import pytest
@@ -87,6 +88,24 @@ def cols_to_rename_addr():
     rename_addr_cols = deepcopy(rename_col_names_ref['dim_counterparty'])
     print(rename_addr_cols)
     return rename_addr_cols
+
+@pytest.fixture
+def currency_df():
+    currency_name_list = db_ref["currency"]
+    df = pd.DataFrame(columns=currency_name_list)
+    for i in range(10):
+        data = {
+            currency_name_list[0]: i,
+            currency_name_list[1]: list(currency_dict.keys())[i],
+            currency_name_list[2]: f"{i}",
+            currency_name_list[3]: f"{i}",
+        }
+
+        data_rows_to_add_df = pd.DataFrame(data, index=[i])
+        df = pd.concat(
+            [df, data_rows_to_add_df], ignore_index=True
+        )
+    return df
 
 class TestRemoveDataFrameColumns:
 
@@ -441,3 +460,44 @@ class TestRenameDataframeColumns:
         
         assert str(exc_info.value) == "Column rename failed: new names cannot be the same as old names"
 
+class TestCurrecncyCodeToCurrencyName:
+    def test_returns_df(self, currency_df):
+        result = currency_code_to_currency_name(currency_df)
+
+        assert type(result) == type(currency_df)
+    
+    def test_input_df_modified(self, currency_df):
+        result = currency_code_to_currency_name(currency_df)
+
+        assert not result.equals(currency_df)
+
+    def test_currency_df_passed_in(self, address_df):
+        with pytest.raises(Exception) as exc_info:
+            currency_code_to_currency_name(address_df)
+        
+        assert str(exc_info.value) == "Currency code: incorrect df"
+
+    def test_new_currency_name_column_created(self, currency_df):
+        result = currency_code_to_currency_name(currency_df)
+
+        assert "currency_name" not in list(currency_df.columns)
+        assert "currency_name" in list(result.columns)
+    
+    def test_if_df_has_incorrect_currency_code_records_error(self, currency_df):
+        currency_df["currency_code"] = currency_df["currency_code"] + "x"
+
+        result = currency_code_to_currency_name(currency_df)
+        
+        for val in result["currency_name"]:
+            assert val == "Error"
+
+    def test_code_converts_correctly(self, currency_df):
+        result = currency_code_to_currency_name(currency_df)
+
+        for i, row in result.iterrows():
+            
+            currency_code = row["currency_code"]
+            currency_name = row["currency_name"]
+
+            
+            assert currency_name == currency_dict[currency_code]
