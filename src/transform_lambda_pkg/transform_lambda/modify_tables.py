@@ -84,3 +84,7 @@ def rename_table_and_remove_uneeded_df_columns(tables):
 
 # think about columns that need to be added i.e currency name created from currency code - see transform data
 #perhaps a function to add new columns as this happen with created_date and created_time from created_at time_stamp
+
+
+# create extra columns - modify_tables - utils required: currency_code -> currency_name, one util(created_at -> created_date, 
+# created_time, lasted_updated -> last_updated_date, last_updated_time)

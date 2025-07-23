@@ -147,7 +147,7 @@ def currency_code_to_currency_name(df):
     """
     Adds currency_name column to a currency dataframe
 
-    Inputs: Currency datafrane
+    Inputs: Currency dataframe
 
     Returns: Modified currency dataframe
     """
@@ -171,6 +171,13 @@ def currency_code_to_currency_name(df):
 
 #one util(created_at -> created_date, created_time, lasted_updated -> last_updated_date, last_updated_time)
 def convert_timestamp(df):
+    """
+    Adds splits time stamp for last_updated and created_at into date and time
+
+    Inputs: dataframe
+
+    Returns: Modified dataframe
+    """
     modify_df = df.copy()
     df_cols = modify_df.columns
 
