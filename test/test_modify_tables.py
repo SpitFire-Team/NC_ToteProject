@@ -1,11 +1,14 @@
-from src.transform_lambda_pkg.transform_lambda.modify_tables import (    dataframe_modification, create_modify_tables_datastructure, rename_table_and_remove_uneeded_df_columns
-)
+from src.transform_lambda_pkg.transform_lambda.modify_tables import (    dataframe_modification, create_modify_tables_datastructure, rename_table_and_remove_uneeded_df_columns, create_extra_columns)
 
 from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref, db_ref, transform_table_names
 from copy import deepcopy
 import pandas as pd
 import pytest
 from pprint import pprint 
+from datetime import datetime, timezone
+import datetime
+
+
 
 @pytest.fixture
 def currency_df():
@@ -68,9 +71,48 @@ def transaction_df():
     return df
 
 @pytest.fixture
+def purchase_order_df():
+    column_name_list = db_ref["purchase_order"]
+    rows = []
+    for i in range(10):
+        row = {}
+        for col_name in column_name_list:
+            if col_name == "last_updated" or col_name == "created_at":
+                row[col_name] = datetime.datetime(2000, 1, 1, tzinfo=timezone.utc).isoformat()
+            else:
+                row[col_name] = f"{i}"
+        rows.append(row) 
+    df = pd.DataFrame(rows, columns=column_name_list)
+    return df
+
+@pytest.fixture
+def payment_df():
+    column_name_list = db_ref["payment"]
+    rows = []
+    for i in range(10):
+        row = {}
+        for col_name in column_name_list:
+            if col_name == "last_updated" or col_name == "created_at":
+                row[col_name] = datetime.datetime(2000, 1, 1, tzinfo=timezone.utc).isoformat()
+            else:
+                row[col_name] = f"{i}"
+        rows.append(row) 
+    df = pd.DataFrame(rows, columns=column_name_list)
+    return df
+
+@pytest.fixture
 def tables_for_modify(currency_df, design_df, payment_type_df, transaction_df):
     return [{"currency": currency_df}, {"design": design_df}, 
             {"payment_type": payment_type_df}, {"transaction": transaction_df}]
+   
+@pytest.fixture 
+def tables_for_extra_columns(currency_df, design_df, payment_type_df, transaction_df, payment_df, purchase_order_df):
+    return [{"currency": currency_df}, 
+            {"design": design_df}, 
+            {"payment_type": payment_type_df}, 
+            {"transaction": transaction_df},
+            {"payment": payment_df}, 
+            {"purchase_order": purchase_order_df}]
 
 class TestDataframeModification:
 
@@ -376,3 +418,67 @@ class TestRenameTableAndRemoveUneededDfColumns:
         assert len(tables_copy) == len(tables_for_modify)
      
 
+
+class TestCreateExtraColumns:
+
+    def test_dataframe_modification_returns_list_of_dicts(self, tables_for_extra_columns):
+        results = create_extra_columns(tables_for_extra_columns)
+
+        assert type(results) == list
+
+        for table in results:
+            assert type(table) == dict
+            
+    def test_same_table_name(self, tables_for_extra_columns):
+        before_names = [table_name for table in tables_for_extra_columns for table_name in list(table.keys())]
+        print(before_names)
+        results = create_extra_columns(tables_for_extra_columns)
+        after_names = [table_name for table in results for table_name in list(table.keys())]
+        
+        assert len(results) == len(tables_for_extra_columns)
+        assert before_names == after_names
+        
+    def test_original_tables_not_mutatated(self, tables_for_extra_columns):
+        tables_copy = deepcopy(tables_for_extra_columns)
+        create_extra_columns(tables_for_extra_columns)
+
+        for i in range(len(tables_for_extra_columns)):
+            original_df = list(tables_for_extra_columns[i].values())[0]
+            copy_df = list(tables_copy[i].values())[0]
+            assert original_df.equals(copy_df)
+            
+    def test_expected_columns_modified(self, tables_for_extra_columns):
+        results = create_extra_columns(tables_for_extra_columns)
+
+        for i in range(len(tables_for_extra_columns)):
+            table_name = list(tables_for_extra_columns[i].keys())[0]
+            
+            original_df = list(tables_for_extra_columns[i].values())[0]
+            results_df = list(results[i].values())[0]
+            
+            if table_name == "currency" or table_name == "payment" or table_name == "purchase_order":
+                assert not original_df.equals(results_df)
+            
+    def test_payment_has_new_columns(self, tables_for_extra_columns):
+        results = create_extra_columns(tables_for_extra_columns)
+        payment_col_names = [column for table in results for key, df in table.items() if key == "payment" for column in df.columns]
+        
+        assert 'last_updated_date' in payment_col_names
+        assert 'last_updated_time' in payment_col_names
+        assert 'created_at_date' in payment_col_names
+        assert 'created_at_time' in payment_col_names
+
+    def test_purchase_order_has_new_columns(self, tables_for_extra_columns):
+        results = create_extra_columns(tables_for_extra_columns)
+        purchase_order_col_names = [column for table in results for key, df in table.items() if key == "purchase_order" for column in df.columns]
+        
+        assert 'last_updated_date' in purchase_order_col_names
+        assert 'last_updated_time' in purchase_order_col_names
+        assert 'created_at_date' in purchase_order_col_names
+        assert 'created_at_time' in purchase_order_col_names
+        
+    def test_currency_has_new_columns(self, tables_for_extra_columns):
+        results = create_extra_columns(tables_for_extra_columns)
+        currency_order_col_names = [column for table in results for key, df in table.items() if key == "currency" for column in df.columns]
+        
+        assert 'currency_name' in currency_order_col_names

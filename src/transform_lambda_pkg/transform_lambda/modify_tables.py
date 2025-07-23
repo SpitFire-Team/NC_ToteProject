@@ -1,7 +1,7 @@
 
 
 from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref, transform_table_names 
-from src.utils.df_utils import remove_dataframe_columns
+from src.utils.df_utils import remove_dataframe_columns, convert_timestamp, currency_code_to_currency_name
 
 from copy import deepcopy
 
@@ -88,3 +88,22 @@ def rename_table_and_remove_uneeded_df_columns(tables):
 
 # create extra columns - modify_tables - utils required: currency_code -> currency_name, one util(created_at -> created_date, 
 # created_time, lasted_updated -> last_updated_date, last_updated_time)
+
+
+def create_extra_columns(tables):
+    return_tables = []
+    for table in tables:
+        table_name = list(table.keys())[0]
+        df = list(table.values())[0]
+        if table_name == "currency":
+            updated_currency_table = {table_name: currency_code_to_currency_name(df)}
+            return_tables.append(updated_currency_table)
+        elif table_name == "payment" or table_name == "purchase_order": 
+            updated_timestamp_table = {table_name: convert_timestamp(df)}
+            return_tables.append(updated_timestamp_table)
+        else:
+            return_tables.append(table)
+    
+    return return_tables
+            
+            
