@@ -1,12 +1,13 @@
 import pytest
 from src.utils.file_utils import get_path_date_time_string
 from src.transform_lambda_pkg.transform_lambda.transform_lambda_function import (
-    lambda_handler, combine_tables
+    lambda_handler, combine_tables, check_against_star_schema
 )
 from datetime import datetime, timezone
 import datetime
 from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref, db_ref, transform_table_names
 import pandas as pd
+from copy import deepcopy
 
 @pytest.fixture
 def currency_df():
@@ -207,6 +208,55 @@ class TestCombineTables:
         result_dfs = [df for table in results for df in list(table.values())]
         assert result_dfs == merged_dfs + modified_dfs
 
+
+@pytest.fixture
+def star_schema_tables():
+    final_table = []
+    star_schema_ref_copy = deepcopy(star_schema_ref)
+    for table_name, column_names in star_schema_ref_copy.items():
+        rows = []
+        for i in range(10):
+            row = {}
+            for col_name in column_names:
+                row[col_name] = f"{i}"
+            rows.append(row)
+        df = pd.DataFrame(rows, columns=column_names)
+        final_table.append({table_name: df})
+    
+    return final_table
+
+class TestCheckAgainstStarSchema:
+    def test_correct_table_names_and_columns_return_true(self, star_schema_tables):
+        assert check_against_star_schema(star_schema_tables)
+    
+    def test_different_length_error(self, star_schema_tables):
+        star_schema_tables.append({"test": pd.DataFrame()})
+        with pytest.raises(Exception) as exc_info:
+            check_against_star_schema(star_schema_tables)
+        assert str(exc_info.value) == "Star Schema check error: Tables do not match star schema length"
+
+    def test_incorrect_columns_name_error(self, star_schema_tables):
+        star_schema_tables.pop()
+        star_schema_tables.append({"dim_currency": pd.DataFrame()})
+        with pytest.raises(Exception) as exc_info:
+            check_against_star_schema(star_schema_tables)
+        assert str(exc_info.value) == "Star Schema check error: dim_currency columns do not match star_schema_reference"
+
+    def test_incorrect_table_name_error(self, star_schema_tables):
+        star_schema_tables.pop()
+        star_schema_tables.append({"test": pd.DataFrame()})
+        with pytest.raises(Exception) as exc_info:
+            check_against_star_schema(star_schema_tables)
+        assert str(exc_info.value) == "Star Schema check error: test not in star_schema_reference"
+
+    def test_incorrect_columns_name_error(self, star_schema_tables):
+        star_schema_tables.pop()
+        duplicated_table = star_schema_tables.pop()
+        star_schema_tables.append(duplicated_table)
+        star_schema_tables.append(duplicated_table)
+        with pytest.raises(Exception) as exc_info:
+            check_against_star_schema(star_schema_tables)
+        assert str(exc_info.value) == "Star Schema check error: table names do not match star_schema_reference"
 
 """
 @pytest.fixture

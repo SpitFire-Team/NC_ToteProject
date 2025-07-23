@@ -34,6 +34,8 @@ from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema
 
 # - uncomment for deployment:
 
+from copy import deepcopy
+
 
 def lambda_sudo():
     pass
@@ -145,3 +147,31 @@ def lambda_handler(event, context):
 
 def combine_tables(merged_tables, modified_tables):
     return merged_tables + modified_tables
+
+def check_against_star_schema(tables):
+    star_schema_ref_copy = deepcopy(star_schema_ref)
+    star_schema_table_names = list(star_schema_ref_copy.keys())
+    
+    if len(star_schema_ref_copy) != len(tables):
+        raise Exception("Star Schema check error: Tables do not match star schema length")
+    table_names = []
+    for table in tables: 
+        table_name = list(table.keys())[0]
+        table_names.append(table_name)
+        try:
+            star_schema_ref_copy[table_name]
+        except KeyError:
+            raise Exception(f"Star Schema check error: {table_name} not in star_schema_reference")
+            
+        table_df = list(table.values())[0]
+        table_columns = list(table_df.columns)
+
+        if sorted(table_columns) != sorted(star_schema_ref_copy[table_name]):
+            raise Exception(f"Star Schema check error: {table_name} columns do not match star_schema_reference")
+    
+    if sorted(table_names) != sorted(star_schema_table_names):
+        raise Exception(f"Star Schema check error: table names do not match star_schema_reference")
+        
+    return True
+    
+    
