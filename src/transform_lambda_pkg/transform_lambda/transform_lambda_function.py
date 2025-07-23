@@ -6,14 +6,12 @@ from src.transform_lambda_pkg.transform_lambda.read_json_to_dataframe import (
 from src.transform_lambda_pkg.transform_lambda.modify_tables import (
     dataframe_modification,
 )
-from src.transform_lambda_pkg.transform_lambda.merge_tables import (
-    transform_staff_and_department_tables,
-)
+
 from src.transform_lambda_pkg.transform_lambda.transform_data_parquet_s3 import (
     transform_data_to_parquet_on_s3,
 )
 from src.utils.aws_utils import make_s3_client, get_bucket_name
-from src.transform_lambda_pkg.transform_lambda.transfrom_data import star_schema_ref
+from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref
 
 # - uncomment for testing:
 
@@ -67,7 +65,7 @@ def lambda_sudo():
         # rename tables (address to location) 
         # Remove unneeded columns - [{"dim/fact_table1_name": df1}, {"dim/fact_table2_name": df2}]
 
-    # Add merged and modified dfs - [{"dim/fact_table1_name": df1}, {"dim/fact_table2_name": df2}]
+    # combine merged and modified dfs - [{"dim/fact_table1_name": df1}, {"dim/fact_table2_name": df2}]
     
     
 
@@ -82,15 +80,15 @@ def lambda_handler(event, context):
 
     # - uncomment for testing:
 
-    # s3_client = make_s3_client()
+    s3_client = make_s3_client()
 
     # - uncomment for testing:
 
     # - uncomment for deployment:
 
-    s3_client = boto3.client(
-        "s3"
-    )
+    # s3_client = boto3.client(
+    #     "s3"
+    # )
 
     # - uncomment for deployment:
 
@@ -144,21 +142,6 @@ def lambda_handler(event, context):
     return event
 
 
-def merge_tables():
-    # from the newly modified dataframes, select the 'staff' and 'department' dataframes to be passed to create_dim_staff_table
-    for dict in modified_data:
-        for key, df in dict.items():
-            if key == "staff":
-                staff_df = df
-                # print("staff_df >>>>", staff_df)
-            if key == "department":
-                department_df = df
-                # print("department_df >>>>", department_df)
 
-    if staff_df is not None and department_df is not None:
-        # create_dim_staff_table returns combined dim_staff dataframe
-        combined_dim_staff = transform_staff_and_department_tables(
-            staff_df, department_df
-        )
-
-    pass
+def combine_tables(merged_tables, modified_tables):
+    return merged_tables + modified_tables
