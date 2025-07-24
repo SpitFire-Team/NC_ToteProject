@@ -1,8 +1,9 @@
 import pandas as pd
-from src.utils.df_utils import merge_dataframes, rename_dataframe_columns
+from src.utils.df_utils import merge_dataframes, rename_dataframe_columns, remove_dataframe_columns
 from src.transform_lambda_pkg.transform_lambda.transform_data import rename_col_names_ref
 from copy import deepcopy
 
+ 
 
 
 def create_merged_datastructure(tables, star_schema_ref):
@@ -77,7 +78,10 @@ def merge_tables(merge_datastructure):
             merge_col = "department_id"
         else:
             continue
-        
+        # cols_to_remove = ["created_at", "last_updated"]
+        # df1 = remove_dataframe_columns(df1, cols_to_remove)
+        # df2 = remove_dataframe_columns(df2, cols_to_remove)
+
         merge_df = merge_dataframes(df1,df2, merge_col, col_names)
         merge_table = {name: merge_df}
         
