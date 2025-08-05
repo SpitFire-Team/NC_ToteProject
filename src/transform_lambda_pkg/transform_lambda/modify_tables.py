@@ -1,35 +1,39 @@
 
 
-from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref, transform_table_names 
+from src.transform_lambda_pkg.transform_lambda.transform_data import transform_table_names 
 from src.utils.df_utils import remove_dataframe_columns, convert_timestamp, currency_code_to_currency_name
 
 from copy import deepcopy
 
-def dataframe_modification(list_of_dicts):
-    """This function takes a list of dictionaries
-    containing table name keys and dataframe values,
-    removes columns 'last_updated'
-    and 'created_at' from the dataframes,
-    it then returns a list of dictionaries containing the modified dataframes.
+# def dataframe_modification(list_of_dicts):
+#     """This function takes a list of dictionaries
+#     containing table name keys and dataframe values,
+#     removes columns 'last_updated'
+#     and 'created_at' from the dataframes,
+#     it then returns a list of dictionaries containing the modified dataframes.
 
-    Arguments: A list of dictionaries in the format [{table_name: dataframe}, {table_name_2: dataframe_2}]
-    Returns: A list of dictionaries in the format [{table_name: modified_dataframe}, {table_name_2: modified_dataframe_2}]
+#     Arguments: A list of dictionaries in the format [{table_name: dataframe}, {table_name_2: dataframe_2}]
+#     Returns: A list of dictionaries in the format [{table_name: modified_dataframe}, {table_name_2: modified_dataframe_2}]
+#     """
+#     modified_list = []
+#     for item in list_of_dicts:
+#         table_name = list(item.keys())[0]
+#         target_dataframe = item[table_name]
+#         modified_dataframe = target_dataframe.drop(
+#             ["created_at", "last_updated"], axis=1, errors="ignore"
+#         )
+#         new_dict = {table_name: modified_dataframe}
+#         modified_list.append(new_dict)
+#     return modified_list
+
+
+
+def create_modify_tables_datastructure(tables, table_names, star_schema_ref):
     """
-    modified_list = []
-    for item in list_of_dicts:
-        table_name = list(item.keys())[0]
-        target_dataframe = item[table_name]
-        modified_dataframe = target_dataframe.drop(
-            ["created_at", "last_updated"], axis=1, errors="ignore"
-        )
-        new_dict = {table_name: modified_dataframe}
-        modified_list.append(new_dict)
-    return modified_list
-
-
-
-def create_modify_tables_datastructure(tables, table_names):
-
+    
+    
+    """
+    
     if type(tables) != list:
         raise Exception("Tables should be type list")
     elif tables: 
@@ -65,14 +69,19 @@ def create_modify_tables_datastructure(tables, table_names):
 
 
 
-def rename_table_and_remove_uneeded_df_columns(tables):
-    star_schema_ref_copy = deepcopy(star_schema_ref)
+def rename_table_and_remove_uneeded_df_columns(tables, star_schema_ref_copy):
+    """
+    
+    """
     return_tables = []
     
     for table in tables:
         table_name = list(table.keys())[0]
         new_table_name = transform_table_names[table_name]
         df = table[table_name]
+        
+        if table_name == "address":
+            df = df.rename(columns={"address_id": "location_id"})
         remove_cols = [column for column in df.columns if column not in star_schema_ref_copy[new_table_name]]
         new_df = remove_dataframe_columns(df, remove_cols)
         
@@ -99,6 +108,7 @@ def create_extra_columns(tables):
             updated_currency_table = {table_name: currency_code_to_currency_name(df)}
             return_tables.append(updated_currency_table)
         elif table_name == "payment" or table_name == "purchase_order": 
+            # add payment record id to payment maybe a merge
             updated_timestamp_table = {table_name: convert_timestamp(df)}
             return_tables.append(updated_timestamp_table)
         else:
@@ -106,4 +116,8 @@ def create_extra_columns(tables):
     
     return return_tables
             
-            
+#['payment_id', 'transaction_id', 'counterparty_id', 'payment_amount', 'currency_id', 'payment_type_id', 'paid', 'payment_date', 'last_updated_date', 'last_updated_time'] <<< table columns
+#['payment_record_id*', 'payment_id', 'created_date*', 'created_time*', 'last_updated_date', 'last_updated_time', 'transaction_id', 'counterparty_id', 'payment_amount', 'currency_id', 'payment_type_id', 'paid', 'payment_date'] <<< star schema table columns
+
+
+# also order is important - star schema ref should also check order is the same

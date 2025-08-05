@@ -51,12 +51,18 @@ def merge_dataframes(df1, df2, merge_column, column_names):
     if merge_column not in df1.columns or merge_column not in df2.columns:
         raise Exception("Merge column not in both dataframes")
 
-    if df1.shape[0] != df2.shape[0]:
-        raise Exception("Dataframes don't have the same number of values")
+    # if df1.shape[1] != df2.shape[1]:
+    #     print(df1.to_string, "<<<< df1")
+    #     print(df1.shape, "<<<< shape df1")
+    #     print(df2.to_string, "<<<< df2")
+    #     print(df2.shape, "<<<< shape df2")
 
-    for col in df1.columns:
-        if col in df2.columns and col != merge_column:
-            raise Exception("Shared column")
+    #     raise Exception("Dataframes don't have the same number of values")
+
+    # for col in df1.columns:
+    #     if col in df2.columns and col != merge_column:
+    #         print(col)
+    #         raise Exception("Shared column")
 
     try:
         merge_df = pd.merge(df1, df2, on=merge_column)
@@ -189,7 +195,7 @@ def convert_timestamp(df):
 
     for col_name in modify_columns:
         if col_name in df_cols:
-            modify_df[col_name] = pd.to_datetime(modify_df[col_name])
+            modify_df[col_name] = pd.to_datetime(modify_df[col_name], format = "%Y-%m-%d %H:%M:%S.%f", errors='coerce')
             modify_df[col_name + "_date"] = modify_df[col_name].dt.date
             modify_df[col_name + "_time"] = modify_df[col_name].dt.time
 

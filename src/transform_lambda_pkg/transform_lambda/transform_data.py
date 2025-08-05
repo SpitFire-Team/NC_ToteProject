@@ -98,6 +98,15 @@ star_schema_ref = {
     ],
 }
 
+tables_for_modify = ["sales_order",
+                     "design",
+                     "currency",
+                     "address", # changes to location
+                     "purchase_order",
+                     "payment_type",
+                     "payment",
+                     "transaction",
+                     ]
 
 db_ref = {
     "sales_order": [
@@ -128,7 +137,7 @@ db_ref = {
         "created_at",
         "last_updated"
     ],
-    "staff": [
+    "staff": [#* merge
         "staff_id",
         "first_name",
         "last_name",
@@ -137,7 +146,7 @@ db_ref = {
         "created_at",
         "last_updated"
     ],
-    "counterparty": [
+    "counterparty": [ #*merge
         "counterparty_id",
         "counterparty_legal_name",
         "legal_address_id",
@@ -146,7 +155,7 @@ db_ref = {
         "created_at",
         "last_updated"
     ],
-    "address": [
+    "address": [ #* merges with counterparty and changes modify to location
         "address_id",
         "address_line_1",
         "address_line_2",
@@ -158,7 +167,7 @@ db_ref = {
         "created_at",
         "last_updated"
     ],
-    "department": [
+    "department": [ #*merge
         "department_id",
         "department_name",
         "location",
