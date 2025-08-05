@@ -10,6 +10,7 @@ from src.transform_lambda_pkg.transform_lambda.transform_data_parquet_s3 import 
 from src.utils.aws_utils import make_s3_client, get_bucket_name
 from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref, tables_for_modify
 
+from pprint import pprint
 
 
 
@@ -65,9 +66,7 @@ def check_against_star_schema(tables, star_schema_ref_copy):
         table_df = list(table.values())[0]
         table_columns = list(table_df.columns) # list maybe should be removed
         
-        if sorted(table_columns) != sorted(star_schema_ref_copy[table_name]): # note for monday - i oon't think it should sort as order is important for db upload
-            print(table_columns, "<<< table columns")
-            print(star_schema_ref_copy[table_name], "<<< star schema table columns")
+        if table_columns != star_schema_ref_copy[table_name]: # note for monday - i oon't think it should sort as order is important for db upload
             raise Exception(f"Star Schema check error: {table_name} columns do not match star_schema_reference")
     
 
@@ -121,8 +120,7 @@ def lambda_sudo():
 
 
 def lambda_handler(event, context):
-    # date_time_str_last_ingestion = event[0]["last_ingested_str"]
-    date_time_str_last_ingestion = "13-06-2025_13:36"
+    date_time_str_last_ingestion = event[0]["last_ingested_str"]
 
        # - uncomment for testing:
 
@@ -150,8 +148,8 @@ def lambda_handler(event, context):
     star_schema_ref_copy = deepcopy(star_schema_ref)
     tables_for_modify_copy = deepcopy(tables_for_modify)
 
-    
     merged_ds = create_merged_datastructure(tables, star_schema_ref_copy)
+
     merged_ds = merge_tables(merged_ds)
     
     modify_ds = create_modify_tables_datastructure(tables,tables_for_modify_copy, star_schema_ref_copy)
@@ -159,6 +157,11 @@ def lambda_handler(event, context):
     modify_ds = create_extra_columns(modify_ds)
     
     modify_ds = rename_table_and_remove_uneeded_df_columns(modify_ds,star_schema_ref_copy)
+
+    for table in modify_ds:
+        for key, value in table.items():
+            if key == "fact_payment":
+                pprint(list(value.columns))
     
     final_tables = combine_tables(merged_ds, modify_ds)
         
@@ -173,7 +176,7 @@ def lambda_handler(event, context):
     
 
 
-lambda_handler({},None)
+lambda_handler([{"last_ingested_str":"05-08-2025_14:36"}],None)
 
 
 

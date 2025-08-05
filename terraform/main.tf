@@ -6,7 +6,7 @@ terraform {
     }
   }
   backend "s3" {
-    bucket  = "nctotes-terraform-backend-state-bucket-20250529"
+    bucket  = "nctotes-terraform-backend-state-bucket-20250805"
     key     = "nc-totes/terraform.tfstate"
     region  = "eu-west-2"
   }

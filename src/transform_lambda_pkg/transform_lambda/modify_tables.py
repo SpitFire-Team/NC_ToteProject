@@ -1,7 +1,9 @@
 
 
-from src.transform_lambda_pkg.transform_lambda.transform_data import transform_table_names 
-from src.utils.df_utils import remove_dataframe_columns, convert_timestamp, currency_code_to_currency_name
+from src.transform_lambda_pkg.transform_lambda.transform_data import transform_table_names, star_schema_ref
+from src.utils.df_utils import remove_dataframe_columns, convert_timestamp, currency_code_to_currency_name, add_index, reorder_dataframe
+
+from pprint import pprint
 
 from copy import deepcopy
 
@@ -83,6 +85,7 @@ def rename_table_and_remove_uneeded_df_columns(tables, star_schema_ref_copy):
         if table_name == "address":
             df = df.rename(columns={"address_id": "location_id"})
         remove_cols = [column for column in df.columns if column not in star_schema_ref_copy[new_table_name]]
+    
         new_df = remove_dataframe_columns(df, remove_cols)
         
         return_tables.append({new_table_name: new_df})
@@ -100,6 +103,7 @@ def rename_table_and_remove_uneeded_df_columns(tables, star_schema_ref_copy):
 
 
 def create_extra_columns(tables):
+    star_schema_ref_copy = deepcopy(star_schema_ref)
     return_tables = []
     for table in tables:
         table_name = list(table.keys())[0]
@@ -109,7 +113,11 @@ def create_extra_columns(tables):
             return_tables.append(updated_currency_table)
         elif table_name == "payment" or table_name == "purchase_order": 
             # add payment record id to payment maybe a merge
+            if table_name == "payment":
+                df = add_index(df, "payment_record_id")
             updated_timestamp_table = {table_name: convert_timestamp(df)}
+            df = reorder_dataframe(df, star_schema_ref_copy["fact_" + table_name])
+
             return_tables.append(updated_timestamp_table)
         else:
             return_tables.append(table)
