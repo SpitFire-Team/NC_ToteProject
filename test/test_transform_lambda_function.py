@@ -258,6 +258,14 @@ class TestCheckAgainstStarSchema:
             check_against_star_schema(star_schema_tables)
         assert str(exc_info.value) == "Star Schema check error: table names do not match star_schema_reference"
 
+@pytest.mark.skip
+class TestReorderAllDfColumns:
+    def test1(self):
+        #place holder
+        pass
+
+
+
 """
 @pytest.fixture
 def dummy_event_timenow():

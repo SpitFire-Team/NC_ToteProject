@@ -39,18 +39,32 @@ from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema
 from src.transform_lambda_pkg.transform_lambda.merge_tables import create_merged_datastructure, merge_tables
 
 from src.transform_lambda_pkg.transform_lambda.modify_tables import create_modify_tables_datastructure, create_extra_columns, rename_table_and_remove_uneeded_df_columns
-
+from src.utils.df_utils import reorder_dataframe
 from copy import deepcopy
 
 def combine_tables(merged_tables, modified_tables):
     return merged_tables + modified_tables
 
+def reorder_all_df_columns(tables: list, star_schema_ref_copy: dict):
+    """
+    
+    """
+    new_tables = []
+    
+    for table in tables:
+        for table_name, df in table.items(): 
+            reordered_df = reorder_dataframe(df, star_schema_ref_copy[table_name])
+            new_tables.append({table_name: reordered_df})
+            
+    return new_tables
+
+
 def check_against_star_schema(tables, star_schema_ref_copy):
+    """
+    """
     
     star_schema_table_names = list(star_schema_ref_copy.keys())
-    
 
-    
     if len(star_schema_ref_copy) != len(tables):
         pass
         # raise Exception("Star Schema check error: Tables do not match star schema length")
@@ -157,13 +171,15 @@ def lambda_handler(event, context):
     modify_ds = create_extra_columns(modify_ds)
     
     modify_ds = rename_table_and_remove_uneeded_df_columns(modify_ds,star_schema_ref_copy)
-
-    for table in modify_ds:
-        for key, value in table.items():
-            if key == "fact_payment":
-                pprint(list(value.columns))
+    
+    # for table in modify_ds:
+    #     for key, value in table.items():
+    #         if key == "fact_payment":
+    #             pprint(list(value.columns))
     
     final_tables = combine_tables(merged_ds, modify_ds)
+    
+    final_tables = reorder_all_df_columns(final_tables, star_schema_ref_copy)
         
     if check_against_star_schema(final_tables, star_schema_ref_copy):
         # pass newly transformed list of dicts to transform_data_parquet_s3

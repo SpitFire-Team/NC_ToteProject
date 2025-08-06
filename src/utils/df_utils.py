@@ -201,6 +201,9 @@ def convert_timestamp(df):
 
 #think about how to create unique payment_record_id. See ticket
 def add_index(df, index_name):
+    """
+    
+    """
     df = df.reset_index()
 
     df = df.rename(columns={"index": index_name})
