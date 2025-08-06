@@ -50,10 +50,6 @@ def add_data_to_s3_bucket(s3_client, bucket_name: str, data, file_path: str):
 
 
 def make_s3_client():
-    
-    load_dotenv()
-    print("AWS_ACCESS_KEY from env:", os.getenv("AWS_ACCESS_KEY"))
-
     """
     Creates s3 client with functional aws credentials not required when run as lambda
     but required for testing s3 on aws console
@@ -63,7 +59,8 @@ def make_s3_client():
             Returns:
                     s3_client (boto3.client('s3')): a boto3 client for an s3 bucket
     """
-
+    load_dotenv()
+    
     session = boto3.Session(
         aws_access_key_id=os.getenv("AWS_ACCESS_KEY"),
         aws_secret_access_key=os.getenv("AWS_SECRET_KEY"),
