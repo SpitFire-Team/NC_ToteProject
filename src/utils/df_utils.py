@@ -96,10 +96,10 @@ def reorder_dataframe(df, list_column_names):
 
     Returns: reordered dataframe
     """
-
+    print(list(df.columns), "<<<<<")
     for col in list_column_names:
         if col not in df.columns:
-            raise Exception("Can't reorder df, column not in dataframe")
+            raise Exception(f"Can't reorder df, {col} not in dataframe")
 
     for col in df.columns:
         if col not in list_column_names:

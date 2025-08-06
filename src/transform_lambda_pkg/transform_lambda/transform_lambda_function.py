@@ -45,6 +45,18 @@ from copy import deepcopy
 def combine_tables(merged_tables, modified_tables):
     return merged_tables + modified_tables
 
+def print_all_tables(final_tables):
+    print('\n \n \n')
+
+    print("Final tables <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< \n")
+
+    for table in final_tables:
+        for table_name, col in table.items():
+
+            print(table_name, " ", list(col.columns), "\n")
+    
+    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< \n \n \n")
+
 def reorder_all_df_columns(tables: list, star_schema_ref_copy: dict):
     """
     
@@ -178,6 +190,8 @@ def lambda_handler(event, context):
     #             pprint(list(value.columns))
     
     final_tables = combine_tables(merged_ds, modify_ds)
+
+    print_all_tables(final_tables)
     
     final_tables = reorder_all_df_columns(final_tables, star_schema_ref_copy)
         
@@ -264,7 +278,3 @@ def lambda_handler_old(event, context):
 
     # return event: datetime string (for load lambda handler)
     return event
-
-
-
-

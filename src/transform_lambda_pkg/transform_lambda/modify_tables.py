@@ -111,12 +111,16 @@ def create_extra_columns(tables):
         if table_name == "currency":
             updated_currency_table = {table_name: currency_code_to_currency_name(df)}
             return_tables.append(updated_currency_table)
-        elif table_name == "payment" or table_name == "purchase_order": 
+        elif table_name == "payment" or table_name == "purchase_order" or table_name == "sales_order": 
             # add payment record id to payment maybe a merge
             if table_name == "payment":
                 df = add_index(df, "payment_record_id")
+            if table_name == "purchase_order":
+                df = add_index(df, "purchase_record_id")
+            if table_name == "sales_order":
+                df = add_index(df, "sales_record_id")
             updated_timestamp_table = {table_name: convert_timestamp(df)}
-            df = reorder_dataframe(df, star_schema_ref_copy["fact_" + table_name])
+            #df = reorder_dataframe(df, star_schema_ref_copy["fact_" + table_name])
 
             return_tables.append(updated_timestamp_table)
         else:
