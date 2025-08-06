@@ -138,7 +138,7 @@ def lambda_handler(event, context):
 
        # - uncomment for testing:
 
-    s3_client = make_s3_client()
+    s3_client = make_s3_client() 
 
     # - uncomment for testing:
 
