@@ -51,18 +51,12 @@ def merge_dataframes(df1, df2, merge_column, column_names):
     if merge_column not in df1.columns or merge_column not in df2.columns:
         raise Exception("Merge column not in both dataframes")
 
-    # if df1.shape[1] != df2.shape[1]:
-    #     print(df1.to_string, "<<<< df1")
-    #     print(df1.shape, "<<<< shape df1")
-    #     print(df2.to_string, "<<<< df2")
-    #     print(df2.shape, "<<<< shape df2")
+    '''if df1.shape[1] != df2.shape[1]:
+        raise Exception("Dataframes don't have the same number of values")'''
 
-    #     raise Exception("Dataframes don't have the same number of values")
-
-    # for col in df1.columns:
-    #     if col in df2.columns and col != merge_column:
-    #         print(col)
-    #         raise Exception("Shared column")
+    '''for col in df1.columns:
+        if col in df2.columns and col != merge_column:
+            raise Exception("Shared column")'''
 
     try:
         merge_df = pd.merge(df1, df2, on=merge_column)
@@ -102,10 +96,9 @@ def reorder_dataframe(df, list_column_names):
 
     Returns: reordered dataframe
     """
-
     for col in list_column_names:
         if col not in df.columns:
-            raise Exception("Can't reorder df, column not in dataframe")
+            raise Exception(f"Can't reorder df, {col} not in dataframe")
 
     for col in df.columns:
         if col not in list_column_names:
@@ -196,8 +189,25 @@ def convert_timestamp(df):
     for col_name in modify_columns:
         if col_name in df_cols:
             modify_df[col_name] = pd.to_datetime(modify_df[col_name], format = "%Y-%m-%d %H:%M:%S.%f", errors='coerce')
-            modify_df[col_name + "_date"] = modify_df[col_name].dt.date
-            modify_df[col_name + "_time"] = modify_df[col_name].dt.time
+            new_col_name = col_name
+            if col_name == "created_at":
+                new_col_name = "created"
+
+            modify_df[new_col_name + "_date"] = modify_df[col_name].dt.date
+            modify_df[new_col_name + "_time"] = modify_df[col_name].dt.time
 
     return modify_df
+
+#think about how to create unique payment_record_id. See ticket
+def add_index(df, index_name):
+    """
+    
+    """
+    df = df.reset_index()
+
+    df = df.rename(columns={"index": index_name})
+
+    df[index_name] = df.index
+
+    return df
 

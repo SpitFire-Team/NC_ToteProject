@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import timezone
+import datetime
 from src.utils.df_utils import (
     remove_dataframe_columns,
     add_prefix_to_table_name,
@@ -6,7 +7,8 @@ from src.utils.df_utils import (
     reorder_dataframe,
     rename_dataframe_columns,
     currency_code_to_currency_name,
-    convert_timestamp
+    convert_timestamp,
+    add_index
 )
 
 from src.transform_lambda_pkg.transform_lambda.transform_data import db_ref, rename_col_names_ref, currency_dict
@@ -87,7 +89,7 @@ def address_df():
 @pytest.fixture
 def cols_to_rename_addr():
     rename_addr_cols = deepcopy(rename_col_names_ref['dim_counterparty'])
-    print(rename_addr_cols)
+    # print(rename_addr_cols)
     return rename_addr_cols
 
 @pytest.fixture
@@ -598,3 +600,31 @@ class TestConvertTimestamp:
             convert_timestamp(currency_df)
 
         assert str(exc_info.value) == "Datetime conversion error: df doesnt have last_updated/created_at"
+
+class TestAddIndex:
+    def test_returns_df(self, currency_df):
+        result = add_index(currency_df, "payment_record_id")
+
+        assert type(result) == type(currency_df)
+
+    def test_new_column_added(self, currency_df):
+        result = add_index(currency_df, "payment_record_id")
+
+        assert len(list(result.columns)) == len(list(currency_df.columns)) + 1
+    
+    def test_new_column_called_index_name(self, currency_df):
+        result = add_index(currency_df, "payment_record_id")
+
+        assert "payment_record_id" in list(result.columns)
+
+    def test_index_is_unique_and_incremented(self, currency_df):
+        result = add_index(currency_df, "payment_record_id")
+
+        num_rows = len(currency_df)
+
+        for i in range(num_rows):
+            assert result["payment_record_id"].loc[result.index[i]] == i
+
+        assert list(result["payment_record_id"]) == list(set(result["payment_record_id"]))
+
+     
