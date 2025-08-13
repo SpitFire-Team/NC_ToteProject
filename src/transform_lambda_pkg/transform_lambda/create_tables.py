@@ -17,8 +17,7 @@ def create_dim_date(fact_payment_df, fact_sales_order_df):
         temp_series = pd.Series()
         s_sales_order = fact_sales_order_df[column] 
 
-        if column != "agreed_delivery_date": 
-            if column != "agreed_payment_date":
+        if column not in ["agreed_delivery_date", "agreed_payment_date"]:
                 s_payment = fact_payment_df[column]
     
                 temp_series = pd.concat([s_payment, s_sales_order], ignore_index=True)
