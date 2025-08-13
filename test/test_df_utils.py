@@ -89,7 +89,7 @@ def address_df():
 @pytest.fixture
 def cols_to_rename_addr():
     rename_addr_cols = deepcopy(rename_col_names_ref['dim_counterparty'])
-    print(rename_addr_cols)
+    # print(rename_addr_cols)
     return rename_addr_cols
 
 @pytest.fixture

@@ -98,7 +98,10 @@ def check_against_star_schema(tables, star_schema_ref_copy):
 
     # print(table_names, "<<< table names")
     # print(star_schema_table_names, "<<< star schema table names")
-    if sorted(table_names) != sorted(star_schema_table_names):
+    if table_names != star_schema_table_names:
+        pprint(table_names)
+        
+        pprint(star_schema_table_names)
 
         raise Exception(f"Star Schema check error: table names do not match star_schema_reference")
         
@@ -191,7 +194,7 @@ def lambda_handler(event, context):
     
     final_tables = combine_tables(merged_ds, modify_ds)
 
-    print_all_tables(final_tables)
+    # print_all_tables(final_tables)
     
     final_tables = reorder_all_df_columns(final_tables, star_schema_ref_copy)
         
