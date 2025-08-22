@@ -1,4 +1,5 @@
-from src.transform_lambda_pkg.transform_lambda.create_tables import create_dim_date, get_date_columns_from_dfs
+
+from src.transform_lambda_pkg.transform_lambda.create_tables import seperate_dates, create_dim_date, get_date_columns_from_dfs
 
 import pandas as pd
 from datetime import datetime, date, time, timedelta
@@ -127,7 +128,15 @@ class TestGetDateColumnsFromDfs:
                                               fact_purchase_order_df=fact_purchase_order_df, 
                                               df_columns=df_columns)
         
-        print(result_df.to_string())
-        print(date_df.to_string())
-        
         assert result_df.equals(date_df)
+    
+class TestSeperateDates:
+    def test_1(self, date_df):
+        seperate_dates(date_df)
+        pass
+
+class TestCreateDimDate:
+    def test_all_fixtures(self, fact_payment_df,fact_sales_order_df,fact_purchase_order_df):
+        dim_date = create_dim_date(fact_payment_df, fact_sales_order_df, fact_purchase_order_df)
+        print(dim_date.to_string())
+        pass 
