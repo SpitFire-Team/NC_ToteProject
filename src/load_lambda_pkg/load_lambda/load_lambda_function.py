@@ -35,10 +35,10 @@ def lambda_handler(event, context):
     # s3_client = make_s3_client()
     bucket_prefix = "processed-data"
     bucket_name = get_bucket_name(s3_client, bucket_prefix)
-
+    table_list=["dim_counterparty", "dim_currency","dim_date","dim_design","dim_location","dim_payment_type","dim_staff","dim_transaction","fact_payment","fact_purchase_order","fact_sales_order"]
     try:
         df_dict_list = load_parquet_from_s3(
-            s3_client, bucket_name, date_time_str_last_ingestion
+            s3_client, bucket_name, table_list
         )
         # print(df_dict_list)
     except Exception:
@@ -59,6 +59,6 @@ def lambda_handler(event, context):
     #     return [{"error": "could not append to warehouse table"}]
 
 
-event = [{"last_ingested_str": "12-06-2025_01:17"}]
+event = [{"last_ingested_str":"05-08-2025_14:36"}]
 
 print(lambda_handler(event, {}))

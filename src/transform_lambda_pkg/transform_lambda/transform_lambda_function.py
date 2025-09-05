@@ -39,7 +39,9 @@ from pprint import pprint
 from src.transform_lambda_pkg.transform_lambda.transform_data import star_schema_ref
 from src.transform_lambda_pkg.transform_lambda.merge_tables import create_merged_datastructure, merge_tables
 
-from src.transform_lambda_pkg.transform_lambda.modify_tables import create_modify_tables_datastructure, create_extra_columns, rename_table_and_remove_uneeded_df_columns
+from src.transform_lambda_pkg.transform_lambda.modify_tables import (create_modify_tables_datastructure, 
+                                                                     create_extra_columns, 
+                                                                     rename_table_and_remove_uneeded_df_columns)
 from src.utils.df_utils import reorder_dataframe
 from copy import deepcopy
 

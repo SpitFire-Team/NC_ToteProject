@@ -59,7 +59,7 @@ def get_date_columns_from_dfs(fact_payment_df:pd.DataFrame,
 
 def seperate_dates(dates_df):
     dim_date = dates_df.copy()
-    dim_date["date"] = pd.to_datetime(dim_date["date"])
+    dim_date["date_id"] = pd.to_datetime(dim_date["date"])
 
     dim_date["year"] = dim_date["date"].dt.year
     dim_date["month"] = dim_date["date"].dt.month
@@ -69,7 +69,7 @@ def seperate_dates(dates_df):
     dim_date["month_name"] = dim_date["date"].dt.month_name()
     dim_date["quarter"] = dim_date["date"].dt.quarter
     dim_date = dim_date.drop(columns = ["date"])
-    dim_date = dim_date.reset_index(names = "date_id")
+    # dim_date = dim_date.reset_index(names = "date_id")
     return dim_date
 
 def create_merged_datastructure(tables, star_schema_ref):
