@@ -83,6 +83,8 @@ def merge_tables(merge_datastructure):
         # df2 = remove_dataframe_columns(df2, cols_to_remove)
 
         merge_df = merge_dataframes(df1,df2, merge_col, col_names)
+        if name == "dim_counterparty":
+            merge_df["counterparty_id"] = merge_df.index
         merge_table = {name: merge_df}
         
         return_list.append(merge_table)

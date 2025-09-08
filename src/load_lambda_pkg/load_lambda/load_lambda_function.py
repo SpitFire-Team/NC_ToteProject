@@ -61,4 +61,4 @@ def lambda_handler(event, context):
 
 event = [{"last_ingested_str":"05-08-2025_14:36"}]
 
-print(lambda_handler(event, {}))
+lambda_handler(event, {})

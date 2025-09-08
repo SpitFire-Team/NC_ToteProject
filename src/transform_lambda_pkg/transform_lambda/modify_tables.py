@@ -120,6 +120,7 @@ def create_extra_columns(tables):
             if table_name == "sales_order":
                 df = add_index(df, "sales_record_id")
                 df = add_index(df, "sales_staff_id")
+            df = df.dropna()
             updated_timestamp_table = {table_name: convert_timestamp(df)}
             #df = reorder_dataframe(df, star_schema_ref_copy["fact_" + table_name])
 

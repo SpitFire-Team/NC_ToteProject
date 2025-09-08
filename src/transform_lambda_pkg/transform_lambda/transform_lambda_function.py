@@ -99,9 +99,9 @@ def check_against_star_schema(tables, star_schema_ref_copy):
             raise Exception(f"Star Schema check error: {table_name} columns do not match star_schema_reference")
     
     if sorted(table_names) != sorted(star_schema_table_names):
-        pprint(table_names)
+        #pprint(table_names)
         
-        pprint(star_schema_table_names)
+        #pprint(star_schema_table_names)
 
         raise Exception(f"Star Schema check error: table names: {table_names} do not match star_schema_reference: {star_schema_table_names}")
         

@@ -26,11 +26,13 @@ def load_to_warehouse_loop(dict_list, conn):
     #     Inputs:
     #     A list of dictionaries in the format [{table_name: dataframe}, {table_name_2: dataframe_2}]
     #"""
-    print(dict_list)
+    #print(dict_list)
     try:
         for item in dict_list:
             table_name = list(item.keys())[0]
             df = item[table_name]
+            if table_name == "dim_currency":
+                print(df.to_string(), "<<<<<<<<<<<<")
             df.to_sql(table_name, con=conn, if_exists="append", index=False)
     except Exception as e:
         raise Exception(f"Could not append to table: {e}")

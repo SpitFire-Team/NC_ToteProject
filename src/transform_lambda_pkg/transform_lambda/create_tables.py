@@ -19,6 +19,8 @@ def create_dim_date(tables):
                                         df_columns= df_columns)
     
     dim_date = seperate_dates(date_df)
+    dim_date = dim_date.drop_duplicates(subset=["date_id"], keep="last")
+    dim_date = dim_date.dropna()
     return dim_date
 
     
@@ -69,7 +71,7 @@ def seperate_dates(dates_df):
     dim_date["month_name"] = dim_date["date"].dt.month_name()
     dim_date["quarter"] = dim_date["date"].dt.quarter
     dim_date = dim_date.drop(columns = ["date"])
-    # dim_date = dim_date.reset_index(names = "date_id")
+    dim_date = dim_date.reset_index(names = "date_id", drop=True, allow_duplicates=False)
     return dim_date
 
 def create_merged_datastructure(tables, star_schema_ref):
